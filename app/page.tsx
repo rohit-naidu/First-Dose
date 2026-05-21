@@ -1,7 +1,6 @@
 import Image from 'next/image';
 import { LeadForm } from '@/src/components/LeadForm';
 import { SideEffectRoulette } from '@/src/components/SideEffectRoulette';
-import firstDoseLogo from '../First Dose Logo.png';
 
 const painPoints = ['Failed meds', 'Side effects', 'Wrong dose'];
 
@@ -34,8 +33,10 @@ export default function Page() {
           <a className="brand-lockup" href="#top" aria-label="First Dose home">
             <Image
               className="brand-logo"
-              src={firstDoseLogo}
+              src="/images/brand/first-dose-logo.png"
               alt="First Dose Health"
+              width={980}
+              height={300}
               priority
             />
           </a>
@@ -45,6 +46,7 @@ export default function Page() {
           <div className="hero-copy">
             <p className="kicker">Medication response, before the guesswork</p>
             <h1>Stop gambling with the next prescription.</h1>
+            <SideEffectRoulette />
             <p className="hero-subtitle">
               First Dose helps identify medication efficacy and side-effect risk signals before you
               start another trial-and-error cycle.
@@ -55,8 +57,6 @@ export default function Page() {
                 <span key={painPoint}>{painPoint}</span>
               ))}
             </div>
-
-            <SideEffectRoulette />
           </div>
 
           <div id="intake" className="hero-form-shell">

@@ -99,7 +99,6 @@ main {
   width: clamp(11rem, 22vw, 17rem);
 }
 
-.nav-action,
 .final-cta a {
   background: #101413;
   border-radius: 999px;
@@ -147,6 +146,49 @@ main {
   color: #2f3c38;
   font-weight: 800;
   padding: 0.7rem 0.9rem;
+}
+
+.roulette-card {
+  background: rgba(255, 255, 255, 0.76);
+  border: 1px solid rgba(16, 20, 19, 0.1);
+  border-radius: 1.25rem;
+  box-shadow: 0 1rem 2.5rem rgba(16, 20, 19, 0.08);
+  display: inline-grid;
+  gap: 0.55rem;
+  margin-top: 1.2rem;
+  overflow: hidden;
+  padding: 0.8rem;
+}
+
+.roulette-label {
+  color: #5d6a65;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.roulette-window {
+  animation: roulettePulse 950ms ease-in-out infinite;
+  background: #101413;
+  border-radius: 0.9rem;
+  color: #ffffff;
+  font-size: clamp(1.2rem, 2vw, 1.45rem);
+  font-weight: 900;
+  min-width: 15rem;
+  padding: 0.85rem 1rem;
+  text-align: center;
+}
+
+@keyframes roulettePulse {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  45% {
+    transform: translateY(-2px);
+  }
 }
 
 .hero-form-shell {
@@ -426,11 +468,11 @@ main {
     font-size: 3rem;
   }
 
-  .nav-action {
-    display: none;
-  }
-
   .pain-row {
     margin-top: 1.25rem;
+  }
+
+  .roulette-window {
+    min-width: 100%;
   }
 }

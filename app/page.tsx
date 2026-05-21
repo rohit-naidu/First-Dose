@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import { LeadForm } from '@/src/components/LeadForm';
+import { SideEffectRoulette } from '@/src/components/SideEffectRoulette';
 import firstDoseLogo from '../First Dose Logo.png';
 
 const painPoints = ['Failed meds', 'Side effects', 'Wrong dose'];
@@ -38,9 +39,6 @@ export default function Page() {
               priority
             />
           </a>
-          <a className="nav-action" href="#intake">
-            Get reviewed
-          </a>
         </nav>
 
         <div className="hero-grid" id="top">
@@ -57,6 +55,8 @@ export default function Page() {
                 <span key={painPoint}>{painPoint}</span>
               ))}
             </div>
+
+            <SideEffectRoulette />
           </div>
 
           <div id="intake" className="hero-form-shell">

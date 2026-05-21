@@ -1,15 +1,14 @@
 # First Dose
 
-First Dose is a Next.js landing page for collecting contact information and raw `.txt`
-genetic data files for pharmacogenomic intake.
+First Dose is a Next.js intake page for collecting contact information and medication context for
+pharmacogenomic review.
 
 ## What The App Does
 
 - Presents First Dose as a professional genetics-backed medication response product.
 - Collects email and phone number as required contact fields.
-- Accepts a raw genetic data `.txt` file up to 10 MB.
-- Uploads the file to a private Supabase Storage bucket.
-- Saves the submission metadata to a Supabase Postgres table.
+- Collects optional name, medication target, and notes.
+- Saves the intake submission to a Supabase Postgres table.
 
 ## Local Setup
 
@@ -47,9 +46,8 @@ genetic data files for pharmacogenomic intake.
 The browser uses the Supabase publishable key, so Row Level Security matters.
 
 1. A visitor fills out the intake form.
-2. The app validates email, phone, consent, and the `.txt` file.
-3. The raw data file uploads to the private `raw-genetic-files` bucket.
-4. The app inserts a row into `genetic_submissions` with contact details and the file path.
+2. The app validates email, phone, and consent.
+3. The app inserts a row into `genetic_submissions` with contact details and context.
 
 ## Next.js Supabase Files
 
@@ -60,11 +58,10 @@ The browser uses the Supabase publishable key, so Row Level Security matters.
 
 ## Important Privacy Notes
 
-Raw genetic data is sensitive. This first version uses a private Supabase Storage bucket and blocks
-public reads. Before launching publicly, the next best steps are:
+Medication and health context can be sensitive. Before launching publicly, the next best steps are:
 
 - Add a real privacy policy and consent language reviewed by a qualified professional.
 - Add bot protection or move submissions behind a Supabase Edge Function.
-- Add an authenticated admin view instead of reading files directly from the dashboard.
+- Add an authenticated admin view instead of reading submissions directly from the dashboard.
 - Decide whether you need HIPAA-specific infrastructure and agreements before handling protected
   health information.

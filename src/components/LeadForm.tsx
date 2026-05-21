@@ -1,8 +1,8 @@
 'use client';
 
-import { FormEvent, useMemo, useState } from 'react';
+import { FormEvent, useState } from 'react';
 import { createClient, isSupabaseConfigured } from '../../utils/supabase/client';
-import { SUPABASE_STORAGE_BUCKET, SUPABASE_TABLE_NAME } from '../../utils/supabase/constants';
+import { SUPABASE_TABLE_NAME } from '../../utils/supabase/constants';
 
 type FormStatus = 'idle' | 'submitting' | 'success' | 'error';
 
@@ -24,8 +24,6 @@ const initialForm: SubmissionForm = {
   consent: false,
 };
 
-const maxTxtFileSizeBytes = 10 * 1024 * 1024;
-
 function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
@@ -34,31 +32,10 @@ function isValidPhone(phone: string) {
   return /^[+()\-\s.\d]{7,20}$/.test(phone);
 }
 
-function cleanFileName(fileName: string) {
-  // Supabase Storage paths should avoid spaces and unusual characters.
-  return fileName.toLowerCase().replace(/[^a-z0-9.-]/g, '-');
-}
-
-function buildStoragePath(fileName: string) {
-  // A unique path prevents one visitor's upload from overwriting another visitor's file.
-  const id = crypto.randomUUID();
-  return `incoming/${new Date().toISOString().slice(0, 10)}/${id}-${cleanFileName(fileName)}`;
-}
-
 export function LeadForm() {
   const [form, setForm] = useState<SubmissionForm>(initialForm);
-  const [rawDataFile, setRawDataFile] = useState<File | null>(null);
   const [status, setStatus] = useState<FormStatus>('idle');
   const [message, setMessage] = useState('');
-
-  const selectedFileLabel = useMemo(() => {
-    if (!rawDataFile) {
-      return 'Upload your raw genetic data .txt file';
-    }
-
-    const sizeInMb = (rawDataFile.size / 1024 / 1024).toFixed(2);
-    return `${rawDataFile.name} · ${sizeInMb} MB`;
-  }, [rawDataFile]);
 
   function updateField<T extends keyof SubmissionForm>(field: T, value: SubmissionForm[T]) {
     setForm((currentForm) => ({
@@ -74,18 +51,6 @@ export function LeadForm() {
 
     if (!isValidPhone(form.phone.trim())) {
       return 'Please enter a valid phone number with at least 7 digits.';
-    }
-
-    if (!rawDataFile) {
-      return 'Please upload your raw genetic data .txt file.';
-    }
-
-    if (!rawDataFile.name.toLowerCase().endsWith('.txt')) {
-      return 'Please upload a .txt file. Raw genetic downloads are usually provided in this format.';
-    }
-
-    if (rawDataFile.size > maxTxtFileSizeBytes) {
-      return 'Please upload a file smaller than 10 MB for this first version.';
     }
 
     if (!form.consent) {
@@ -106,41 +71,22 @@ export function LeadForm() {
       return;
     }
 
-    if (!isSupabaseConfigured() || !rawDataFile) {
+    if (!isSupabaseConfigured()) {
       setStatus('error');
       setMessage('Supabase is not configured yet. Add your values to a local .env.local file first.');
       return;
     }
 
     setStatus('submitting');
-    setMessage('Securely uploading your file and saving your submission...');
+    setMessage('Saving your intake...');
 
     const supabase = createClient();
-    const storagePath = buildStoragePath(rawDataFile.name);
-
-    const { error: uploadError } = await supabase.storage
-      .from(SUPABASE_STORAGE_BUCKET)
-      .upload(storagePath, rawDataFile, {
-        cacheControl: '3600',
-        contentType: 'text/plain',
-        upsert: false,
-      });
-
-    if (uploadError) {
-      setStatus('error');
-      setMessage(uploadError.message);
-      return;
-    }
-
     const { error: insertError } = await supabase.from(SUPABASE_TABLE_NAME).insert({
       name: form.name.trim() || null,
       email: form.email.trim().toLowerCase(),
       phone: form.phone.trim(),
       medication_focus: form.medicationFocus.trim() || null,
       notes: form.notes.trim() || null,
-      raw_file_path: storagePath,
-      raw_file_name: rawDataFile.name,
-      raw_file_size_bytes: rawDataFile.size,
       consent_to_review: form.consent,
       source: 'first-dose-landing-page',
     });
@@ -152,7 +98,6 @@ export function LeadForm() {
     }
 
     setForm(initialForm);
-    setRawDataFile(null);
     setStatus('success');
     setMessage('Received. First Dose will review your submission and contact you soon.');
   }
@@ -161,20 +106,11 @@ export function LeadForm() {
     <form className="intake-panel" onSubmit={handleSubmit}>
       <div className="form-header">
         <div className="brand-row">
-          <span className="brand-chip">First Dose</span>
-          <span className="status-chip">Genotype intake online</span>
+          <span className="brand-chip">Intake</span>
+          <span className="status-chip">2 min</span>
         </div>
-        <span className="system-label">Pharmacogenomic screening request</span>
-        <h1>Upload your raw genetic data. Find the medications most likely to work against you.</h1>
-        <p>
-          Submit your contact details and raw .txt file. We screen for medication response and
-          side-effect risk signals, then follow up if your file is usable for analysis.
-        </p>
-        <div className="outcome-grid" aria-label="First Dose review outcomes">
-          <span>Drug efficacy signals</span>
-          <span>Side-effect sensitivity</span>
-          <span>Dose-response flags</span>
-        </div>
+        <h2>Get reviewed</h2>
+        <p>Leave your details. We will follow up if there is a fit.</p>
       </div>
 
       <div className="priority-grid">
@@ -205,18 +141,6 @@ export function LeadForm() {
         </label>
       </div>
 
-      <label className="file-drop">
-        <span>{selectedFileLabel}</span>
-        <small>Required: text/plain .txt raw genotype export, maximum 10 MB.</small>
-        <input
-          accept=".txt,text/plain"
-          name="rawDataFile"
-          onChange={(event) => setRawDataFile(event.target.files?.[0] ?? null)}
-          required
-          type="file"
-        />
-      </label>
-
       <div className="field-grid">
         <label>
           Name <span>Optional</span>
@@ -235,7 +159,7 @@ export function LeadForm() {
           <input
             name="medicationFocus"
             onChange={(event) => updateField('medicationFocus', event.target.value)}
-            placeholder="SSRIs, ADHD medication, pain management"
+            placeholder="SSRIs, ADHD, pain, sleep..."
             type="text"
             value={form.medicationFocus}
           />
@@ -243,12 +167,12 @@ export function LeadForm() {
       </div>
 
       <label>
-        What are you trying to avoid? <span>Optional</span>
+        Notes <span>Optional</span>
         <textarea
           name="notes"
           onChange={(event) => updateField('notes', event.target.value)}
-          placeholder="Bad reactions, failed medications, current drug class, or what you want to predict before starting."
-          rows={4}
+          placeholder="What happened? What are you trying to avoid?"
+          rows={3}
           value={form.notes}
         />
       </label>
@@ -262,13 +186,12 @@ export function LeadForm() {
           type="checkbox"
         />
         <span>
-          I authorize First Dose to ingest this file for intake review. I understand this is not
-          medical advice, diagnosis, or emergency care.
+          I authorize First Dose to review this intake. This is not medical advice.
         </span>
       </label>
 
       <button disabled={status === 'submitting'} type="submit">
-        {status === 'submitting' ? 'Ingesting payload...' : 'Submit file for review'}
+        {status === 'submitting' ? 'Sending...' : 'Get reviewed'}
       </button>
 
       {message ? <p className={`form-message ${status}`}>{message}</p> : null}

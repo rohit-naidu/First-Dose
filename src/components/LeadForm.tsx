@@ -158,29 +158,26 @@ export function LeadForm() {
   }
 
   return (
-    <form className="lead-card" onSubmit={handleSubmit}>
+    <form className="intake-panel" onSubmit={handleSubmit}>
       <div className="form-header">
-        <span className="eyebrow">Private intake</span>
-        <h2>Upload your raw data for review</h2>
+        <div className="brand-row">
+          <span className="brand-chip">First Dose</span>
+          <span className="status-chip">Genotype intake online</span>
+        </div>
+        <span className="system-label">Pharmacogenomic screening request</span>
+        <h1>Upload your raw genetic data. Find the medications most likely to work against you.</h1>
         <p>
-          Share your contact details and raw genetic .txt file so First Dose can evaluate how
-          medication response insights could work for you.
+          Submit your contact details and raw .txt file. We screen for medication response and
+          side-effect risk signals, then follow up if your file is usable for analysis.
         </p>
+        <div className="outcome-grid" aria-label="First Dose review outcomes">
+          <span>Drug efficacy signals</span>
+          <span>Side-effect sensitivity</span>
+          <span>Dose-response flags</span>
+        </div>
       </div>
 
-      <label>
-        Full name <span>Optional</span>
-        <input
-          autoComplete="name"
-          name="name"
-          onChange={(event) => updateField('name', event.target.value)}
-          placeholder="Alex Morgan"
-          type="text"
-          value={form.name}
-        />
-      </label>
-
-      <div className="field-grid">
+      <div className="priority-grid">
         <label>
           Email
           <input
@@ -208,20 +205,9 @@ export function LeadForm() {
         </label>
       </div>
 
-      <label>
-        Medication or concern <span>Optional</span>
-        <input
-          name="medicationFocus"
-          onChange={(event) => updateField('medicationFocus', event.target.value)}
-          placeholder="Example: SSRIs, ADHD medication, pain management"
-          type="text"
-          value={form.medicationFocus}
-        />
-      </label>
-
       <label className="file-drop">
         <span>{selectedFileLabel}</span>
-        <small>Accepted format: .txt raw genetic data export, up to 10 MB.</small>
+        <small>Required: text/plain .txt raw genotype export, maximum 10 MB.</small>
         <input
           accept=".txt,text/plain"
           name="rawDataFile"
@@ -231,12 +217,37 @@ export function LeadForm() {
         />
       </label>
 
+      <div className="field-grid">
+        <label>
+          Name <span>Optional</span>
+          <input
+            autoComplete="name"
+            name="name"
+            onChange={(event) => updateField('name', event.target.value)}
+            placeholder="Alex Morgan"
+            type="text"
+            value={form.name}
+          />
+        </label>
+
+        <label>
+          Medication target <span>Optional</span>
+          <input
+            name="medicationFocus"
+            onChange={(event) => updateField('medicationFocus', event.target.value)}
+            placeholder="SSRIs, ADHD medication, pain management"
+            type="text"
+            value={form.medicationFocus}
+          />
+        </label>
+      </div>
+
       <label>
-        Notes <span>Optional</span>
+        What are you trying to avoid? <span>Optional</span>
         <textarea
           name="notes"
           onChange={(event) => updateField('notes', event.target.value)}
-          placeholder="Tell us what you want to understand or any medications you are considering."
+          placeholder="Bad reactions, failed medications, current drug class, or what you want to predict before starting."
           rows={4}
           value={form.notes}
         />
@@ -251,13 +262,13 @@ export function LeadForm() {
           type="checkbox"
         />
         <span>
-          I understand this is an intake request, not medical advice, and I authorize First Dose to
-          review this submission to follow up with me.
+          I authorize First Dose to ingest this file for intake review. I understand this is not
+          medical advice, diagnosis, or emergency care.
         </span>
       </label>
 
       <button disabled={status === 'submitting'} type="submit">
-        {status === 'submitting' ? 'Submitting securely...' : 'Submit for analysis'}
+        {status === 'submitting' ? 'Ingesting payload...' : 'Submit file for review'}
       </button>
 
       {message ? <p className={`form-message ${status}`}>{message}</p> : null}

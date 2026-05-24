@@ -69,10 +69,10 @@ export default function Page() {
             className="hero-banner__media"
             src="/images/brand/hero-first-dose.webp"
             alt="First Dose compounded GLP-1 and B12 vial"
-            width={1400}
-            height={531}
+            width={3360}
+            height={1274}
             priority
-            quality={92}
+            quality={95}
             sizes="(max-width: 1180px) 100vw, 1180px"
           />
 

@@ -8,6 +8,7 @@
     "build": "next build",
     "lint": "eslint .",
     "optimize:hero": "node scripts/optimize-hero.mjs",
+    "optimize:images": "node scripts/optimize-images.mjs",
     "start": "next start"
   },
   "dependencies": {

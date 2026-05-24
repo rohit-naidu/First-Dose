@@ -6,28 +6,28 @@ import { INTAKE_HREF, RESEARCH_BLOG_URL } from '@/src/constants/navigation';
 const products = [
   {
     title: 'Compounded GLP-1 + B12',
-    image: '/images/brand/glp-product-mockup.png',
+    image: '/images/brand/glp-product-mockup.webp',
     imageAlt: 'First Dose compounded GLP-1 and B12 vial',
     body: 'Start with a plan designed around appetite control, tolerability, and follow-up.',
     href: INTAKE_HREF,
   },
   {
     title: 'Biomarker Review',
-    image: '/images/brand/biomarker-mockup.png',
+    image: '/images/brand/biomarker-mockup.webp',
     imageAlt: 'Biomarker lab dashboard for personalized treatment review',
     body: 'Use key lab signals to avoid treating your body like everyone else’s.',
     href: INTAKE_HREF,
   },
   {
     title: 'Gene-Guided Plan',
-    image: '/images/brand/gene-plan-mockup.png',
+    image: '/images/brand/gene-plan-mockup.webp',
     imageAlt: 'DNA report preview for gene-guided medication planning',
     body: 'Use genetic context to flag dose fit, side-effect risk, and poor-response patterns.',
     href: INTAKE_HREF,
   },
   {
     title: 'Side-Effect Support',
-    image: '/images/brand/supplement-mockup.png',
+    image: '/images/brand/supplement-mockup.webp',
     imageAlt: 'First Dose side-effect support supplement kit',
     body: 'Support nausea, hydration, constipation, fatigue, and lean-mass preservation from day one.',
     href: INTAKE_HREF,
@@ -42,11 +42,10 @@ export default function Page() {
           <a className="brand-lockup" href="#top" aria-label="First Dose home">
             <Image
               className="brand-logo"
-              src="/images/brand/first-dose-logo.png"
+              src="/images/brand/first-dose-logo.webp"
               alt="First Dose Health"
               width={980}
               height={300}
-              priority
             />
           </a>
           <div className="nav-actions">
@@ -72,7 +71,7 @@ export default function Page() {
             width={3360}
             height={1274}
             priority
-            quality={95}
+            quality={88}
             sizes="(max-width: 1180px) 100vw, 1180px"
           />
 
@@ -103,10 +102,10 @@ export default function Page() {
 
           <div className="gene-card">
             <Image
-              src="/images/brand/gene-test-mockup.png"
+              src="/images/brand/gene-test-mockup.webp"
               alt="At-home genetic sample collection for First Dose personalization"
-              width={810}
-              height={608}
+              width={900}
+              height={675}
               sizes="(max-width: 860px) 100vw, 470px"
             />
           </div>
@@ -119,8 +118,8 @@ export default function Page() {
                 <Image
                   src={product.image}
                   alt={product.imageAlt}
-                  width={1448}
-                  height={1086}
+                  width={900}
+                  height={675}
                   sizes="(max-width: 860px) 82vw, 32vw"
                 />
               </div>
@@ -151,10 +150,10 @@ export default function Page() {
 
         <div className="products-banner">
           <Image
-            src="/images/brand/products-mockup.png"
+            src="/images/brand/products-mockup.webp"
             alt="First Dose product lineup including GLP-1, tirzepatide, and B12 plus MIC"
-            width={1024}
-            height={438}
+            width={1100}
+            height={472}
             sizes="(max-width: 1180px) 100vw, 1180px"
           />
         </div>

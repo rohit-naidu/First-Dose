@@ -1,27 +1,7 @@
 import Image from 'next/image';
-import Link from 'next/link';
+import { HowItWorksDiagram } from '@/src/components/HowItWorksDiagram';
 import { LeadForm } from '@/src/components/LeadForm';
-
-const steps = [
-  {
-    title: 'Tell us what went wrong',
-    body: 'The drug, dose, side effects, stalls, or concern you do not want to repeat.',
-  },
-  {
-    title: 'We compare your signals',
-    body: 'Your intake, biomarkers, genes, and history point to what may fit better.',
-  },
-  {
-    title: 'You get a clearer next step',
-    body: 'If there is a fit, we help you move forward without starting blind.',
-  },
-];
-
-const outcomes = [
-  'Avoid another blind medication start',
-  'Spot tolerance risks before they derail you',
-  'Walk into the next decision with a clearer plan',
-];
+import { INTAKE_HREF, RESEARCH_BLOG_URL } from '@/src/constants/navigation';
 
 const products = [
   {
@@ -29,28 +9,28 @@ const products = [
     image: '/images/brand/glp-product-mockup.png',
     imageAlt: 'First Dose compounded GLP-1 and B12 vial',
     body: 'Start with a plan designed around appetite control, tolerability, and follow-up.',
-    href: '#intake',
+    href: INTAKE_HREF,
   },
   {
     title: 'Biomarker Review',
     image: '/images/brand/biomarker-mockup.png',
     imageAlt: 'Biomarker lab dashboard for personalized treatment review',
     body: 'Use key lab signals to avoid treating your body like everyone else’s.',
-    href: '#intake',
+    href: INTAKE_HREF,
   },
   {
     title: 'Gene-Guided Plan',
     image: '/images/brand/gene-plan-mockup.png',
     imageAlt: 'DNA report preview for gene-guided medication planning',
     body: 'Use genetic context to flag dose fit, side-effect risk, and poor-response patterns.',
-    href: '#intake',
+    href: INTAKE_HREF,
   },
   {
     title: 'Side-Effect Support',
     image: '/images/brand/supplement-mockup.png',
     imageAlt: 'First Dose side-effect support supplement kit',
     body: 'Support nausea, hydration, constipation, fatigue, and lean-mass preservation from day one.',
-    href: '#intake',
+    href: INTAKE_HREF,
   },
 ];
 
@@ -69,9 +49,19 @@ export default function Page() {
               priority
             />
           </a>
-          <Link className="nav-cta" href="#intake">
-            Speak With Us
-          </Link>
+          <div className="nav-actions">
+            <a
+              className="nav-link"
+              href={RESEARCH_BLOG_URL}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              Research
+            </a>
+            <a className="nav-cta" href={INTAKE_HREF}>
+              Speak With Us
+            </a>
+          </div>
         </nav>
 
         <div className="hero-banner" id="top">
@@ -91,9 +81,9 @@ export default function Page() {
               First Dose helps you stop guessing which treatment your body will tolerate
               before side effects, stalls, or the wrong dose waste another month.
             </p>
-            <Link className="hero-banner__cta" href="#intake">
+            <a className="hero-banner__cta" href={INTAKE_HREF}>
               Speak With Us
-            </Link>
+            </a>
           </div>
         </div>
       </section>
@@ -135,7 +125,13 @@ export default function Page() {
               </div>
               <h3>{product.title}</h3>
               <p>{product.body}</p>
-              <Link href="#intake">Speak With Us</Link>
+              <a
+                aria-label={`Start intake for ${product.title}`}
+                className="product-card__link"
+                href={product.href}
+              >
+                <span aria-hidden="true">→</span>
+              </a>
             </article>
           ))}
         </div>
@@ -147,9 +143,9 @@ export default function Page() {
             Not sure which option fits? That is the point — start with the intake and we
             will help you land on the right plan.
           </p>
-          <Link className="products-match__cta" href="#intake">
+          <a className="products-match__cta" href={INTAKE_HREF}>
             Speak With Us
-          </Link>
+          </a>
         </div>
 
         <div className="products-banner">
@@ -160,12 +156,6 @@ export default function Page() {
             height={438}
             sizes="(max-width: 1180px) 100vw, 1180px"
           />
-        </div>
-      </section>
-
-      <section className="intake-section" id="intake">
-        <div className="hero-form-shell">
-          <LeadForm />
         </div>
       </section>
 
@@ -180,35 +170,67 @@ export default function Page() {
         </div>
       </section>
 
-      <section className="process-section">
-        {steps.map((step, index) => (
-          <article className="process-card" key={step.title}>
-            <span>{String(index + 1).padStart(2, '0')}</span>
-            <h3>{step.title}</h3>
-            <p>{step.body}</p>
-          </article>
-        ))}
-      </section>
+      <HowItWorksDiagram />
 
-      <section className="outcome-section">
+      <section className="research-section">
         <div>
-          <p className="kicker">Why it matters</p>
-          <h2>Better inputs. Better medication decisions.</h2>
+          <p className="kicker">Our research</p>
+          <h2>GLP-1 side-effect science, published and in progress.</h2>
+          <p>
+            Our team publishes findings on making GLP-1 treatment more tolerable — from
+            in-silico modeling to clinic-backed mitigation strategies. Read the full
+            research blog at{' '}
+            <a href={RESEARCH_BLOG_URL} rel="noopener noreferrer" target="_blank">
+              sideeffect.me
+            </a>
+            .
+          </p>
         </div>
-        <div className="outcome-list">
-          {outcomes.map((outcome) => (
-            <p key={outcome}>{outcome}</p>
-          ))}
-        </div>
-      </section>
-
-      <section className="final-cta">
-        <p className="kicker">Start here</p>
-        <h2>Stop guessing the next dose.</h2>
-        <a className="final-cta__link" href="#intake">
-          Speak With Us
+        <a
+          className="research-section__cta"
+          href={RESEARCH_BLOG_URL}
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          Read our research blog
         </a>
       </section>
+
+      <section className="intake-section" id="intake">
+        <div className="intake-layout">
+          <div className="intake-section__intro">
+            <p className="intake-eyebrow">Free consultation</p>
+            <h2>Stop guessing the next dose.</h2>
+            <p className="intake-section__lead">
+              Share your history in about two minutes. We review every submission and follow
+              up if there is a fit.
+            </p>
+            <ul className="intake-trust-list">
+              <li>2-minute intake</li>
+              <li>No obligation</li>
+              <li>Reviewed by our clinical team</li>
+            </ul>
+          </div>
+
+          <div className="intake-form-wrap">
+            <LeadForm />
+          </div>
+        </div>
+      </section>
+
+      <footer className="site-footer">
+        <p>© {new Date().getFullYear()} First Dose Health</p>
+        <div className="site-footer__links">
+          <a href={RESEARCH_BLOG_URL} rel="noopener noreferrer" target="_blank">
+            Research blog (sideeffect.me)
+          </a>
+          <a href={INTAKE_HREF}>Speak With Us</a>
+        </div>
+        <p className="site-footer__disclaimer">
+          First Dose connects you with licensed providers for evaluation. This site is not
+          medical advice.
+        </p>
+      </footer>
     </main>
   );
 }

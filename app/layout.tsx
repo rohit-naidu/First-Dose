@@ -3,8 +3,9 @@ import '../src/styles.css';
 
 export const metadata: Metadata = {
   applicationName: 'First Dose',
-  title: 'First Dose | Genetic Guidance for Better Prescribing',
-  description: 'First Dose helps predict drug efficacy and side effect risk using genetic data.',
+  title: 'First Dose | GLP-1 Weight Loss Without the Side-Effect Guesswork',
+  description:
+    'First Dose helps you find a GLP-1 plan your body is more likely to tolerate using intake, biomarkers, and genetic context.',
   icons: {
     icon: [
       { url: '/favicon.ico' },
@@ -13,8 +14,9 @@ export const metadata: Metadata = {
     ],
   },
   openGraph: {
-    title: 'First Dose | Genetic Guidance for Better Prescribing',
-    description: 'Predict medication efficacy and side-effect risk signals before the next prescription.',
+    title: 'First Dose | GLP-1 Weight Loss Without the Side-Effect Guesswork',
+    description:
+      'Stop guessing which GLP-1 dose or support plan your body will tolerate before side effects waste another month.',
     siteName: 'First Dose',
     type: 'website',
   },

@@ -110,77 +110,79 @@ export function LeadForm() {
   return (
     <form className="intake-panel" onSubmit={handleSubmit}>
       <div className="form-header">
-        <div className="brand-row">
-          <span className="brand-chip">Intake</span>
-          <span className="status-chip">2 min</span>
+        <h3>Your intake</h3>
+        <p>Email and phone are required so we can follow up.</p>
+      </div>
+
+      <div className="form-section">
+        <p className="form-section__label">Contact</p>
+        <div className="priority-grid">
+          <label>
+            Email
+            <input
+              autoComplete="email"
+              name="email"
+              onChange={(event) => updateField('email', event.target.value)}
+              placeholder="you@example.com"
+              required
+              type="email"
+              value={form.email}
+            />
+          </label>
+
+          <label>
+            Phone
+            <input
+              autoComplete="tel"
+              name="phone"
+              onChange={(event) => updateField('phone', event.target.value)}
+              placeholder="(555) 123-4567"
+              required
+              type="tel"
+              value={form.phone}
+            />
+          </label>
         </div>
-        <h2>Speak with us</h2>
-        <p>Free intake. We follow up if there is a fit.</p>
       </div>
 
-      <div className="priority-grid">
-        <label>
-          Email
-          <input
-            autoComplete="email"
-            name="email"
-            onChange={(event) => updateField('email', event.target.value)}
-            placeholder="alex@example.com"
-            required
-            type="email"
-            value={form.email}
-          />
-        </label>
+      <div className="form-section">
+        <p className="form-section__label">Additional details <span>Optional</span></p>
+        <div className="field-grid">
+          <label>
+            Name
+            <input
+              autoComplete="name"
+              name="name"
+              onChange={(event) => updateField('name', event.target.value)}
+              placeholder="Full name"
+              type="text"
+              value={form.name}
+            />
+          </label>
+
+          <label>
+            Medication interest
+            <input
+              name="medicationFocus"
+              onChange={(event) => updateField('medicationFocus', event.target.value)}
+              placeholder="e.g. Semaglutide, tirzepatide"
+              type="text"
+              value={form.medicationFocus}
+            />
+          </label>
+        </div>
 
         <label>
-          Phone
-          <input
-            autoComplete="tel"
-            name="phone"
-            onChange={(event) => updateField('phone', event.target.value)}
-            placeholder="+1 (555) 123-4567"
-            required
-            type="tel"
-            value={form.phone}
-          />
-        </label>
-      </div>
-
-      <div className="field-grid">
-        <label>
-          Name <span>Optional</span>
-          <input
-            autoComplete="name"
-            name="name"
-            onChange={(event) => updateField('name', event.target.value)}
-            placeholder="Alex Morgan"
-            type="text"
-            value={form.name}
-          />
-        </label>
-
-        <label>
-          Medication target <span>Optional</span>
-          <input
-            name="medicationFocus"
-            onChange={(event) => updateField('medicationFocus', event.target.value)}
-            placeholder="SSRIs, ADHD, pain, sleep..."
-            type="text"
-            value={form.medicationFocus}
+          Notes
+          <textarea
+            name="notes"
+            onChange={(event) => updateField('notes', event.target.value)}
+            placeholder="Side effects, stalls, dose history, or concerns..."
+            rows={3}
+            value={form.notes}
           />
         </label>
       </div>
-
-      <label>
-        Notes <span>Optional</span>
-        <textarea
-          name="notes"
-          onChange={(event) => updateField('notes', event.target.value)}
-          placeholder="What happened? What are you trying to avoid?"
-          rows={3}
-          value={form.notes}
-        />
-      </label>
 
       <label className="consent-row">
         <input
@@ -196,7 +198,7 @@ export function LeadForm() {
       </label>
 
       <button disabled={status === 'submitting'} type="submit">
-        {status === 'submitting' ? 'Sending...' : 'Speak With Us'}
+        {status === 'submitting' ? 'Submitting...' : 'Submit intake'}
       </button>
 
       {message ? <p className={`form-message ${status}`}>{message}</p> : null}

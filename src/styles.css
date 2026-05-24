@@ -34,7 +34,7 @@ html {
 }
 
 body {
-  background: #ffffff;
+  background: var(--brand-surface-strong);
   margin: 0;
   min-width: 320px;
   padding: 0;
@@ -79,7 +79,9 @@ h3 {
 }
 
 main {
+  margin: 0;
   overflow: hidden;
+  padding: 0;
 }
 
 .hero-section {
@@ -87,7 +89,8 @@ main {
     radial-gradient(circle at 18% 12%, rgba(45, 107, 251, 0.16), transparent 28rem),
     radial-gradient(circle at 78% 18%, rgba(14, 27, 58, 0.08), transparent 26rem),
     linear-gradient(135deg, #ffffff 0%, #ffffff 50%, var(--brand-surface-strong) 100%);
-  padding: 1rem;
+  margin: 0;
+  padding: 0 1rem 1rem;
 }
 
 .site-nav,
@@ -105,7 +108,7 @@ main {
   align-items: center;
   display: flex;
   justify-content: space-between;
-  padding: 1rem 0;
+  padding: 0.85rem 0 1rem;
 }
 
 .nav-actions {
@@ -1054,7 +1057,7 @@ main {
   }
 
   .hero-section {
-    padding: 0.75rem;
+    padding: 0 0.75rem 0.75rem;
   }
 
   .hero-banner {

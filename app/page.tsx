@@ -67,20 +67,18 @@ export default function Page() {
           <Image
             className="hero-banner__media"
             src="/images/brand/hero-first-dose.webp"
-            alt="First Dose compounded GLP-1 and B12 vial"
-            width={3360}
-            height={1198}
+            alt=""
+            width={2048}
+            height={886}
             priority
             quality={88}
             sizes="(max-width: 1180px) 100vw, 1180px"
+            aria-hidden="true"
           />
 
           <div className="hero-banner__copy">
-            <h1>Lose Weight on GLP-1 Without The Nausea, Stalls, or Muscle Loss.</h1>
-            <p>
-              First Dose helps you stop guessing which treatment your body will tolerate
-              before side effects, stalls, or the wrong dose waste another month.
-            </p>
+            <h1>Lose weight with medication matched to your body.</h1>
+            <p>Fewer side effects. Better dose fit. Matched to your biology.</p>
             <a className="hero-banner__cta" href={INTAKE_HREF}>
               Speak With Us
             </a>
@@ -156,17 +154,6 @@ export default function Page() {
             height={472}
             sizes="(max-width: 1180px) 100vw, 1180px"
           />
-        </div>
-      </section>
-
-      <section className="section-shell">
-        <div className="section-heading">
-          <p className="kicker">The real pain</p>
-          <h2>The problem is not willpower. It is mismatch.</h2>
-          <p>
-            When the drug, dose, or support plan does not match your biology, you pay for
-            it with nausea, fatigue, stalls, muscle loss, and weeks you cannot get back.
-          </p>
         </div>
       </section>
 

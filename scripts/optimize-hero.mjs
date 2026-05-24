@@ -1,7 +1,8 @@
 /**
- * Rebuilds hero WebP + AVIF from the high-res JPG master.
- * Place the latest master at public/images/brand/hero-first-dose-master.jpg
- * then run: npm run optimize:hero
+ * Rebuilds hero WebP + AVIF from public/images/brand/hero-first-dose-master.jpg
+ * Run: npm run optimize:hero
+ *
+ * No aggressive crops — keeps the full product lineup visible.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -9,10 +10,7 @@ import sharp from 'sharp';
 
 const input = path.join('public/images/brand/hero-first-dose-master.jpg');
 const base = path.join('public/images/brand/hero-first-dose');
-
-// Trim empty/white strip baked into the top of the master photo.
-const CROP_TOP_RATIO = 0.06;
-const MAX_WIDTH = 3360;
+const MAX_WIDTH = 2048;
 
 if (!fs.existsSync(input)) {
   console.error('Missing hero master:', input);
@@ -20,24 +18,20 @@ if (!fs.existsSync(input)) {
 }
 
 const meta = await sharp(input).metadata();
-const cropTop = Math.round(meta.height * CROP_TOP_RATIO);
-const croppedHeight = meta.height - cropTop;
-
-console.log(`Master: ${meta.width}x${meta.height}, cropping ${cropTop}px from top`);
+console.log(`Master: ${meta.width}x${meta.height}`);
 
 function heroPipeline() {
   return sharp(input)
     .rotate()
-    .extract({ left: 0, top: cropTop, width: meta.width, height: croppedHeight })
-    .resize(MAX_WIDTH, null, { withoutEnlargement: true, kernel: sharp.kernel.lanczos3 });
+    .resize(MAX_WIDTH, null, { withoutEnlargement: false, kernel: sharp.kernel.lanczos3 });
 }
 
 await heroPipeline()
-  .webp({ quality: 93, effort: 6, smartSubsample: true })
+  .webp({ quality: 92, effort: 6, smartSubsample: true })
   .toFile(`${base}.webp`);
 
 await heroPipeline()
-  .avif({ quality: 80, effort: 6 })
+  .avif({ quality: 78, effort: 6 })
   .toFile(`${base}.avif`);
 
 for (const ext of ['webp', 'avif']) {

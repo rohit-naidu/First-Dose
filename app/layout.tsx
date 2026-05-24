@@ -1,11 +1,17 @@
 import type { Metadata, Viewport } from 'next';
+import { Inter } from 'next/font/google';
 import '../src/styles.css';
+
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   applicationName: 'First Dose',
-  title: 'First Dose | GLP-1 Weight Loss Without the Side-Effect Guesswork',
+  title: 'First Dose | Weight Loss Medication Matched to Your Body',
   description:
-    'First Dose helps you find a GLP-1 plan your body is more likely to tolerate using intake, biomarkers, and genetic context.',
+    'Lose weight with medication matched to your body. Fewer side effects, better dose fit, matched to your biology.',
   icons: {
     icon: [
       { url: '/favicon.ico' },
@@ -14,9 +20,9 @@ export const metadata: Metadata = {
     ],
   },
   openGraph: {
-    title: 'First Dose | GLP-1 Weight Loss Without the Side-Effect Guesswork',
+    title: 'First Dose | Weight Loss Medication Matched to Your Body',
     description:
-      'Stop guessing which GLP-1 dose or support plan your body will tolerate before side effects waste another month.',
+      'Lose weight with medication matched to your body — with a plan built around side-effect tolerance, not one-size-fits-all dosing.',
     siteName: 'First Dose',
     type: 'website',
   },
@@ -32,7 +38,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html className={inter.className} lang="en">
       <body>{children}</body>
     </html>
   );

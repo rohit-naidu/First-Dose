@@ -1,24 +1,22 @@
 /**
- * Rebuilds hero WebP + AVIF from public/images/brand/hero-first-dose-master.jpg
+ * Rebuilds hero WebP + AVIF from the committed source JPG.
  * Run: npm run optimize:hero
- *
- * No aggressive crops — keeps the full product lineup visible.
  */
 import fs from 'node:fs';
 import path from 'node:path';
 import sharp from 'sharp';
 
-const input = path.join('public/images/brand/hero-first-dose-master.jpg');
-const base = path.join('public/images/brand/hero-first-dose');
+const input = path.join('public/images/brand/hero-product-lineup-source.jpg');
+const base = path.join('public/images/brand/hero-product-lineup');
 const MAX_WIDTH = 2048;
 
 if (!fs.existsSync(input)) {
-  console.error('Missing hero master:', input);
+  console.error('Missing hero source:', input);
   process.exit(1);
 }
 
 const meta = await sharp(input).metadata();
-console.log(`Master: ${meta.width}x${meta.height}`);
+console.log(`Source: ${meta.width}x${meta.height}`);
 
 function heroPipeline() {
   return sharp(input)

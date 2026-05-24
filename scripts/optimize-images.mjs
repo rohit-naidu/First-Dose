@@ -7,8 +7,6 @@ import path from 'node:path';
 import sharp from 'sharp';
 
 const brandDir = path.join('public/images/brand');
-const HERO_CROP_TOP_RATIO = 0.06;
-const HERO_MAX_WIDTH = 3360;
 
 const targets = [
   { file: 'glp-product-mockup.png', maxWidth: 900, quality: 88 },
@@ -45,37 +43,33 @@ for (const target of targets) {
 }
 
 async function optimizeHero() {
-  const input = path.join(brandDir, 'hero-first-dose-master.jpg');
-  const base = path.join(brandDir, 'hero-first-dose');
+  const input = path.join(brandDir, 'hero-product-lineup-source.jpg');
+  const base = path.join(brandDir, 'hero-product-lineup');
+  const maxWidth = 2048;
 
   if (!fs.existsSync(input)) {
-    console.log('skip (missing): hero-first-dose-master.jpg');
+    console.log('skip (missing): hero-product-lineup-source.jpg');
     return;
   }
-
-  const meta = await sharp(input).metadata();
-  const cropTop = Math.round(meta.height * HERO_CROP_TOP_RATIO);
-  const croppedHeight = meta.height - cropTop;
 
   function heroPipeline() {
     return sharp(input)
       .rotate()
-      .extract({ left: 0, top: cropTop, width: meta.width, height: croppedHeight })
-      .resize(HERO_MAX_WIDTH, null, { withoutEnlargement: true, kernel: sharp.kernel.lanczos3 });
+      .resize(maxWidth, null, { withoutEnlargement: false, kernel: sharp.kernel.lanczos3 });
   }
 
   const webpInfo = await heroPipeline()
-    .webp({ quality: 93, effort: 6, smartSubsample: true })
+    .webp({ quality: 92, effort: 6, smartSubsample: true })
     .toFile(`${base}.webp`);
 
   await heroPipeline()
-    .avif({ quality: 80, effort: 6 })
+    .avif({ quality: 78, effort: 6 })
     .toFile(`${base}.avif`);
 
   console.log(
-    `hero-first-dose.webp: ${(fs.statSync(`${base}.webp`).size / 1024).toFixed(1)} KB (${webpInfo.width}x${webpInfo.height})`,
+    `hero-product-lineup.webp: ${(fs.statSync(`${base}.webp`).size / 1024).toFixed(1)} KB (${webpInfo.width}x${webpInfo.height})`,
   );
-  console.log(`hero-first-dose.avif: ${(fs.statSync(`${base}.avif`).size / 1024).toFixed(1)} KB`);
+  console.log(`hero-product-lineup.avif: ${(fs.statSync(`${base}.avif`).size / 1024).toFixed(1)} KB`);
 }
 
 await optimizeHero();

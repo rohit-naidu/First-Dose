@@ -66,7 +66,7 @@ export default function Page() {
         <div className="hero-banner" id="top">
           <Image
             className="hero-banner__media"
-            src="/images/brand/hero-first-dose.webp"
+            src="/images/brand/hero-product-lineup.webp"
             alt=""
             width={2048}
             height={886}

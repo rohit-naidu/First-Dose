@@ -7,9 +7,10 @@ import path from 'node:path';
 import sharp from 'sharp';
 
 const brandDir = path.join('public/images/brand');
+const HERO_CROP_TOP_RATIO = 0.06;
+const HERO_MAX_WIDTH = 3360;
 
 const targets = [
-  { file: 'hero-first-dose-master.jpg', maxWidth: 3360, quality: 93, outputs: ['hero-first-dose'] },
   { file: 'glp-product-mockup.png', maxWidth: 900, quality: 88 },
   { file: 'biomarker-mockup.png', maxWidth: 900, quality: 88 },
   { file: 'gene-plan-mockup.png', maxWidth: 900, quality: 88 },
@@ -43,15 +44,38 @@ for (const target of targets) {
   await optimize(target);
 }
 
-// Hero AVIF (best size on modern browsers).
-const heroMaster = path.join(brandDir, 'hero-first-dose-master.jpg');
-if (fs.existsSync(heroMaster)) {
-  await sharp(heroMaster)
-    .rotate()
-    .resize(3360, null, { withoutEnlargement: true, kernel: sharp.kernel.lanczos3 })
+async function optimizeHero() {
+  const input = path.join(brandDir, 'hero-first-dose-master.jpg');
+  const base = path.join(brandDir, 'hero-first-dose');
+
+  if (!fs.existsSync(input)) {
+    console.log('skip (missing): hero-first-dose-master.jpg');
+    return;
+  }
+
+  const meta = await sharp(input).metadata();
+  const cropTop = Math.round(meta.height * HERO_CROP_TOP_RATIO);
+  const croppedHeight = meta.height - cropTop;
+
+  function heroPipeline() {
+    return sharp(input)
+      .rotate()
+      .extract({ left: 0, top: cropTop, width: meta.width, height: croppedHeight })
+      .resize(HERO_MAX_WIDTH, null, { withoutEnlargement: true, kernel: sharp.kernel.lanczos3 });
+  }
+
+  const webpInfo = await heroPipeline()
+    .webp({ quality: 93, effort: 6, smartSubsample: true })
+    .toFile(`${base}.webp`);
+
+  await heroPipeline()
     .avif({ quality: 80, effort: 6 })
-    .toFile(path.join(brandDir, 'hero-first-dose.avif'));
+    .toFile(`${base}.avif`);
+
   console.log(
-    `hero-first-dose.avif: ${(fs.statSync(path.join(brandDir, 'hero-first-dose.avif')).size / 1024).toFixed(1)} KB`,
+    `hero-first-dose.webp: ${(fs.statSync(`${base}.webp`).size / 1024).toFixed(1)} KB (${webpInfo.width}x${webpInfo.height})`,
   );
+  console.log(`hero-first-dose.avif: ${(fs.statSync(`${base}.avif`).size / 1024).toFixed(1)} KB`);
 }
+
+await optimizeHero();

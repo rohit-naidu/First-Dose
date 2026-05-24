@@ -69,7 +69,7 @@ export default function Page() {
             src="/images/brand/hero-first-dose.webp"
             alt="First Dose compounded GLP-1 and B12 vial"
             width={3360}
-            height={1274}
+            height={1198}
             priority
             quality={88}
             sizes="(max-width: 1180px) 100vw, 1180px"

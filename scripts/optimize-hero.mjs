@@ -10,7 +10,8 @@ import sharp from 'sharp';
 const input = path.join('public/images/brand/hero-first-dose-master.jpg');
 const base = path.join('public/images/brand/hero-first-dose');
 
-// 3360px = sharp on 2x retina for a ~1180px-wide hero, without shipping the full 5600px file.
+// Trim empty/white strip baked into the top of the master photo.
+const CROP_TOP_RATIO = 0.06;
 const MAX_WIDTH = 3360;
 
 if (!fs.existsSync(input)) {
@@ -19,18 +20,24 @@ if (!fs.existsSync(input)) {
 }
 
 const meta = await sharp(input).metadata();
-console.log(`Master: ${meta.width}x${meta.height}`);
+const cropTop = Math.round(meta.height * CROP_TOP_RATIO);
+const croppedHeight = meta.height - cropTop;
 
-await sharp(input)
-  .rotate()
-  .resize(MAX_WIDTH, null, { withoutEnlargement: true, kernel: sharp.kernel.lanczos3 })
+console.log(`Master: ${meta.width}x${meta.height}, cropping ${cropTop}px from top`);
+
+function heroPipeline() {
+  return sharp(input)
+    .rotate()
+    .extract({ left: 0, top: cropTop, width: meta.width, height: croppedHeight })
+    .resize(MAX_WIDTH, null, { withoutEnlargement: true, kernel: sharp.kernel.lanczos3 });
+}
+
+await heroPipeline()
   .webp({ quality: 93, effort: 6, smartSubsample: true })
   .toFile(`${base}.webp`);
 
-await sharp(input)
-  .rotate()
-  .resize(MAX_WIDTH, null, { withoutEnlargement: true, kernel: sharp.kernel.lanczos3 })
-  .avif({ quality: 82, effort: 6 })
+await heroPipeline()
+  .avif({ quality: 80, effort: 6 })
   .toFile(`${base}.avif`);
 
 for (const ext of ['webp', 'avif']) {

@@ -29,6 +29,7 @@
 html {
   margin: 0;
   min-height: 100%;
+  overflow-x: hidden;
   padding: 0;
   scroll-behavior: smooth;
 }
@@ -37,6 +38,7 @@ body {
   background: var(--brand-surface-strong);
   margin: 0;
   min-width: 320px;
+  overflow-x: hidden;
   padding: 0;
 }
 
@@ -79,9 +81,11 @@ h3 {
 }
 
 main {
-  margin: 0;
-  overflow: hidden;
+  margin: 0 auto;
+  max-width: 1180px;
+  overflow-x: clip;
   padding: 0;
+  width: 100%;
 }
 
 .hero-section {
@@ -90,7 +94,9 @@ main {
     radial-gradient(circle at 78% 18%, rgba(14, 27, 58, 0.08), transparent 26rem),
     linear-gradient(135deg, #ffffff 0%, #ffffff 50%, var(--brand-surface-strong) 100%);
   margin: 0;
-  padding: 0 1rem 1rem;
+  max-width: 1180px;
+  padding: 0 0 1rem;
+  width: 100%;
 }
 
 .site-nav,
@@ -164,16 +170,21 @@ main {
 .hero-banner {
   border-radius: 0;
   box-shadow: none;
+  isolation: isolate;
+  margin-inline: auto;
+  max-width: 1180px;
   min-height: clamp(420px, 60vh, 640px);
   overflow: hidden;
   position: relative;
+  width: 100%;
 }
 
 .hero-banner__media {
   height: 100%;
   inset: 0;
+  max-width: 100%;
   object-fit: cover;
-  object-position: center;
+  object-position: 50% 42%;
   position: absolute;
   width: 100%;
   z-index: 0;
@@ -814,12 +825,17 @@ main {
   width: 100%;
 }
 
+.products-section {
+  overflow-x: clip;
+}
+
 .product-wheel {
   display: grid;
   gap: 1rem;
   grid-auto-columns: minmax(270px, 32%);
   grid-auto-flow: column;
   margin-top: 2rem;
+  max-width: 100%;
   overflow-x: auto;
   padding: 0.4rem 0 1.4rem;
   scroll-snap-type: x mandatory;
@@ -1057,7 +1073,7 @@ main {
   }
 
   .hero-section {
-    padding: 0 0.75rem 0.75rem;
+    padding: 0 0 0.75rem;
   }
 
   .hero-banner {

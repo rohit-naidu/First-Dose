@@ -92,8 +92,13 @@ export function LeadForm() {
     });
 
     if (insertError) {
+      console.error('Supabase intake insert failed:', insertError);
       setStatus('error');
-      setMessage(insertError.message);
+      setMessage(
+        insertError.code === 'PGRST205'
+          ? 'Intake storage is not set up yet. Run supabase/schema.sql in your Supabase SQL editor.'
+          : 'Something went wrong saving your intake. Please try again or email us directly.',
+      );
       return;
     }
 
@@ -109,8 +114,8 @@ export function LeadForm() {
           <span className="brand-chip">Intake</span>
           <span className="status-chip">2 min</span>
         </div>
-        <h2>Get reviewed</h2>
-        <p>Leave your details. We will follow up if there is a fit.</p>
+        <h2>Speak with us</h2>
+        <p>Free intake. We follow up if there is a fit.</p>
       </div>
 
       <div className="priority-grid">
@@ -191,7 +196,7 @@ export function LeadForm() {
       </label>
 
       <button disabled={status === 'submitting'} type="submit">
-        {status === 'submitting' ? 'Sending...' : 'Get reviewed'}
+        {status === 'submitting' ? 'Sending...' : 'Speak With Us'}
       </button>
 
       {message ? <p className={`form-message ${status}`}>{message}</p> : null}

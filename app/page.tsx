@@ -1,28 +1,57 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import { LeadForm } from '@/src/components/LeadForm';
-import { SideEffectRoulette } from '@/src/components/SideEffectRoulette';
-
-const painPoints = ['Failed meds', 'Side effects', 'Wrong dose'];
 
 const steps = [
   {
-    title: 'Tell us the problem',
-    body: 'What you tried. What happened. What you want to avoid.',
+    title: 'Tell us what went wrong',
+    body: 'The drug, dose, side effects, stalls, or concern you do not want to repeat.',
   },
   {
-    title: 'We review the signal',
-    body: 'Our team screens for medication-response patterns worth investigating.',
+    title: 'We compare your signals',
+    body: 'Your intake, biomarkers, genes, and history point to what may fit better.',
   },
   {
-    title: 'You get a next step',
-    body: 'If there is a fit, we follow up with a clearer path forward.',
+    title: 'You get a clearer next step',
+    body: 'If there is a fit, we help you move forward without starting blind.',
   },
 ];
 
 const outcomes = [
-  'Fewer blind medication starts',
-  'Cleaner conversations with providers',
-  'Earlier awareness of risk signals',
+  'Avoid another blind medication start',
+  'Spot tolerance risks before they derail you',
+  'Walk into the next decision with a clearer plan',
+];
+
+const products = [
+  {
+    title: 'Compounded GLP-1 + B12',
+    image: '/images/brand/glp-product-mockup.png',
+    imageAlt: 'First Dose compounded GLP-1 and B12 vial',
+    body: 'Start with a plan designed around appetite control, tolerability, and follow-up.',
+    href: '#intake',
+  },
+  {
+    title: 'Biomarker Review',
+    image: '/images/brand/biomarker-mockup.png',
+    imageAlt: 'Biomarker lab dashboard for personalized treatment review',
+    body: 'Use key lab signals to avoid treating your body like everyone else’s.',
+    href: '#intake',
+  },
+  {
+    title: 'Gene-Guided Plan',
+    image: '/images/brand/gene-plan-mockup.png',
+    imageAlt: 'DNA report preview for gene-guided medication planning',
+    body: 'Use genetic context to flag dose fit, side-effect risk, and poor-response patterns.',
+    href: '#intake',
+  },
+  {
+    title: 'Side-Effect Support',
+    image: '/images/brand/supplement-mockup.png',
+    imageAlt: 'First Dose side-effect support supplement kit',
+    body: 'Support nausea, hydration, constipation, fatigue, and lean-mass preservation from day one.',
+    href: '#intake',
+  },
 ];
 
 export default function Page() {
@@ -40,38 +69,113 @@ export default function Page() {
               priority
             />
           </a>
+          <Link className="nav-cta" href="#intake">
+            Speak With Us
+          </Link>
         </nav>
 
-        <div className="hero-grid" id="top">
-          <div className="hero-copy">
-            <p className="kicker">Medication response, before the guesswork</p>
-            <h1>Stop gambling with the next prescription.</h1>
-            <SideEffectRoulette />
-            <p className="hero-subtitle">
-              First Dose helps identify medication efficacy and side-effect risk signals before you
-              start another trial-and-error cycle.
+        <div className="hero-banner" id="top">
+          <Image
+            className="hero-banner__media"
+            src="/images/brand/hero-first-dose.png"
+            alt="First Dose compounded GLP-1 and B12 vial"
+            width={1536}
+            height={590}
+            priority
+            sizes="(max-width: 1180px) 100vw, 1180px"
+          />
+
+          <div className="hero-banner__copy">
+            <h1>Lose Weight on GLP-1 Without The Nausea, Stalls, or Muscle Loss.</h1>
+            <p>
+              First Dose helps you stop guessing which treatment your body will tolerate
+              before side effects, stalls, or the wrong dose waste another month.
             </p>
+            <Link className="hero-banner__cta" href="#intake">
+              Speak With Us
+            </Link>
+          </div>
+        </div>
+      </section>
 
-            <div className="pain-row" aria-label="Common medication pain points">
-              {painPoints.map((painPoint) => (
-                <span key={painPoint}>{painPoint}</span>
-              ))}
-            </div>
+      <section className="products-section" id="products">
+        <div className="personalized-grid">
+          <div>
+            <p className="kicker">Personalized care</p>
+            <h2>Personalized treatment based on your biomarkers &amp; genes.</h2>
+            <p>
+              Most weight-loss plans fail because they treat everyone the same. First Dose
+              uses your intake, biomarkers, and genetic context to help identify the plan
+              you are most likely to tolerate and stick with.
+            </p>
           </div>
 
-          <div id="intake" className="hero-form-shell">
-            <LeadForm />
+          <div className="gene-card">
+            <Image
+              src="/images/brand/gene-test-mockup.png"
+              alt="At-home genetic sample collection for First Dose personalization"
+              width={810}
+              height={608}
+              sizes="(max-width: 860px) 100vw, 470px"
+            />
           </div>
+        </div>
+
+        <div className="product-wheel" aria-label="First Dose product options">
+          {products.map((product) => (
+            <article className="product-card" key={product.title}>
+              <div className="product-card__image">
+                <Image
+                  src={product.image}
+                  alt={product.imageAlt}
+                  width={1448}
+                  height={1086}
+                  sizes="(max-width: 860px) 82vw, 32vw"
+                />
+              </div>
+              <h3>{product.title}</h3>
+              <p>{product.body}</p>
+              <Link href="#intake">Speak With Us</Link>
+            </article>
+          ))}
+        </div>
+
+        <div className="products-match">
+          <p className="products-match__kicker">Your plan starts here</p>
+          <h2 className="products-match__title">Find your match.</h2>
+          <p className="products-match__subtitle">
+            Not sure which option fits? That is the point — start with the intake and we
+            will help you land on the right plan.
+          </p>
+          <Link className="products-match__cta" href="#intake">
+            Speak With Us
+          </Link>
+        </div>
+
+        <div className="products-banner">
+          <Image
+            src="/images/brand/products-mockup.png"
+            alt="First Dose product lineup including GLP-1, tirzepatide, and B12 plus MIC"
+            width={1024}
+            height={438}
+            sizes="(max-width: 1180px) 100vw, 1180px"
+          />
+        </div>
+      </section>
+
+      <section className="intake-section" id="intake">
+        <div className="hero-form-shell">
+          <LeadForm />
         </div>
       </section>
 
       <section className="section-shell">
         <div className="section-heading">
           <p className="kicker">The real pain</p>
-          <h2>Most people do not need more guessing.</h2>
+          <h2>The problem is not willpower. It is mismatch.</h2>
           <p>
-            They need a better starting point before losing weeks to the wrong drug, wrong dose, or
-            avoidable side effects.
+            When the drug, dose, or support plan does not match your biology, you pay for
+            it with nausea, fatigue, stalls, muscle loss, and weeks you cannot get back.
           </p>
         </div>
       </section>
@@ -100,8 +204,10 @@ export default function Page() {
 
       <section className="final-cta">
         <p className="kicker">Start here</p>
-        <h2>Tell us what happened.</h2>
-        <a href="#intake">Get reviewed</a>
+        <h2>Stop guessing the next dose.</h2>
+        <a className="final-cta__link" href="#intake">
+          Speak With Us
+        </a>
       </section>
     </main>
   );

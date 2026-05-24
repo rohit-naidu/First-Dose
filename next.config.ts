@@ -1,7 +1,11 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  // The first version is static-page heavy, so the default Next settings are enough.
+  // Vercel's image CDN converts and caches hero assets as AVIF/WebP at the right size.
+  images: {
+    formats: ['image/avif', 'image/webp'],
+    minimumCacheTTL: 31536000,
+  },
 };
 
 export default nextConfig;

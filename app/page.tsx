@@ -67,11 +67,12 @@ export default function Page() {
         <div className="hero-banner" id="top">
           <Image
             className="hero-banner__media"
-            src="/images/brand/hero-first-dose.png"
+            src="/images/brand/hero-first-dose.webp"
             alt="First Dose compounded GLP-1 and B12 vial"
-            width={1536}
-            height={590}
+            width={1400}
+            height={531}
             priority
+            quality={92}
             sizes="(max-width: 1180px) 100vw, 1180px"
           />
 

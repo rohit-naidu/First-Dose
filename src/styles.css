@@ -172,7 +172,6 @@ main {
   object-fit: cover;
   object-position: center;
   position: absolute;
-  transform: scale(1.015);
   width: 100%;
   z-index: 0;
 }

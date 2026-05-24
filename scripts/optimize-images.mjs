@@ -43,33 +43,39 @@ for (const target of targets) {
 }
 
 async function optimizeHero() {
-  const input = path.join(brandDir, 'hero-product-lineup-source.jpg');
-  const base = path.join(brandDir, 'hero-product-lineup');
-  const maxWidth = 2048;
+  const input = path.join(brandDir, 'hero-first-dose-master.jpg');
+  const base = path.join(brandDir, 'hero-first-dose');
+  const cropTopRatio = 0.06;
+  const maxWidth = 3360;
 
   if (!fs.existsSync(input)) {
-    console.log('skip (missing): hero-product-lineup-source.jpg');
+    console.log('skip (missing): hero-first-dose-master.jpg');
     return;
   }
+
+  const meta = await sharp(input).metadata();
+  const cropTop = Math.round(meta.height * cropTopRatio);
+  const croppedHeight = meta.height - cropTop;
 
   function heroPipeline() {
     return sharp(input)
       .rotate()
-      .resize(maxWidth, null, { withoutEnlargement: false, kernel: sharp.kernel.lanczos3 });
+      .extract({ left: 0, top: cropTop, width: meta.width, height: croppedHeight })
+      .resize(maxWidth, null, { withoutEnlargement: true, kernel: sharp.kernel.lanczos3 });
   }
 
   const webpInfo = await heroPipeline()
-    .webp({ quality: 92, effort: 6, smartSubsample: true })
+    .webp({ quality: 93, effort: 6, smartSubsample: true })
     .toFile(`${base}.webp`);
 
   await heroPipeline()
-    .avif({ quality: 78, effort: 6 })
+    .avif({ quality: 80, effort: 6 })
     .toFile(`${base}.avif`);
 
   console.log(
-    `hero-product-lineup.webp: ${(fs.statSync(`${base}.webp`).size / 1024).toFixed(1)} KB (${webpInfo.width}x${webpInfo.height})`,
+    `hero-first-dose.webp: ${(fs.statSync(`${base}.webp`).size / 1024).toFixed(1)} KB (${webpInfo.width}x${webpInfo.height})`,
   );
-  console.log(`hero-product-lineup.avif: ${(fs.statSync(`${base}.avif`).size / 1024).toFixed(1)} KB`);
+  console.log(`hero-first-dose.avif: ${(fs.statSync(`${base}.avif`).size / 1024).toFixed(1)} KB`);
 }
 
 await optimizeHero();

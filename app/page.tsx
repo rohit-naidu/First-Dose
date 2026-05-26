@@ -55,7 +55,7 @@ export default function Page() {
               rel="noopener noreferrer"
               target="_blank"
             >
-              Research
+              Blog
             </a>
             <a className="nav-cta" href={INTAKE_HREF}>
               Speak With Us

@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import CountUp from "@/components/CountUp";
 
 const fade = {
   hidden: { opacity: 0, y: 16 },
@@ -12,31 +11,13 @@ const fade = {
   }),
 };
 
-const STATS = [
-  {
-    node: <CountUp to={9} suffix="/10" />,
-    color: "text-clinical glow-clinical",
-    label: "GLP-1 patients never complete their first year of therapy",
-  },
-  {
-    node: <CountUp to={71.7} decimals={1} prefix="$" suffix="B" />,
-    color: "text-coral glow-coral",
-    label: "Spent on GLP-1s in the US annually",
-  },
-  {
-    node: <CountUp to={28} suffix="%" />,
-    color: "text-slate glow-slate",
-    label: "Of discontinuations are caused by predictable side effects",
-  },
-];
-
 export default function Hero() {
   return (
     <section
       id="top"
       className="relative flex min-h-[100svh] flex-col justify-center px-6 pt-32 pb-12 sm:px-10"
     >
-      <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col justify-center">
+      <div className="mx-auto w-full max-w-7xl">
         <div className="max-w-xl text-over-molecule">
           <motion.h1
             variants={fade}
@@ -65,11 +46,12 @@ export default function Hero() {
             initial="hidden"
             animate="show"
             custom={2}
-            className="mt-6 max-w-[27rem] text-sm leading-[1.7] text-ink-55"
+            className="mt-6 max-w-[28rem] text-sm leading-[1.7] text-ink-55"
           >
-            First Dose predicts individual drug response before the first
-            prescription — so your patients get the right drug, at the right
-            dose, the first time.
+            First Dose predicts how an individual will respond to a medication
+            before the first prescription — so patients get the right drug, at
+            the right dose, the first time. Starting with GLP-1s. Built for
+            every drug class.
           </motion.p>
 
           <motion.div
@@ -93,31 +75,6 @@ export default function Hero() {
             </a>
           </motion.div>
         </div>
-
-        {/* Three inline glowing stats along the bottom (§5.1) */}
-        <motion.div
-          variants={fade}
-          initial="hidden"
-          animate="show"
-          custom={5}
-          className="mt-16 grid max-w-3xl grid-cols-1 gap-px sm:grid-cols-3"
-        >
-          {STATS.map((s, i) => (
-            <div
-              key={i}
-              className="px-1 py-2 sm:px-5 sm:[&:not(:first-child)]:border-l sm:[&:not(:first-child)]:border-hairline"
-            >
-              <div
-                className={`text-[2rem] font-extralight tracking-tight ${s.color}`}
-              >
-                {s.node}
-              </div>
-              <p className="mt-2 max-w-[15rem] text-[11px] leading-[1.5] text-ink-35">
-                {s.label}
-              </p>
-            </div>
-          ))}
-        </motion.div>
       </div>
     </section>
   );

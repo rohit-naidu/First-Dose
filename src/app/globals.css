@@ -78,6 +78,14 @@ body {
   text-shadow: 0 0 24px rgba(169, 156, 196, 0.25);
 }
 
+/* Dark glass for cards/panels floating over the molecule — keeps the helix
+   felt behind while guaranteeing foreground legibility (§6) */
+.glass {
+  background: rgba(10, 14, 20, 0.55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
 /* Faint glowing hairline divider between sections */
 .hairline {
   height: 1px;

@@ -3,7 +3,10 @@
 import { useMemo, useRef, useLayoutEffect } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { scrollProgress } from "@/lib/scroll";
+import { scrollProgress, molecule } from "@/lib/scroll";
+
+const damp = (current, target, lambda, dt) =>
+  THREE.MathUtils.damp(current, target, lambda, dt);
 
 /* Clinical palette (UX brief §2/§3) */
 const CLINICAL = new THREE.Color("#7fb5c9");
@@ -31,13 +34,16 @@ const CYL_R = 0.16;
 const UP = new THREE.Vector3(0, 1, 0);
 
 export default function DnaHelix({ reducedMotion = false }) {
+  const outerRef = useRef(); // position (which side) + diagonal tilt
   const spinRef = useRef(); // rotates around the helix long axis
   const sphereRef = useRef();
   const cylRef = useRef();
   const keyLightRef = useRef();
   const fillLightRef = useRef();
+  const dirLightRef = useRef();
 
   const auto = useRef(0);
+  const dim = useRef(0);
 
   const { tubeA, tubeB, spheres, cylinders } = useMemo(() => {
     const ptsA = [];
@@ -130,6 +136,23 @@ export default function DnaHelix({ reducedMotion = false }) {
       spinRef.current.rotation.y = auto.current + scrollPhase;
     }
 
+    // Glide to whichever side the active section's copy leaves open (§6)
+    if (outerRef.current) {
+      outerRef.current.position.x = damp(
+        outerRef.current.position.x,
+        molecule.targetX,
+        2.2,
+        d
+      );
+    }
+
+    // Dim under text-heavy sections so legibility always wins (§6)
+    dim.current = damp(dim.current, molecule.targetDim, 2.5, d);
+    const lit = 1 - 0.6 * dim.current;
+    if (keyLightRef.current) keyLightRef.current.intensity = 120 * lit;
+    if (fillLightRef.current) fillLightRef.current.intensity = 70 * lit;
+    if (dirLightRef.current) dirLightRef.current.intensity = 1.1 * lit;
+
     // Key/fill lights slowly orbit the molecule (§3)
     const t = state.clock.elapsedTime;
     if (keyLightRef.current) {
@@ -149,7 +172,14 @@ export default function DnaHelix({ reducedMotion = false }) {
   });
 
   return (
-    <group ref={spinRef}>
+    <group ref={outerRef} rotation={[0, 0, -0.5]} position={[5.2, 0, 0]}>
+      <group ref={spinRef}>
+      <directionalLight
+        ref={dirLightRef}
+        color="#b8c4d6"
+        intensity={1.1}
+        position={[-8, 4, 6]}
+      />
       {/* glossy backbones */}
       <mesh geometry={tubeA}>
         <meshStandardMaterial
@@ -195,6 +225,7 @@ export default function DnaHelix({ reducedMotion = false }) {
         distance={60}
         decay={1.4}
       />
+      </group>
     </group>
   );
 }

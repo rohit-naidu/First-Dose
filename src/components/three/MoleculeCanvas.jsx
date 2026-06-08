@@ -39,22 +39,12 @@ export default function MoleculeCanvas() {
         {/* Exponential fog matched to the background so the helix fades into the page (§3) */}
         <fogExp2 attach="fog" args={["#0a0e14", 0.032]} />
 
-        {/* Low warm ambient + cool rim for edge separation (§3) */}
+        {/* Low warm ambient — directional rim + orbiting lights live in DnaHelix
+            so they can dim per section (§3/§6) */}
         <ambientLight color="#3a4452" intensity={0.75} />
-        <directionalLight
-          color="#b8c4d6"
-          intensity={1.1}
-          position={[-8, 4, 6]}
-        />
 
         <Suspense fallback={null}>
-          <group
-            rotation={[0, 0, -0.5]}
-            position={[5.2, 0, 0]}
-            scale={1}
-          >
-            <DnaHelix reducedMotion={reducedMotion} />
-          </group>
+          <DnaHelix reducedMotion={reducedMotion} />
 
           {/* Restrained bloom — a soft light bleed, not a nightclub sign (§3) */}
           <EffectComposer>

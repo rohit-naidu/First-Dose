@@ -1,6 +1,20 @@
 import MoleculeCanvas from "@/components/three/MoleculeCanvas";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
+import HowItWorks from "@/components/sections/HowItWorks";
+import Credibility from "@/components/sections/Credibility";
+import DrugClasses from "@/components/sections/DrugClasses";
+import Trajectory from "@/components/sections/Trajectory";
+import CTA from "@/components/sections/CTA";
+import Footer from "@/components/Footer";
+
+function Divider() {
+  return (
+    <div className="mx-auto max-w-7xl px-6 sm:px-10">
+      <div className="hairline" />
+    </div>
+  );
+}
 
 export default function Home() {
   return (
@@ -9,14 +23,17 @@ export default function Home() {
       <Navbar />
       <main className="relative z-10">
         <Hero />
-
-        {/* Temporary scroll runway so scroll-driven helix rotation is visible.
-            Replaced by Problem / How It Works / etc. in the next milestone. */}
-        <div className="flex h-[120vh] items-start justify-center pt-24">
-          <span className="section-label text-clinical/60">
-            More sections coming
-          </span>
-        </div>
+        <Divider />
+        <HowItWorks />
+        <Divider />
+        <Credibility />
+        <Divider />
+        <DrugClasses />
+        <Divider />
+        <Trajectory />
+        <Divider />
+        <CTA />
+        <Footer />
       </main>
     </>
   );

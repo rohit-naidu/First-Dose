@@ -124,6 +124,7 @@ export default function DnaHelix({ reducedMotion = false }) {
   }, [spheres, cylinders]);
 
   useFrame((state, delta) => {
+    if (typeof document !== "undefined" && document.hidden) return; // pause when tab hidden
     const d = Math.min(delta, 0.05); // clamp after tab refocus
 
     // Slow constant auto-rotation around the long axis (§3)

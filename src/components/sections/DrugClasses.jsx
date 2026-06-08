@@ -1,6 +1,8 @@
 import Link from "next/link";
 import Section from "@/components/Section";
 import Reveal from "@/components/Reveal";
+import SectionBackdrop from "@/components/SectionBackdrop";
+import { PHOTOS } from "@/lib/photography";
 
 const CARDS = [
   {
@@ -12,16 +14,19 @@ const CARDS = [
   {
     name: "Antidepressants",
     live: false,
+    href: "/antidepressants",
     body: "1 in 3 patients don't respond to their first antidepressant. Most wait months to find out. Pharmacogenomic-guided prescribing increases remission rates by 58% at 8 weeks. The data exists. The application doesn't — yet.",
   },
   {
     name: "Cardiovascular",
     live: false,
+    href: "/cardiovascular",
     body: "The wrong anticoagulant dose doesn't cause side effects. It causes strokes. CYP2C19 genotyping already guides clopidogrel prescribing in leading cardiac centers. We're bringing that precision to every clinic.",
   },
   {
     name: "Oncology",
     live: false,
+    href: "/oncology",
     body: "In cancer treatment, the wrong drug isn't an inconvenience. It's a lost window. Pharmacogenomics has the strongest evidence base in all of medicine here. We're making precision response prediction universal.",
   },
 ];
@@ -46,6 +51,7 @@ export default function DrugClasses() {
       moleculeDim={0.8}
       className="relative px-6 py-32 sm:px-10"
     >
+      <SectionBackdrop {...PHOTOS.drugClasses} />
       <div className="mx-auto max-w-7xl text-over-molecule">
         <Reveal>
           <p className="section-label text-clinical/60">One platform</p>
@@ -62,10 +68,10 @@ export default function DrugClasses() {
           {CARDS.map((c, i) => {
             const inner = (
               <div
-                className={`glass flex h-full flex-col rounded-md border p-7 transition-colors ${
+                className={`glass flex h-full flex-col rounded-md border p-7 transition-all ${
                   c.live
                     ? "border-clinical/40 hover:border-clinical/70"
-                    : "border-hairline opacity-80"
+                    : "border-hairline opacity-80 hover:opacity-100 hover:border-hairline"
                 }`}
               >
                 <div className="flex items-center justify-between">
@@ -75,23 +81,21 @@ export default function DrugClasses() {
                 <p className="mt-4 flex-1 text-sm leading-[1.7] text-ink-55">
                   {c.body}
                 </p>
-                {c.live && (
-                  <span className="mt-6 text-[13px] font-medium text-clinical">
-                    Learn more →
-                  </span>
-                )}
+                <span
+                  className={`mt-6 text-[13px] font-medium ${
+                    c.live ? "text-clinical" : "text-ink-45"
+                  }`}
+                >
+                  {c.live ? "Learn more →" : "Read more →"}
+                </span>
               </div>
             );
 
             return (
               <Reveal key={c.name} delay={(i % 2) * 0.1}>
-                {c.live ? (
-                  <Link href={c.href} className="block h-full">
-                    {inner}
-                  </Link>
-                ) : (
-                  inner
-                )}
+                <Link href={c.href} className="block h-full">
+                  {inner}
+                </Link>
               </Reveal>
             );
           })}

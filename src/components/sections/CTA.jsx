@@ -1,6 +1,8 @@
 import Section from "@/components/Section";
 import Reveal from "@/components/Reveal";
 import ContactForm from "@/components/ContactForm";
+import SectionBackdrop from "@/components/SectionBackdrop";
+import { PHOTOS } from "@/lib/photography";
 
 const BLOCKS = [
   {
@@ -23,6 +25,7 @@ export default function CTA() {
       moleculeDim={0.72}
       className="relative px-6 py-32 sm:px-10"
     >
+      <SectionBackdrop {...PHOTOS.cta} />
       <div className="mx-auto max-w-4xl text-over-molecule">
         <Reveal>
           <h2 className="mx-auto max-w-2xl text-center text-[1.6rem] font-light leading-[1.4] tracking-[-0.3px] text-ink sm:text-[2rem]">

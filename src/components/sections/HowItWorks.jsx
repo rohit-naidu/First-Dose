@@ -1,5 +1,7 @@
 import Section from "@/components/Section";
 import Reveal from "@/components/Reveal";
+import SectionBackdrop from "@/components/SectionBackdrop";
+import { PHOTOS } from "@/lib/photography";
 
 const STEPS = [
   {
@@ -27,6 +29,7 @@ export default function HowItWorks() {
       moleculeDim={0.55}
       className="relative px-6 py-32 sm:px-10"
     >
+      <SectionBackdrop {...PHOTOS.howItWorks} />
       <div className="mx-auto max-w-7xl text-over-molecule">
         <Reveal>
           <p className="section-label text-clinical/60">How it works</p>

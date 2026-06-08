@@ -12,10 +12,22 @@ const ROLES = [
 export default function ContactForm() {
   const [submitted, setSubmitted] = useState(false);
 
-  // TODO (open item #6): wire submissions to email/CRM + audience-based
-  // lead routing. For now this validates and confirms client-side only.
+  // No-backend default: compose a pre-filled email to the team. Swap this for
+  // a POST to an API route / CRM later (open item #6) without touching the UI.
   const onSubmit = (e) => {
     e.preventDefault();
+    const data = new FormData(e.currentTarget);
+    const name = data.get("name") || "";
+    const email = data.get("email") || "";
+    const role = data.get("role") || "";
+    const message = data.get("message") || "";
+
+    const subject = `First Dose enquiry — ${role}`;
+    const body = `Name: ${name}\nEmail: ${email}\nI am a: ${role}\n\n${message}`;
+    window.location.href = `mailto:hello@firstdosehealth.com?subject=${encodeURIComponent(
+      subject
+    )}&body=${encodeURIComponent(body)}`;
+
     setSubmitted(true);
   };
 
@@ -39,6 +51,7 @@ export default function ContactForm() {
         <input
           name="name"
           required
+          aria-label="Name"
           placeholder="Name"
           autoComplete="name"
           className={field}
@@ -47,13 +60,20 @@ export default function ContactForm() {
           name="email"
           type="email"
           required
+          aria-label="Email"
           placeholder="Email"
           autoComplete="email"
           className={field}
         />
       </div>
 
-      <select name="role" required defaultValue="" className={field}>
+      <select
+        name="role"
+        required
+        aria-label="I am a…"
+        defaultValue=""
+        className={field}
+      >
         <option value="" disabled>
           I am a…
         </option>
@@ -67,6 +87,7 @@ export default function ContactForm() {
       <textarea
         name="message"
         rows={4}
+        aria-label="Message"
         placeholder="Message"
         className={`${field} resize-none`}
       />

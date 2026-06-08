@@ -33,6 +33,7 @@
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 6rem; /* clear the fixed nav when jumping to anchors */
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -84,6 +85,66 @@ body {
   background: rgba(10, 14, 20, 0.55);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+}
+
+/* ============================================================
+   Scientific photography backdrops (§9–11)
+   Still images animated with transforms — no video. Felt, not seen.
+   ============================================================ */
+.anim-kenburns {
+  animation: kenburns 28s ease-in-out infinite alternate;
+}
+.anim-pan {
+  animation: pan 30s linear infinite alternate;
+}
+.anim-drift {
+  animation: drift 40s linear infinite alternate;
+}
+.anim-pulse {
+  animation: pulse 8s ease-in-out infinite;
+}
+
+@keyframes kenburns {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.08);
+  }
+}
+@keyframes pan {
+  from {
+    transform: scale(1.06) translateX(-2%);
+  }
+  to {
+    transform: scale(1.06) translateX(2%);
+  }
+}
+@keyframes drift {
+  from {
+    transform: scale(1.08) translate(-2%, -1%);
+  }
+  to {
+    transform: scale(1.08) translate(2%, 1%);
+  }
+}
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.005);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-kenburns,
+  .anim-pan,
+  .anim-drift,
+  .anim-pulse {
+    animation: none;
+  }
 }
 
 /* Faint glowing hairline divider between sections */

@@ -1,0 +1,90 @@
+@import "tailwindcss";
+
+/* ============================================================
+   First Dose Health — design tokens
+   Deep charcoal-blue, clinical, cinematic. See UX/UI brief §2.
+   ============================================================ */
+@theme {
+  /* Canvas */
+  --color-bg: #0a0e14;
+
+  /* Accents (desaturated, clinical — never neon) */
+  --color-clinical: #7fb5c9; /* primary / brand / strand A */
+  --color-coral: #c97f7f; /* signal / urgency / strand B */
+  --color-slate: #a99cc4; /* base-pair accents */
+  --color-sand: #c9b896; /* G-C base-pair accents, used sparingly */
+
+  /* Text */
+  --color-ink: #f0f4f8; /* headlines — slightly warm white */
+  --color-ink-60: rgba(240, 244, 248, 0.6);
+  --color-ink-55: rgba(240, 244, 248, 0.55); /* body */
+  --color-ink-45: rgba(240, 244, 248, 0.45);
+  --color-ink-35: rgba(240, 244, 248, 0.35); /* captions, nav */
+
+  /* Hairlines */
+  --color-hairline: rgba(240, 244, 248, 0.1);
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+/* ============================================================
+   Reusable primitives
+   ============================================================ */
+
+/* Small tracked uppercase section label */
+.section-label {
+  font-size: 0.6875rem; /* 11px */
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* Dark shadow so copy stays legible over the bright molecule */
+.text-over-molecule {
+  text-shadow: 0 2px 30px rgba(0, 0, 0, 0.9);
+}
+
+/* Soft colored glow behind big accent stat numbers */
+.glow-clinical {
+  text-shadow: 0 0 24px rgba(127, 181, 201, 0.25);
+}
+.glow-coral {
+  text-shadow: 0 0 24px rgba(201, 127, 127, 0.25);
+}
+.glow-slate {
+  text-shadow: 0 0 24px rgba(169, 156, 196, 0.25);
+}
+
+/* Faint glowing hairline divider between sections */
+.hairline {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(127, 181, 201, 0.12),
+    transparent
+  );
+}

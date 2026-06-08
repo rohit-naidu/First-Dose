@@ -38,15 +38,17 @@ export default function HowItWorks() {
           </h2>
         </Reveal>
 
-        <div className="mt-16 grid gap-12 md:grid-cols-3 md:gap-10">
+        <div className="mt-12 grid gap-5 md:grid-cols-3">
           {STEPS.map((s, i) => (
-            <Reveal key={s.n} delay={i * 0.12}>
-              <div className="max-w-sm">
-                <span className="text-sm font-light tracking-[0.2em] text-clinical">
-                  {s.n}
-                </span>
-                <h3 className="mt-4 text-xl font-light text-ink">{s.title}</h3>
-                <p className="mt-3 text-sm leading-[1.7] text-ink-55">
+            <Reveal key={s.n} delay={i * 0.1}>
+              <div className="glass flex h-full flex-col rounded-md border border-hairline p-7">
+                <div className="flex items-baseline gap-3">
+                  <span className="text-3xl font-extralight tracking-tight text-clinical glow-clinical">
+                    {s.n}
+                  </span>
+                  <h3 className="text-lg font-light text-ink">{s.title}</h3>
+                </div>
+                <p className="mt-4 text-sm leading-[1.7] text-ink-55">
                   {s.body}
                 </p>
               </div>
@@ -55,7 +57,7 @@ export default function HowItWorks() {
         </div>
 
         <Reveal delay={0.1}>
-          <p className="mt-16 text-base font-light text-ink-60">
+          <p className="mt-12 text-base font-light text-ink-60">
             Starting with GLP-1s.{" "}
             <span className="text-clinical">Built for every drug class.</span>
           </p>

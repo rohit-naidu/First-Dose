@@ -23,12 +23,6 @@ const ADVISORS = [
   },
 ];
 
-const PUBLICATIONS = [
-  { label: "Publication 01", href: "#" },
-  { label: "Publication 02", href: "#" },
-  { label: "Publication 03", href: "#" },
-];
-
 export default function Credibility() {
   return (
     <Section
@@ -87,19 +81,8 @@ export default function Credibility() {
           <div className="mt-12 max-w-2xl">
             <p className="text-sm leading-[1.7] text-ink-55">
               Six years of computational pharmacology research across USC, UCI,
-              and Texas Tech. Three peer-reviewed publications.
+              and Texas Tech.
             </p>
-            <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2">
-              {PUBLICATIONS.map((p) => (
-                <a
-                  key={p.label}
-                  href={p.href}
-                  className="text-[13px] text-clinical underline decoration-clinical/30 underline-offset-4 transition-colors hover:decoration-clinical"
-                >
-                  {p.label} →
-                </a>
-              ))}
-            </div>
           </div>
         </Reveal>
 

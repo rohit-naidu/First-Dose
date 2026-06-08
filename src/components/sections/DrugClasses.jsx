@@ -21,7 +21,7 @@ const CARDS = [
     name: "Cardiovascular",
     live: false,
     href: "/cardiovascular",
-    body: "The wrong anticoagulant dose doesn't cause side effects. It causes strokes. CYP2C19 genotyping already guides clopidogrel prescribing in leading cardiac centers. We're bringing that precision to every clinic.",
+    body: "Cardiovascular care still runs on population averages. The breakthrough isn't a new drug — it's understanding each person well enough that the right prevention and the right dose stop being guesswork. We're building that precision for every clinic.",
   },
   {
     name: "Oncology",

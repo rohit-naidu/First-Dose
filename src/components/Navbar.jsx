@@ -5,8 +5,10 @@ import Link from "next/link";
 
 const LINKS = [
   { label: "How it works", href: "/#how-it-works" },
-  { label: "Drug classes", href: "/#drug-classes" },
   { label: "Credibility", href: "/#credibility" },
+  { label: "Drug classes", href: "/#drug-classes" },
+  { label: "Vision", href: "/#trajectory" },
+  { label: "Contact", href: "/#contact" },
 ];
 
 export default function Navbar() {
@@ -35,7 +37,7 @@ export default function Navbar() {
           First Dose <span className="text-ink-45">Health</span>
         </Link>
 
-        <div className="hidden items-center gap-8 md:flex">
+        <div className="hidden items-center gap-6 md:flex">
           {LINKS.map((l) => (
             <Link
               key={l.href}

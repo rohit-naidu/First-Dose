@@ -7,17 +7,17 @@ const STEPS = [
   {
     n: "01",
     title: "Profile",
-    body: "Before a patient starts a new medication, we analyze the biological markers that predict how their body will process it.",
+    body: "We bring together the full picture of the individual — genetics, bloodwork, clinical and family history. Every signal that shapes how their body will respond.",
   },
   {
     n: "02",
     title: "Predict",
-    body: "Our model identifies each patient's individual response profile — who will respond, who will struggle, and why.",
+    body: "Our model turns that profile into a clear prediction: whether the drug will work for this patient, the side effects they're likely to face, and the dose most likely to succeed — before the first dose.",
   },
   {
     n: "03",
     title: "Prescribe",
-    body: "Clinicians receive a clear recommendation embedded in their existing workflow. Not a report to interpret. A decision already made.",
+    body: "The clinician receives a specific recommendation — the right drug, at the right dose, for this patient — inside the tools they already use. Not a report to interpret. A decision already made.",
   },
 ];
 

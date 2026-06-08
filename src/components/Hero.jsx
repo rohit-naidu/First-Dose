@@ -46,9 +46,7 @@ export default function Hero() {
             className="text-[2.05rem] font-light leading-[1.18] tracking-[-0.6px] text-ink sm:text-[2.75rem]"
           >
             For 200 years, medicine has been built for the{" "}
-            <em className="font-light not-italic text-clinical italic">
-              average
-            </em>{" "}
+            <em className="font-light italic text-clinical">average</em>{" "}
             patient.
           </motion.h1>
 

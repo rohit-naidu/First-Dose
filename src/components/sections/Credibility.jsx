@@ -76,16 +76,6 @@ export default function Credibility() {
           ))}
         </div>
 
-        {/* Layer 3 — research */}
-        <Reveal delay={0.05}>
-          <div className="mt-12 max-w-2xl">
-            <p className="text-sm leading-[1.7] text-ink-55">
-              Six years of computational pharmacology research across USC, UCI,
-              and Texas Tech.
-            </p>
-          </div>
-        </Reveal>
-
         {/* Layer 4 — traction + closing */}
         <Reveal delay={0.05}>
           <div className="mt-10 border-t border-hairline pt-8">

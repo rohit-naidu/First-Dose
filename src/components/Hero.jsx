@@ -15,7 +15,7 @@ export default function Hero() {
   return (
     <section
       id="top"
-      className="relative flex min-h-[100svh] flex-col justify-center px-6 pt-32 pb-12 sm:px-10"
+      className="relative px-6 pt-44 pb-28 sm:px-10"
     >
       <div className="mx-auto w-full max-w-7xl">
         <div className="max-w-xl text-over-molecule">

@@ -36,9 +36,13 @@ export default function HowItWorks() {
           <h2 className="mt-4 max-w-2xl text-[2rem] font-light leading-[1.2] tracking-[-0.5px] text-ink sm:text-[2.4rem]">
             How First Dose works
           </h2>
+          <p className="mt-5 max-w-xl text-sm leading-[1.7] text-ink-55">
+            Three steps stand between a patient and the right prescription. We
+            turn each one from a guess into a decision.
+          </p>
         </Reveal>
 
-        <div className="mt-12 grid gap-5 md:grid-cols-3">
+        <div className="mt-10 grid gap-5 md:grid-cols-3">
           {STEPS.map((s, i) => (
             <Reveal key={s.n} delay={i * 0.1}>
               <div className="glass flex h-full flex-col rounded-md border border-hairline p-7">
@@ -57,7 +61,7 @@ export default function HowItWorks() {
         </div>
 
         <Reveal delay={0.1}>
-          <p className="mt-12 text-base font-light text-ink-60">
+          <p className="mt-10 text-base font-light text-ink-60">
             Starting with GLP-1s.{" "}
             <span className="text-clinical">Built for every drug class.</span>
           </p>

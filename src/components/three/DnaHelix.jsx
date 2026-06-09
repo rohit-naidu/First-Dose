@@ -92,8 +92,8 @@ export default function DnaHelix({ reducedMotion = false }) {
 
     const curveA = new THREE.CatmullRomCurve3(ptsA);
     const curveB = new THREE.CatmullRomCurve3(ptsB);
-    const tubeA = new THREE.TubeGeometry(curveA, RUNGS * 8, 0.5, 20, false);
-    const tubeB = new THREE.TubeGeometry(curveB, RUNGS * 8, 0.5, 20, false);
+    const tubeA = new THREE.TubeGeometry(curveA, RUNGS * 4, 0.5, 8, false);
+    const tubeB = new THREE.TubeGeometry(curveB, RUNGS * 4, 0.5, 8, false);
 
     return { tubeA, tubeB, spheres, cylinders };
   }, []);
@@ -150,9 +150,9 @@ export default function DnaHelix({ reducedMotion = false }) {
     // Dim under text-heavy sections so legibility always wins (§6)
     dim.current = damp(dim.current, molecule.targetDim, 2.5, d);
     const lit = 1 - 0.6 * dim.current;
-    if (keyLightRef.current) keyLightRef.current.intensity = 70 * lit;
-    if (fillLightRef.current) fillLightRef.current.intensity = 40 * lit;
-    if (dirLightRef.current) dirLightRef.current.intensity = 0.7 * lit;
+    if (keyLightRef.current) keyLightRef.current.intensity = 90 * lit;
+    if (fillLightRef.current) fillLightRef.current.intensity = 50 * lit;
+    if (dirLightRef.current) dirLightRef.current.intensity = 0.9 * lit;
 
     // Key/fill lights slowly orbit the molecule (§3)
     const t = state.clock.elapsedTime;
@@ -181,74 +181,44 @@ export default function DnaHelix({ reducedMotion = false }) {
         intensity={1.1}
         position={[-8, 4, 6]}
       />
-      {/* glossy backbones — wet clinical clearcoat over a satin base */}
+      {/* backbones */}
       <mesh geometry={tubeA}>
-        <meshPhysicalMaterial
-          color={CLINICAL}
-          roughness={0.32}
-          metalness={0}
-          clearcoat={1}
-          clearcoatRoughness={0.14}
-          envMapIntensity={1.1}
-          sheen={0.4}
-          sheenColor="#cde3ec"
-        />
+        <meshStandardMaterial color={CLINICAL} roughness={0.45} metalness={0.1} />
       </mesh>
       <mesh geometry={tubeB}>
-        <meshPhysicalMaterial
-          color={CORAL}
-          roughness={0.32}
-          metalness={0}
-          clearcoat={1}
-          clearcoatRoughness={0.14}
-          envMapIntensity={1.1}
-          sheen={0.4}
-          sheenColor="#e6c4c4"
-        />
+        <meshStandardMaterial color={CORAL} roughness={0.45} metalness={0.1} />
       </mesh>
 
-      {/* nucleotides — glossy beads with strong reflections */}
+      {/* nucleotides */}
       <instancedMesh
         ref={sphereRef}
         args={[undefined, undefined, spheres.length]}
       >
-        <sphereGeometry args={[SPHERE_R, 48, 48]} />
-        <meshPhysicalMaterial
-          roughness={0.16}
-          metalness={0}
-          clearcoat={1}
-          clearcoatRoughness={0.1}
-          envMapIntensity={1.25}
-        />
+        <sphereGeometry args={[SPHERE_R, 24, 24]} />
+        <meshStandardMaterial roughness={0.35} metalness={0.05} />
       </instancedMesh>
 
-      {/* base-pair rung halves — slightly more matte so beads read as the highlight */}
+      {/* base-pair rung halves */}
       <instancedMesh
         ref={cylRef}
         args={[undefined, undefined, cylinders.length]}
       >
-        <cylinderGeometry args={[CYL_R, CYL_R, 1, 24]} />
-        <meshPhysicalMaterial
-          roughness={0.4}
-          metalness={0}
-          clearcoat={0.7}
-          clearcoatRoughness={0.3}
-          envMapIntensity={0.9}
-        />
+        <cylinderGeometry args={[CYL_R, CYL_R, 1, 8]} />
+        <meshStandardMaterial roughness={0.5} metalness={0} />
       </instancedMesh>
 
-      {/* moving studio speculars — env map does the heavy lifting now (§3) */}
+      {/* a couple of soft lights for shape — cheap (§3) */}
       <pointLight
         ref={keyLightRef}
         color="#cde3ec"
-        intensity={70}
+        intensity={90}
         distance={60}
         decay={1.4}
       />
       <pointLight
         ref={fillLightRef}
         color="#d6b0b0"
-        intensity={40}
+        intensity={50}
         distance={60}
         decay={1.4}
       />

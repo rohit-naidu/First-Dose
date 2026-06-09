@@ -79,12 +79,12 @@ body {
   text-shadow: 0 0 24px rgba(169, 156, 196, 0.25);
 }
 
-/* Dark glass for cards/panels floating over the molecule — keeps the helix
-   felt behind while guaranteeing foreground legibility (§6) */
+/* Dark panel for cards over the molecule. Solid-ish fill instead of a
+   backdrop blur — blur re-composites the live 3D canvas every scroll frame,
+   which is the main cause of choppy scrolling. This reads the same but is
+   far cheaper (§6). */
 .glass {
-  background: rgba(10, 14, 20, 0.55);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: rgba(11, 15, 22, 0.82);
 }
 
 /* ============================================================

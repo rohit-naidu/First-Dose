@@ -21,10 +21,10 @@ export default function Navbar() {
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 border-b backdrop-blur-md transition-colors duration-300 ${
+      className={`fixed inset-x-0 top-0 z-50 border-b transition-colors duration-300 ${
         scrolled
-          ? "border-hairline bg-bg/80"
-          : "border-hairline/60 bg-bg/40"
+          ? "border-hairline bg-bg/95"
+          : "border-hairline/60 bg-bg/85"
       }`}
     >
       <nav className="mx-auto max-w-7xl px-6 sm:px-10">

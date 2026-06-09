@@ -27,7 +27,7 @@ export default function MoleculeCanvas() {
   return (
     <div className="pointer-events-none fixed inset-0 -z-10" aria-hidden="true">
       <Canvas
-        dpr={[1, 1.5]}
+        dpr={[1, 1.25]}
         camera={{ position: [0, 0, 17], fov: 50 }}
         gl={{
           antialias: true,

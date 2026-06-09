@@ -76,7 +76,7 @@ export default function Glp1Page() {
                 </a>
                 <Link
                   href="/#drug-classes"
-                  className="rounded-[2px] border border-hairline bg-white/[0.02] px-6 py-3 text-[13px] text-ink backdrop-blur-sm transition-colors hover:border-ink/30"
+                  className="rounded-[2px] border border-hairline bg-white/[0.05] px-6 py-3 text-[13px] text-ink transition-colors hover:border-ink/30"
                 >
                   See all drug classes
                 </Link>

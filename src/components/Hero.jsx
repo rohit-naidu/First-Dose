@@ -69,7 +69,7 @@ export default function Hero() {
             </a>
             <a
               href="#how-it-works"
-              className="rounded-[2px] border border-hairline bg-white/[0.02] px-6 py-3 text-[13px] text-ink backdrop-blur-sm transition-colors hover:border-ink/30"
+              className="rounded-[2px] border border-hairline bg-white/[0.05] px-6 py-3 text-[13px] text-ink transition-colors hover:border-ink/30"
             >
               Learn more
             </a>

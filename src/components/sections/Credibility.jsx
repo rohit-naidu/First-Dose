@@ -5,6 +5,10 @@ import { PHOTOS } from "@/lib/photography";
 
 const INSTITUTIONS = ["Bristol Myers Squibb", "Johnson & Johnson", "GSK"];
 
+// Telehealth clinic pilot partners. Add { href } to link out, or swap the pill
+// for a logo image (drop into public/images/partners/) when you have them.
+const PARTNERS = ["GoRocky", "Saaya", "MiDocOnline"];
+
 const ADVISORS = [
   {
     name: "Dr. Chowdari",
@@ -97,11 +101,20 @@ export default function Credibility() {
         {/* Layer 4 — traction + closing */}
         <Reveal delay={0.05}>
           <div className="mt-10 border-t border-hairline pt-8">
-            <p className="text-sm text-ink-45">
-              Currently in pilot with{" "}
-              <span className="text-ink-60">[clinic partner]</span>.
+            <p className="text-[11px] uppercase tracking-[0.15em] text-ink-35">
+              Currently piloting with
             </p>
-            <p className="mt-2 text-base font-light text-ink-60">
+            <div className="mt-4 flex flex-wrap gap-3">
+              {PARTNERS.map((name) => (
+                <span
+                  key={name}
+                  className="rounded-full border border-hairline px-4 py-2 text-[13px] text-ink-60"
+                >
+                  {name}
+                </span>
+              ))}
+            </div>
+            <p className="mt-6 text-base font-light text-ink-60">
               Early data is validating what the science predicted.{" "}
               <span className="text-clinical">More to come.</span>
             </p>

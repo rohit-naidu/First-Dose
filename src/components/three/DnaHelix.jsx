@@ -181,12 +181,12 @@ export default function DnaHelix({ reducedMotion = false }) {
         intensity={1.1}
         position={[-8, 4, 6]}
       />
-      {/* backbones */}
+      {/* backbones — Lambert: lighting per-vertex, very cheap to render */}
       <mesh geometry={tubeA}>
-        <meshStandardMaterial color={CLINICAL} roughness={0.45} metalness={0.1} />
+        <meshLambertMaterial color={CLINICAL} />
       </mesh>
       <mesh geometry={tubeB}>
-        <meshStandardMaterial color={CORAL} roughness={0.45} metalness={0.1} />
+        <meshLambertMaterial color={CORAL} />
       </mesh>
 
       {/* nucleotides */}
@@ -194,8 +194,8 @@ export default function DnaHelix({ reducedMotion = false }) {
         ref={sphereRef}
         args={[undefined, undefined, spheres.length]}
       >
-        <sphereGeometry args={[SPHERE_R, 24, 24]} />
-        <meshStandardMaterial roughness={0.35} metalness={0.05} />
+        <sphereGeometry args={[SPHERE_R, 18, 18]} />
+        <meshLambertMaterial />
       </instancedMesh>
 
       {/* base-pair rung halves */}
@@ -203,11 +203,11 @@ export default function DnaHelix({ reducedMotion = false }) {
         ref={cylRef}
         args={[undefined, undefined, cylinders.length]}
       >
-        <cylinderGeometry args={[CYL_R, CYL_R, 1, 8]} />
-        <meshStandardMaterial roughness={0.5} metalness={0} />
+        <cylinderGeometry args={[CYL_R, CYL_R, 1, 6]} />
+        <meshLambertMaterial />
       </instancedMesh>
 
-      {/* a couple of soft lights for shape — cheap (§3) */}
+      {/* two soft lights for shape (§3) */}
       <pointLight
         ref={keyLightRef}
         color="#cde3ec"

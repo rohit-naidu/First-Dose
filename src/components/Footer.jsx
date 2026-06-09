@@ -10,12 +10,22 @@ export default function Footer() {
           </p>
         </div>
         <div className="text-[13px] text-ink-45 sm:text-right">
-          <a
-            href="mailto:hello@firstdosehealth.com"
-            className="text-clinical transition-colors hover:text-ink"
-          >
-            hello@firstdosehealth.com
-          </a>
+          <div className="flex gap-5 sm:justify-end">
+            <a
+              href="https://sideeffect.me"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-clinical transition-colors hover:text-ink"
+            >
+              Research blog
+            </a>
+            <a
+              href="mailto:hello@firstdosehealth.com"
+              className="text-clinical transition-colors hover:text-ink"
+            >
+              hello@firstdosehealth.com
+            </a>
+          </div>
           <p className="mt-2 text-ink-35">© 2026 First Dose Health</p>
         </div>
       </div>

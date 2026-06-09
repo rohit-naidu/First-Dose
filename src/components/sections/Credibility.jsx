@@ -28,8 +28,8 @@ export default function Credibility() {
     <Section
       id="credibility"
       moleculeX={-6.5}
-      moleculeDim={0.62}
-      className="relative px-6 py-32 sm:px-10"
+      moleculeDim={0.45}
+      className="relative px-6 py-24 sm:px-10"
     >
       <SectionBackdrop {...PHOTOS.credibility} />
       <div className="mx-auto max-w-7xl text-over-molecule">

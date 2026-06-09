@@ -9,7 +9,7 @@ import HowItWorks from "@/components/sections/HowItWorks";
 import CTA from "@/components/sections/CTA";
 
 export const metadata = {
-  title: "GLP-1s — First Dose Health",
+  title: "GLP-1s | First Dose Health",
   description:
     "9 in 10 GLP-1 patients never complete their first year of therapy. First Dose predicts individual GLP-1 response before the first prescription.",
 };
@@ -62,7 +62,7 @@ export default function Glp1Page() {
             <Reveal delay={0.15}>
               <p className="mt-6 max-w-[30rem] text-sm leading-[1.7] text-ink-55">
                 9 in 10 GLP-1 patients never complete their first year. First
-                Dose predicts who will respond, who will struggle, and why — so
+                Dose predicts who will respond, who will struggle, and why, so
                 your patients stay on therapy.
               </p>
             </Reveal>

@@ -8,9 +8,9 @@ const inter = Inter({
 });
 
 export const metadata = {
-  title: "First Dose Health — Precision medicine, before the first dose",
+  title: "First Dose Health · Precision medicine, before the first dose",
   description:
-    "First Dose predicts how an individual patient will respond to a medication before the first prescription — reducing side effects, improving outcomes, and keeping patients on therapy. Starting with GLP-1s.",
+    "First Dose predicts how an individual patient will respond to a medication before the first prescription, reducing side effects, improving outcomes, and keeping patients on therapy. Starting with GLP-1s.",
   metadataBase: new URL("https://firstdosehealth.com"),
   openGraph: {
     title: "First Dose Health",

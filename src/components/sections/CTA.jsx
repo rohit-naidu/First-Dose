@@ -12,7 +12,7 @@ const BLOCKS = [
   },
   {
     label: "For investors & partners",
-    body: "The precision layer for medicine doesn't exist yet. We're building it — starting with the drug decision, expanding to the full picture of individual health. If you want to be part of that, we want to hear from you.",
+    body: "The precision layer for medicine doesn't exist yet. We're building it, starting with the drug decision, expanding to the full picture of individual health. If you want to be part of that, we want to hear from you.",
     cta: "Get in touch →",
   },
 ];
@@ -22,8 +22,8 @@ export default function CTA() {
     <Section
       id="contact"
       moleculeX={9}
-      moleculeDim={0.72}
-      className="relative px-6 py-32 sm:px-10"
+      moleculeDim={0.55}
+      className="relative px-6 py-24 sm:px-10"
     >
       <SectionBackdrop {...PHOTOS.cta} />
       <div className="mx-auto max-w-4xl text-over-molecule">

@@ -49,7 +49,7 @@ export default function Hero() {
             className="mt-6 max-w-[28rem] text-sm leading-[1.7] text-ink-55"
           >
             First Dose predicts how an individual will respond to a medication
-            before the first prescription — so patients get the right drug, at
+            before the first prescription, so patients get the right drug, at
             the right dose, the first time. Starting with GLP-1s. Built for
             every drug class.
           </motion.p>

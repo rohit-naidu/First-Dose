@@ -6,8 +6,8 @@ export default function Trajectory() {
     <Section
       id="trajectory"
       moleculeX={9}
-      moleculeDim={0.5}
-      className="relative px-6 py-40 sm:px-10"
+      moleculeDim={0.42}
+      className="relative px-6 py-28 sm:px-10"
     >
       <div className="mx-auto max-w-3xl text-center text-over-molecule">
         <Reveal amount={0.4}>

@@ -13,13 +13,13 @@ const STATS = [
   {
     value: "$71.7B",
     color: "text-coral glow-coral",
-    lead: "Spent on GLP-1s in the US annually — much of it prescribed to patients who will discontinue within months.",
+    lead: "Spent on GLP-1s in the US annually. Much of it prescribed to patients who will discontinue within months.",
     accent: "The waste isn't a billing problem. It's a precision problem.",
   },
   {
     value: "28%",
     color: "text-slate glow-slate",
-    lead: "Of discontinuations have side effects as a documented reason — many of them predictable before the first dose.",
+    lead: "Of discontinuations have side effects as a documented reason. Many of them predictable before the first dose.",
     accent: "We already know who will struggle. We just haven't been using that knowledge.",
   },
 ];
@@ -29,8 +29,8 @@ export default function Problem() {
     <Section
       id="problem"
       moleculeX={-7}
-      moleculeDim={0.62}
-      className="relative px-6 py-32 sm:px-10"
+      moleculeDim={0.45}
+      className="relative px-6 py-24 sm:px-10"
     >
       <SectionBackdrop {...PHOTOS.problem} />
       <div className="mx-auto max-w-7xl text-over-molecule">

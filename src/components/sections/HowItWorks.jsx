@@ -7,17 +7,17 @@ const STEPS = [
   {
     n: "01",
     title: "Profile",
-    body: "We bring together the full picture of the individual — genetics, bloodwork, clinical and family history. Every signal that shapes how their body will respond.",
+    body: "We bring together the full picture of the individual: genetics, bloodwork, clinical and family history. Every signal that shapes how their body will respond.",
   },
   {
     n: "02",
     title: "Predict",
-    body: "Our model turns that profile into a clear prediction: whether the drug will work for this patient, the side effects they're likely to face, and the dose most likely to succeed — before the first dose.",
+    body: "Our model turns that profile into a clear prediction: whether the drug will work for this patient, the side effects they're likely to face, and the dose most likely to succeed, all before the first dose.",
   },
   {
     n: "03",
     title: "Prescribe",
-    body: "The clinician receives a specific recommendation — the right drug, at the right dose, for this patient — inside the tools they already use. Not a report to interpret. A decision already made.",
+    body: "The clinician receives a specific recommendation: the right drug, at the right dose, for this patient. It arrives inside the tools they already use. Not a report to interpret. A decision already made.",
   },
 ];
 
@@ -26,8 +26,8 @@ export default function HowItWorks() {
     <Section
       id="how-it-works"
       moleculeX={6.5}
-      moleculeDim={0.55}
-      className="relative px-6 py-32 sm:px-10"
+      moleculeDim={0.42}
+      className="relative px-6 py-24 sm:px-10"
     >
       <SectionBackdrop {...PHOTOS.howItWorks} />
       <div className="mx-auto max-w-7xl text-over-molecule">

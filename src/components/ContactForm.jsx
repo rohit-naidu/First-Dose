@@ -22,7 +22,7 @@ export default function ContactForm() {
     const role = data.get("role") || "";
     const message = data.get("message") || "";
 
-    const subject = `First Dose enquiry — ${role}`;
+    const subject = `First Dose enquiry: ${role}`;
     const body = `Name: ${name}\nEmail: ${email}\nI am a: ${role}\n\n${message}`;
     window.location.href = `mailto:hello@firstdosehealth.com?subject=${encodeURIComponent(
       subject
@@ -37,7 +37,7 @@ export default function ContactForm() {
   if (submitted) {
     return (
       <div className="rounded-md border border-clinical/30 bg-clinical/[0.04] p-8 text-center">
-        <p className="text-base text-ink">Thank you — we&apos;ll be in touch.</p>
+        <p className="text-base text-ink">Thank you. We&apos;ll be in touch.</p>
         <p className="mt-2 text-sm text-ink-45">
           Your message has reached the First Dose team.
         </p>

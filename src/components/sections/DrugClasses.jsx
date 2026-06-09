@@ -9,19 +9,19 @@ const CARDS = [
     name: "GLP-1s",
     live: true,
     href: "/glp-1",
-    body: "The fastest growing drug class in America. The highest discontinuation rate of any medication. 9 in 10 patients don't complete their first year. Side effects, wrong dosing, wrong patient. First Dose predicts individual response before the first prescription — so your patients stay on therapy.",
+    body: "The fastest growing drug class in America. The highest discontinuation rate of any medication. 9 in 10 patients don't complete their first year. Side effects, wrong dosing, wrong patient. First Dose predicts individual response before the first prescription, so your patients stay on therapy.",
   },
   {
     name: "Antidepressants",
     live: false,
     href: "/antidepressants",
-    body: "1 in 3 patients don't respond to their first antidepressant. Most wait months to find out. Pharmacogenomic-guided prescribing increases remission rates by 58% at 8 weeks. The data exists. The application doesn't — yet.",
+    body: "1 in 3 patients don't respond to their first antidepressant. Most wait months to find out. Pharmacogenomic-guided prescribing increases remission rates by 58% at 8 weeks. The data exists. The application doesn't. Yet.",
   },
   {
     name: "Cardiovascular",
     live: false,
     href: "/cardiovascular",
-    body: "Cardiovascular care still runs on population averages. The breakthrough isn't a new drug — it's understanding each person well enough that the right prevention and the right dose stop being guesswork. We're building that precision for every clinic.",
+    body: "Cardiovascular care still runs on population averages. The breakthrough isn't a new drug. It's understanding each person well enough that the right prevention and the right dose stop being guesswork. We're building that precision for every clinic.",
   },
   {
     name: "Oncology",
@@ -48,8 +48,8 @@ export default function DrugClasses() {
     <Section
       id="drug-classes"
       moleculeX={9.5}
-      moleculeDim={0.8}
-      className="relative px-6 py-32 sm:px-10"
+      moleculeDim={0.6}
+      className="relative px-6 py-24 sm:px-10"
     >
       <SectionBackdrop {...PHOTOS.drugClasses} />
       <div className="mx-auto max-w-7xl text-over-molecule">

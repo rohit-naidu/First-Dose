@@ -137,15 +137,8 @@ export default function DnaHelix({ reducedMotion = false }) {
       spinRef.current.rotation.y = auto.current + scrollPhase;
     }
 
-    // Glide to whichever side the active section's copy leaves open (§6)
-    if (outerRef.current) {
-      outerRef.current.position.x = damp(
-        outerRef.current.position.x,
-        molecule.targetX,
-        2.2,
-        d
-      );
-    }
+    // Horizontal position is fixed — the molecule stays in the same vicinity
+    // instead of sliding off-screen between sections.
 
     // Dim under text-heavy sections so legibility always wins (§6)
     dim.current = damp(dim.current, molecule.targetDim, 2.5, d);

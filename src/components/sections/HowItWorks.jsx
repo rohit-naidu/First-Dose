@@ -10,9 +10,9 @@ const STEPS = [
     body: "We assemble the full picture of the individual: the genetic, molecular, and clinical signals that shape how their body will metabolize and respond to a drug.",
     chipLabel: "Signals we read",
     chips: [
-      "Pharmacogenes (CYP2C9, CYP2D6, SLCO1B1)",
-      "Target-pathway variants (GLP1R, TCF7L2)",
-      "Bloodwork (HbA1c, lipid panel, eGFR, hs-CRP)",
+      "Pharmacogenomic markers",
+      "Drug-target pathway variants",
+      "Metabolic & inflammatory bloodwork",
       "Clinical & family history",
     ],
   },
@@ -57,7 +57,7 @@ function SampleOutput() {
     <div className="glass overflow-hidden rounded-lg border border-clinical/25">
       <div className="flex items-center justify-between border-b border-hairline px-5 py-3">
         <span className="text-[11px] uppercase tracking-[0.15em] text-clinical/70">
-          Sample model output
+          Illustrative output
         </span>
         <span className="rounded-full bg-clinical/15 px-2 py-0.5 text-[10px] font-medium text-clinical">
           GLP-1 · semaglutide
@@ -80,25 +80,25 @@ function SampleOutput() {
           </p>
           <p className="mt-1.5 text-2xl font-light text-ink">Low</p>
           <p className="mt-1 text-[11px] text-ink-45">
-            12% vs 31% population
+            below population baseline
           </p>
         </div>
         <div className="bg-bg/40 px-5 py-4">
           <p className="text-[11px] uppercase tracking-[0.1em] text-ink-35">
             Recommended titration
           </p>
-          <p className="mt-1.5 text-2xl font-light text-ink">0.25 mg</p>
+          <p className="mt-1.5 text-2xl font-light text-ink">Conservative</p>
           <p className="mt-1 text-[11px] text-ink-45">
-            slow ramp, 8-week hold
+            slower ramp than standard
           </p>
         </div>
       </div>
 
       <div className="border-t border-hairline px-5 py-3">
         <p className="text-[12px] leading-[1.6] text-ink-45">
-          <span className="text-ink-60">Key drivers:</span> GLP1R rs6923761
-          (A/A), favorable baseline HbA1c trajectory, no CYP-mediated
-          interaction with current medications.
+          <span className="text-ink-60">Key drivers:</span> target-pathway
+          genotype, baseline metabolic trajectory, and no significant
+          drug-drug interactions.
         </p>
       </div>
     </div>

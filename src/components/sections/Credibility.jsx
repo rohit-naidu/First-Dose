@@ -10,9 +10,10 @@ const INSTITUTIONS = ["Bristol Myers Squibb", "Johnson & Johnson", "GSK"];
 // `logo` to its path, e.g. logo: "/images/partners/gorocky.svg".
 // `h` optionally tunes that logo's rendered height in px (defaults to 28).
 const PARTNERS = [
-  { name: "GoRocky", logo: null },
-  { name: "Saaya", logo: null },
-  { name: "MiDocOnline", logo: null },
+  { name: "GoRocky", logo: "/images/partners/gorocky-clean.png", h: 26 },
+  { name: "Saaya", logo: "/images/partners/saaya.png", h: 48 },
+  { name: "TeleMed2U", logo: "/images/partners/telemed2u.png", h: 36 },
+  { name: "MiDocOnline", logo: "/images/partners/midoconline.webp", h: 26 },
 ];
 
 const ADVISORS = [

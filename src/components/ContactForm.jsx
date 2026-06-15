@@ -9,32 +9,50 @@ const ROLES = [
   "Other",
 ];
 
+// Web3Forms access key (tied to arunachalam_mahesh@berkeley.edu). This key is
+// public by design — it only routes submissions to that inbox. Get/replace it
+// at https://web3forms.com (enter the email, copy the access key).
+const ACCESS_KEY = "YOUR_WEB3FORMS_ACCESS_KEY";
+
+const CONTACT_EMAIL = "arunachalam_mahesh@berkeley.edu";
+
 export default function ContactForm() {
-  const [submitted, setSubmitted] = useState(false);
+  // idle | submitting | success | error
+  const [status, setStatus] = useState("idle");
 
-  // No-backend default: compose a pre-filled email to the team. Swap this for
-  // a POST to an API route / CRM later (open item #6) without touching the UI.
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
-    const data = new FormData(e.currentTarget);
-    const name = data.get("name") || "";
-    const email = data.get("email") || "";
-    const role = data.get("role") || "";
-    const message = data.get("message") || "";
+    const form = e.currentTarget;
+    const data = new FormData(form);
 
-    const subject = `First Dose enquiry: ${role}`;
-    const body = `Name: ${name}\nEmail: ${email}\nI am a: ${role}\n\n${message}`;
-    window.location.href = `mailto:arunachalam_mahesh@berkeley.edu?subject=${encodeURIComponent(
-      subject
-    )}&body=${encodeURIComponent(body)}`;
+    // Web3Forms metadata
+    data.append("access_key", ACCESS_KEY);
+    data.append("subject", `First Dose enquiry: ${data.get("role") || ""}`);
+    data.append("from_name", "First Dose Health website");
 
-    setSubmitted(true);
+    setStatus("submitting");
+    try {
+      const res = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: { Accept: "application/json" },
+        body: data,
+      });
+      const json = await res.json();
+      if (json.success) {
+        form.reset();
+        setStatus("success");
+      } else {
+        setStatus("error");
+      }
+    } catch {
+      setStatus("error");
+    }
   };
 
   const field =
     "w-full rounded-sm border border-hairline bg-white/[0.02] px-4 py-3 text-sm text-ink placeholder:text-ink-35 outline-none transition-colors focus:border-clinical/50";
 
-  if (submitted) {
+  if (status === "success") {
     return (
       <div className="rounded-md border border-clinical/30 bg-clinical/[0.04] p-8 text-center">
         <p className="text-base text-ink">Thank you. We&apos;ll be in touch.</p>
@@ -44,6 +62,8 @@ export default function ContactForm() {
       </div>
     );
   }
+
+  const submitting = status === "submitting";
 
   return (
     <form onSubmit={onSubmit} className="grid gap-4">
@@ -92,12 +112,36 @@ export default function ContactForm() {
         className={`${field} resize-none`}
       />
 
+      {/* Honeypot — hidden from people, catches bots */}
+      <input
+        type="checkbox"
+        name="botcheck"
+        tabIndex={-1}
+        autoComplete="off"
+        className="hidden"
+        aria-hidden="true"
+      />
+
       <button
         type="submit"
-        className="justify-self-start rounded-[2px] bg-clinical px-6 py-3 text-[13px] font-semibold text-bg transition-opacity hover:opacity-90"
+        disabled={submitting}
+        className="justify-self-start rounded-[2px] bg-clinical px-6 py-3 text-[13px] font-semibold text-bg transition-opacity hover:opacity-90 disabled:opacity-60"
       >
-        Send message →
+        {submitting ? "Sending…" : "Send message →"}
       </button>
+
+      {status === "error" && (
+        <p className="text-[13px] text-coral">
+          Something went wrong sending your message. Please email us directly at{" "}
+          <a
+            href={`mailto:${CONTACT_EMAIL}`}
+            className="underline underline-offset-2"
+          >
+            {CONTACT_EMAIL}
+          </a>
+          .
+        </p>
+      )}
     </form>
   );
 }

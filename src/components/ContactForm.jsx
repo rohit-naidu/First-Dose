@@ -12,7 +12,7 @@ const ROLES = [
 // Web3Forms access key (tied to arunachalam_mahesh@berkeley.edu). This key is
 // public by design — it only routes submissions to that inbox. Get/replace it
 // at https://web3forms.com (enter the email, copy the access key).
-const ACCESS_KEY = "YOUR_WEB3FORMS_ACCESS_KEY";
+const ACCESS_KEY = "b9b3411d-667a-402d-bbda-aabe1ffecb00";
 
 const CONTACT_EMAIL = "arunachalam_mahesh@berkeley.edu";
 

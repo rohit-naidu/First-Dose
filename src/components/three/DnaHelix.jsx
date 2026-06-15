@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useLayoutEffect } from "react";
+import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { scrollProgress, molecule } from "@/lib/scroll";
@@ -8,244 +8,152 @@ import { scrollProgress, molecule } from "@/lib/scroll";
 const damp = (current, target, lambda, dt) =>
   THREE.MathUtils.damp(current, target, lambda, dt);
 
-/* Clinical palette (UX brief §2/§3) */
-const CLINICAL = new THREE.Color("#7fb5c9"); // strand A backbone
-const CORAL = new THREE.Color("#c97f7f"); // strand B backbone
+/* Brand palette (UX brief §2/§3) — swap STRAND/BASE for reds to match a
+   stock-style mRNA clip. */
+const STRAND = new THREE.Color("#7fb5c9"); // clinical blue backbones
+const BASE_WARM = new THREE.Color("#c97f7f"); // coral base accents
+const BASE_COOL = new THREE.Color("#a99cc4"); // violet base accents
+const HOT = new THREE.Color("#eaf4f8"); // bright sparkle highlights
 
-/* Distinct base colors, paired biologically (A–T, G–C) so each rung reads as
-   a real base pair (§3) */
-const BASE_COLOR = {
-  A: new THREE.Color("#6fa8c4"), // adenine  — blue
-  T: new THREE.Color("#d08a6a"), // thymine  — warm
-  G: new THREE.Color("#9d8fc4"), // guanine  — violet
-  C: new THREE.Color("#ccb878"), // cytosine — sand
-};
-const COMPLEMENT = { A: "T", T: "A", G: "C", C: "G" };
+/* Helix geometry */
+const TURNS = 3.6;
+const HEIGHT = 46;
+const RADIUS = 4.0;
+const PHASE = 2.45; // strand offset → major/minor grooves
 
-/* Believable B-DNA proportions: ~10.5 base pairs per turn, and a strand phase
-   offset so the two backbones are NOT diametrically opposite — that asymmetry
-   is what produces the major and minor grooves real DNA has (§3) */
-const RUNGS = 48;
-const RADIUS = 4.1;
-const RISE = 0.92;
-const TWIST = 0.598; // 2π / 10.5
-const PHASE = 2.5; // strand B angular offset (~143°) → grooves
+const STRAND_PTS = 3200; // particles per backbone strand
+const RUNGS = 42;
+const RUNG_PTS = 70; // particles per base-pair rung
+const HALO_PTS = 900; // faint surrounding haze
 
-const BEAD_R = 0.42; // sugar-phosphate backbone bead
-const BACKBONE_R = 0.3; // backbone tube radius
-const BASE_THICK = 0.34; // base plate thickness (along helix axis)
-const BASE_WIDTH = 1.45; // base plate width (tangential)
-const PAIR_GAP = 0.55; // gap at the pairing interface (reads as H-bonds)
-
-const UP = new THREE.Vector3(0, 1, 0);
-
-/* Deterministic pseudo-random sequence so the strand looks varied but stable */
-function makeSequence(n) {
-  const order = ["A", "G", "C", "T", "A", "C", "G", "T"];
-  let seed = 7;
-  const seq = [];
-  for (let i = 0; i < n; i++) {
-    seed = (seed * 1103515245 + 12345) & 0x7fffffff;
-    seq.push(order[seed % order.length]);
-  }
-  return seq;
+/* Soft round glow sprite so each particle reads as light, not a square */
+function makeGlowTexture() {
+  const s = 64;
+  const c = document.createElement("canvas");
+  c.width = c.height = s;
+  const ctx = c.getContext("2d");
+  const g = ctx.createRadialGradient(s / 2, s / 2, 0, s / 2, s / 2, s / 2);
+  g.addColorStop(0, "rgba(255,255,255,1)");
+  g.addColorStop(0.25, "rgba(255,255,255,0.75)");
+  g.addColorStop(0.55, "rgba(255,255,255,0.25)");
+  g.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, s, s);
+  const tex = new THREE.CanvasTexture(c);
+  tex.needsUpdate = true;
+  return tex;
 }
 
 export default function DnaHelix({ reducedMotion = false }) {
   const outerRef = useRef();
-  const spinRef = useRef(); // rotates around the helix long axis
-  const beadRef = useRef();
-  const plateRef = useRef();
-  const keyLightRef = useRef();
-  const fillLightRef = useRef();
-  const dirLightRef = useRef();
+  const spinRef = useRef();
+  const pointsRef = useRef();
 
   const auto = useRef(0);
   const dim = useRef(0);
 
-  const { tubeA, tubeB, beads, plates } = useMemo(() => {
-    const ptsA = [];
-    const ptsB = [];
-    const beads = []; // { p, color }
-    const plates = []; // { p, q, scale:Vector3, color }
-    const seq = makeSequence(RUNGS);
+  const { geometry, texture } = useMemo(() => {
+    const positions = [];
+    const colors = [];
+    const c = new THREE.Color();
 
-    const dir = new THREE.Vector3();
-    const w = new THREE.Vector3();
-    const basis = new THREE.Matrix4();
+    const rand = (a, b) => a + Math.random() * (b - a);
+    const push = (x, y, z, color, bright) => {
+      positions.push(x, y, z);
+      c.copy(color).multiplyScalar(bright);
+      colors.push(c.r, c.g, c.b);
+    };
 
-    for (let i = 0; i < RUNGS; i++) {
-      const angle = i * TWIST;
-      const y = (i - RUNGS / 2) * RISE;
-
-      const pA = new THREE.Vector3(
-        RADIUS * Math.cos(angle),
-        y,
-        RADIUS * Math.sin(angle)
-      );
-      const pB = new THREE.Vector3(
-        RADIUS * Math.cos(angle + PHASE),
-        y,
-        RADIUS * Math.sin(angle + PHASE)
-      );
-      ptsA.push(pA);
-      ptsB.push(pB);
-
-      const baseA = seq[i];
-      const baseB = COMPLEMENT[baseA];
-
-      // Backbone beads carry the strand colour (sugar-phosphate)
-      beads.push({ p: pA, color: CLINICAL });
-      beads.push({ p: pB, color: CORAL });
-
-      // Flat base plates spanning the rung, meeting near the centre with a
-      // small gap (the pairing interface). Both plates are coplanar and thin
-      // along the helix axis → stacked-base look.
-      dir.subVectors(pB, pA);
-      const len = dir.length();
-      dir.normalize();
-      // Orthonormal basis: local X→rung dir, local Y→up, local Z→tangent
-      w.set(-dir.z, 0, dir.x); // = cross(dir, up), horizontal & unit
-      basis.makeBasis(dir, UP, w);
-      const q = new THREE.Quaternion().setFromRotationMatrix(basis);
-
-      const half = len / 2;
-      const plateLen = half - PAIR_GAP / 2;
-      const scale = new THREE.Vector3(plateLen, BASE_THICK, BASE_WIDTH);
-
-      const centerA = pA.clone().addScaledVector(dir, plateLen / 2);
-      const centerB = pB.clone().addScaledVector(dir, -plateLen / 2);
-
-      plates.push({ p: centerA, q, scale, color: BASE_COLOR[baseA] });
-      plates.push({ p: centerB, q, scale, color: BASE_COLOR[baseB] });
+    // Two backbone strands — dense particle clouds with slight jitter
+    for (let s = 0; s < 2; s++) {
+      const offset = s === 0 ? 0 : PHASE;
+      for (let i = 0; i < STRAND_PTS; i++) {
+        const t = i / (STRAND_PTS - 1);
+        const a = t * TURNS * Math.PI * 2 + offset;
+        const y = (t - 0.5) * HEIGHT;
+        const r = RADIUS + rand(-0.45, 0.45);
+        const x = r * Math.cos(a) + rand(-0.25, 0.25);
+        const z = r * Math.sin(a) + rand(-0.25, 0.25);
+        const sparkle = Math.random() < 0.05;
+        push(x, y + rand(-0.2, 0.2), z, sparkle ? HOT : STRAND, rand(0.55, 1.15));
+      }
     }
 
-    const curveA = new THREE.CatmullRomCurve3(ptsA);
-    const curveB = new THREE.CatmullRomCurve3(ptsB);
-    const tubeA = new THREE.TubeGeometry(curveA, RUNGS * 5, BACKBONE_R, 8, false);
-    const tubeB = new THREE.TubeGeometry(curveB, RUNGS * 5, BACKBONE_R, 8, false);
+    // Base-pair rungs — particles strung across the chord between the strands
+    for (let k = 0; k < RUNGS; k++) {
+      const t = k / (RUNGS - 1);
+      const a = t * TURNS * Math.PI * 2;
+      const y = (t - 0.5) * HEIGHT;
+      const ax = RADIUS * Math.cos(a);
+      const az = RADIUS * Math.sin(a);
+      const bx = RADIUS * Math.cos(a + PHASE);
+      const bz = RADIUS * Math.sin(a + PHASE);
+      const warm = k % 2 === 0;
+      for (let j = 0; j < RUNG_PTS; j++) {
+        const u = j / (RUNG_PTS - 1);
+        const x = ax + (bx - ax) * u + rand(-0.18, 0.18);
+        const z = az + (bz - az) * u + rand(-0.18, 0.18);
+        const yy = y + rand(-0.18, 0.18);
+        push(x, yy, z, warm ? BASE_WARM : BASE_COOL, rand(0.45, 1.0));
+      }
+    }
 
-    return { tubeA, tubeB, beads, plates };
+    // Faint surrounding haze for the "millions of elements" depth
+    for (let i = 0; i < HALO_PTS; i++) {
+      const a = rand(0, Math.PI * 2);
+      const r = RADIUS + rand(-2.2, 3.0);
+      const y = rand(-0.5, 0.5) * HEIGHT;
+      push(
+        r * Math.cos(a),
+        y,
+        r * Math.sin(a),
+        STRAND,
+        rand(0.15, 0.4)
+      );
+    }
+
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute(
+      "position",
+      new THREE.Float32BufferAttribute(positions, 3)
+    );
+    geometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
+
+    return { geometry, texture: makeGlowTexture() };
   }, []);
 
-  // Write per-instance matrices + colors once.
-  useLayoutEffect(() => {
-    const m = new THREE.Matrix4();
-    const unit = new THREE.Vector3(1, 1, 1);
-    const qI = new THREE.Quaternion();
-
-    const bm = beadRef.current;
-    beads.forEach(({ p, color }, i) => {
-      m.compose(p, qI, unit);
-      bm.setMatrixAt(i, m);
-      bm.setColorAt(i, color);
-    });
-    bm.instanceMatrix.needsUpdate = true;
-    if (bm.instanceColor) bm.instanceColor.needsUpdate = true;
-
-    const pm = plateRef.current;
-    plates.forEach(({ p, q, scale, color }, i) => {
-      m.compose(p, q, scale);
-      pm.setMatrixAt(i, m);
-      pm.setColorAt(i, color);
-    });
-    pm.instanceMatrix.needsUpdate = true;
-    if (pm.instanceColor) pm.instanceColor.needsUpdate = true;
-  }, [beads, plates]);
-
   useFrame((state, delta) => {
-    if (typeof document !== "undefined" && document.hidden) return; // pause when tab hidden
-    const d = Math.min(delta, 0.05); // clamp after tab refocus
+    if (typeof document !== "undefined" && document.hidden) return;
+    const d = Math.min(delta, 0.05);
 
-    // Slow constant auto-rotation around the long axis (§3)
-    auto.current += (reducedMotion ? 0.0008 : 0.0045) * (d * 60);
-
-    // Scroll "turns" the molecule (§3) — disabled under reduced motion
+    auto.current += (reducedMotion ? 0.0009 : 0.005) * (d * 60);
     const scrollPhase = reducedMotion ? 0 : scrollProgress.value * Math.PI * 1.5;
-
     if (spinRef.current) {
       spinRef.current.rotation.y = auto.current + scrollPhase;
     }
 
-    // Horizontal position is fixed — the molecule stays in the same vicinity
-    // instead of sliding off-screen between sections.
-
-    // Dim under text-heavy sections so legibility always wins (§6)
+    // Dim under text-heavy sections via particle opacity (legibility, §6)
     dim.current = damp(dim.current, molecule.targetDim, 2.5, d);
-    const lit = 1 - 0.6 * dim.current;
-    if (keyLightRef.current) keyLightRef.current.intensity = 90 * lit;
-    if (fillLightRef.current) fillLightRef.current.intensity = 50 * lit;
-    if (dirLightRef.current) dirLightRef.current.intensity = 0.9 * lit;
-
-    // Key/fill lights slowly orbit the molecule (§3)
-    const t = state.clock.elapsedTime;
-    if (keyLightRef.current) {
-      keyLightRef.current.position.set(
-        Math.cos(t * 0.12) * 14,
-        6,
-        Math.sin(t * 0.12) * 14 + 6
-      );
-    }
-    if (fillLightRef.current) {
-      fillLightRef.current.position.set(
-        Math.cos(t * 0.12 + Math.PI) * 12,
-        -4,
-        Math.sin(t * 0.12 + Math.PI) * 12 + 6
-      );
+    if (pointsRef.current) {
+      pointsRef.current.material.opacity = 0.95 * (1 - 0.55 * dim.current);
     }
   });
 
   return (
     <group ref={outerRef} rotation={[0, 0, -0.5]} position={[5.2, 0, 0]}>
       <group ref={spinRef}>
-        <directionalLight
-          ref={dirLightRef}
-          color="#b8c4d6"
-          intensity={1.1}
-          position={[-8, 4, 6]}
-        />
-
-        {/* sugar-phosphate backbones — Lambert: per-vertex lighting, cheap */}
-        <mesh geometry={tubeA}>
-          <meshLambertMaterial color={CLINICAL} />
-        </mesh>
-        <mesh geometry={tubeB}>
-          <meshLambertMaterial color={CORAL} />
-        </mesh>
-
-        {/* backbone beads */}
-        <instancedMesh
-          ref={beadRef}
-          args={[undefined, undefined, beads.length]}
-        >
-          <sphereGeometry args={[BEAD_R, 16, 16]} />
-          <meshLambertMaterial />
-        </instancedMesh>
-
-        {/* flat stacked base pairs */}
-        <instancedMesh
-          ref={plateRef}
-          args={[undefined, undefined, plates.length]}
-        >
-          <boxGeometry args={[1, 1, 1]} />
-          <meshLambertMaterial />
-        </instancedMesh>
-
-        {/* two soft lights for shape (§3) */}
-        <pointLight
-          ref={keyLightRef}
-          color="#cde3ec"
-          intensity={90}
-          distance={60}
-          decay={1.4}
-        />
-        <pointLight
-          ref={fillLightRef}
-          color="#d6b0b0"
-          intensity={50}
-          distance={60}
-          decay={1.4}
-        />
+        <points ref={pointsRef} geometry={geometry}>
+          <pointsMaterial
+            map={texture}
+            size={0.5}
+            sizeAttenuation
+            vertexColors
+            transparent
+            opacity={0.95}
+            depthWrite={false}
+            blending={THREE.AdditiveBlending}
+          />
+        </points>
       </group>
     </group>
   );

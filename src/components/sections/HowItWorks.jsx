@@ -3,11 +3,59 @@ import Reveal from "@/components/Reveal";
 import SectionBackdrop from "@/components/SectionBackdrop";
 import { PHOTOS } from "@/lib/photography";
 
+/* ---- stage icons (simple stroke line art) ---- */
+const iconProps = {
+  width: 26,
+  height: 26,
+  viewBox: "0 0 24 24",
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: 1.4,
+  strokeLinecap: "round",
+  strokeLinejoin: "round",
+};
+
+function ProfileIcon() {
+  // data sources converging on the patient
+  return (
+    <svg {...iconProps}>
+      <circle cx="12" cy="12" r="3" />
+      <circle cx="4" cy="5" r="1.6" />
+      <circle cx="4" cy="19" r="1.6" />
+      <circle cx="20" cy="8" r="1.6" />
+      <path d="M5.4 6 9.4 10.4M5.4 18 9.4 13.6M18.6 9 14.6 11" />
+    </svg>
+  );
+}
+
+function PredictIcon() {
+  // model turning signal into a probability curve
+  return (
+    <svg {...iconProps}>
+      <path d="M3 17c3 0 4-9 7-9s4 6 7 6" />
+      <path d="M3 21h18" />
+      <circle cx="17" cy="14" r="1.4" />
+    </svg>
+  );
+}
+
+function PrescribeIcon() {
+  // a decision, ready to act on
+  return (
+    <svg {...iconProps}>
+      <rect x="5" y="3.5" width="14" height="17" rx="2" />
+      <path d="M9 3.5V6h6V3.5" />
+      <path d="M8.5 13.5l2.2 2.2 4.3-4.6" />
+    </svg>
+  );
+}
+
 const STEPS = [
   {
     n: "01",
     title: "Profile",
-    body: "We assemble the full picture of the individual: the genetic, molecular, and clinical signals that shape how their body will metabolize and respond to a drug.",
+    Icon: ProfileIcon,
+    body: "Every signal that shapes how a patient responds, brought into one place.",
     chipLabel: "Signals we read",
     chips: [
       "Pharmacogenomic markers",
@@ -19,25 +67,27 @@ const STEPS = [
   {
     n: "02",
     title: "Predict",
-    body: "The model converts that profile into calibrated, per-patient predictions: not a single yes/no, but a probability for each outcome that matters.",
+    Icon: PredictIcon,
+    body: "A calibrated probability for each outcome that matters, not a yes/no.",
     chipLabel: "What the model outputs",
     chips: [
       "Response probability",
-      "Adverse-event risk by class",
+      "Adverse-event risk",
       "Optimal starting dose",
-      "Time-to-response estimate",
+      "Time-to-response",
     ],
   },
   {
     n: "03",
     title: "Prescribe",
-    body: "The prediction arrives as a specific recommendation inside the tools the clinician already uses. Not a report to interpret. A decision, ready to act on.",
+    Icon: PrescribeIcon,
+    body: "A specific recommendation, delivered inside the tools clinicians already use.",
     chipLabel: "How it's delivered",
     chips: [
-      "EHR-native order suggestion",
+      "EHR-native suggestion",
       "Confidence + key drivers",
       "Monitoring plan",
-      "Auditable, cited reasoning",
+      "Auditable reasoning",
     ],
   },
 ];
@@ -50,8 +100,134 @@ function Chip({ children }) {
   );
 }
 
-/* Illustrative model output a clinician would see — grounds the abstract
-   pipeline in something concrete (planning doc §4). */
+function Step({ step }) {
+  const { Icon } = step;
+  return (
+    <div className="glass flex h-full flex-col rounded-md border border-hairline p-7">
+      <div className="flex items-center gap-3">
+        <span className="flex h-10 w-10 items-center justify-center rounded-md border border-clinical/30 bg-clinical/[0.06] text-clinical">
+          <Icon />
+        </span>
+        <div>
+          <span className="block text-[11px] font-medium tracking-[0.14em] text-clinical/60">
+            STEP {step.n}
+          </span>
+          <h3 className="text-lg font-light text-ink">{step.title}</h3>
+        </div>
+      </div>
+      <p className="mt-4 text-sm leading-[1.6] text-ink-55">{step.body}</p>
+
+      <div className="mt-6 border-t border-hairline pt-4">
+        <p className="text-[10px] uppercase tracking-[0.14em] text-ink-35">
+          {step.chipLabel}
+        </p>
+        <ul className="mt-3 flex flex-wrap gap-1.5">
+          {step.chips.map((c) => (
+            <Chip key={c}>{c}</Chip>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+function FlowArrow() {
+  return (
+    <div className="hidden items-center justify-center text-clinical/40 md:flex">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+        <path
+          d="M5 12h14M13 6l6 6-6 6"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </div>
+  );
+}
+
+/* ---- output visuals ---- */
+function Dial({ value }) {
+  const r = 30;
+  const c = 2 * Math.PI * r;
+  const offset = c * (1 - value / 100);
+  return (
+    <div className="relative h-[88px] w-[88px]">
+      <svg viewBox="0 0 80 80" className="h-full w-full -rotate-90">
+        <circle
+          cx="40"
+          cy="40"
+          r={r}
+          fill="none"
+          stroke="rgba(255,255,255,0.1)"
+          strokeWidth="7"
+        />
+        <circle
+          cx="40"
+          cy="40"
+          r={r}
+          fill="none"
+          stroke="#7fb5c9"
+          strokeWidth="7"
+          strokeLinecap="round"
+          strokeDasharray={c}
+          strokeDashoffset={offset}
+        />
+      </svg>
+      <div className="absolute inset-0 flex items-center justify-center">
+        <span className="text-xl font-light text-clinical">{value}%</span>
+      </div>
+    </div>
+  );
+}
+
+function RiskMeter({ level }) {
+  const levels = ["Low", "Moderate", "High"];
+  const tone = {
+    Low: "bg-clinical/80 text-bg",
+    Moderate: "bg-amber-400/80 text-bg",
+    High: "bg-coral/80 text-bg",
+  };
+  return (
+    <div className="flex gap-1">
+      {levels.map((l) => (
+        <span
+          key={l}
+          className={`flex-1 rounded-[3px] px-2 py-1.5 text-center text-[11px] font-medium ${
+            l === level
+              ? tone[l]
+              : "border border-hairline text-ink-35"
+          }`}
+        >
+          {l}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function TitrationScale({ position }) {
+  // position 0..1 along Conservative -> Standard -> Aggressive
+  return (
+    <div className="pt-1">
+      <div className="relative h-1.5 rounded-full bg-white/10">
+        <div
+          className="absolute top-1/2 h-3 w-3 -translate-y-1/2 rounded-full border-2 border-bg bg-clinical"
+          style={{ left: `calc(${position * 100}% - 6px)` }}
+        />
+      </div>
+      <div className="mt-2 flex justify-between text-[10px] text-ink-35">
+        <span className={position < 0.34 ? "text-clinical" : ""}>
+          Conservative
+        </span>
+        <span>Standard</span>
+        <span>Aggressive</span>
+      </div>
+    </div>
+  );
+}
+
 function SampleOutput() {
   return (
     <div className="glass overflow-hidden rounded-lg border border-clinical/25">
@@ -65,40 +241,42 @@ function SampleOutput() {
       </div>
 
       <div className="grid gap-px bg-hairline sm:grid-cols-3">
-        <div className="bg-bg/40 px-5 py-4">
-          <p className="text-[11px] uppercase tracking-[0.1em] text-ink-35">
-            Predicted response
-          </p>
-          <p className="mt-1.5 text-2xl font-light text-clinical">87%</p>
-          <p className="mt-1 text-[11px] text-ink-45">
-            ≥5% weight loss at 6 mo
-          </p>
+        <div className="flex items-center gap-4 bg-bg/40 px-5 py-5">
+          <Dial value={87} />
+          <div>
+            <p className="text-[11px] uppercase tracking-[0.1em] text-ink-35">
+              Predicted response
+            </p>
+            <p className="mt-1 text-sm text-ink">Likely responder</p>
+            <p className="text-[11px] text-ink-45">≥5% weight loss at 6 mo</p>
+          </div>
         </div>
-        <div className="bg-bg/40 px-5 py-4">
+
+        <div className="flex flex-col justify-center bg-bg/40 px-5 py-5">
           <p className="text-[11px] uppercase tracking-[0.1em] text-ink-35">
             GI intolerance risk
           </p>
-          <p className="mt-1.5 text-2xl font-light text-ink">Low</p>
-          <p className="mt-1 text-[11px] text-ink-45">
-            below population baseline
-          </p>
+          <div className="mt-3">
+            <RiskMeter level="Low" />
+          </div>
+          <p className="mt-2 text-[11px] text-ink-45">below population baseline</p>
         </div>
-        <div className="bg-bg/40 px-5 py-4">
+
+        <div className="flex flex-col justify-center bg-bg/40 px-5 py-5">
           <p className="text-[11px] uppercase tracking-[0.1em] text-ink-35">
             Recommended titration
           </p>
-          <p className="mt-1.5 text-2xl font-light text-ink">Conservative</p>
-          <p className="mt-1 text-[11px] text-ink-45">
-            slower ramp than standard
-          </p>
+          <div className="mt-2">
+            <TitrationScale position={0.16} />
+          </div>
         </div>
       </div>
 
       <div className="border-t border-hairline px-5 py-3">
         <p className="text-[12px] leading-[1.6] text-ink-45">
           <span className="text-ink-60">Key drivers:</span> target-pathway
-          genotype, baseline metabolic trajectory, and no significant
-          drug-drug interactions.
+          genotype, baseline metabolic trajectory, and no significant drug-drug
+          interactions.
         </p>
       </div>
     </div>
@@ -122,37 +300,23 @@ export default function HowItWorks() {
           </h2>
           <p className="mt-5 max-w-xl text-sm leading-[1.7] text-ink-55">
             One pipeline, three stages: from raw patient signals to a
-            prescription a clinician can act on. Here is what moves through it.
+            prescription a clinician can act on.
           </p>
         </Reveal>
 
-        <div className="mt-10 grid gap-5 md:grid-cols-3">
-          {STEPS.map((s, i) => (
-            <Reveal key={s.n} delay={i * 0.1}>
-              <div className="glass flex h-full flex-col rounded-md border border-hairline p-7">
-                <div className="flex items-baseline gap-3">
-                  <span className="text-3xl font-extralight tracking-tight text-clinical glow-clinical">
-                    {s.n}
-                  </span>
-                  <h3 className="text-lg font-light text-ink">{s.title}</h3>
-                </div>
-                <p className="mt-4 text-sm leading-[1.7] text-ink-55">
-                  {s.body}
-                </p>
-
-                <div className="mt-6 border-t border-hairline pt-4">
-                  <p className="text-[10px] uppercase tracking-[0.14em] text-ink-35">
-                    {s.chipLabel}
-                  </p>
-                  <ul className="mt-3 flex flex-wrap gap-1.5">
-                    {s.chips.map((c) => (
-                      <Chip key={c}>{c}</Chip>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </Reveal>
-          ))}
+        {/* Flow: Profile -> Predict -> Prescribe */}
+        <div className="mt-10 grid grid-cols-1 items-stretch gap-5 md:grid-cols-[1fr_auto_1fr_auto_1fr]">
+          <Reveal>
+            <Step step={STEPS[0]} />
+          </Reveal>
+          <FlowArrow />
+          <Reveal delay={0.1}>
+            <Step step={STEPS[1]} />
+          </Reveal>
+          <FlowArrow />
+          <Reveal delay={0.2}>
+            <Step step={STEPS[2]} />
+          </Reveal>
         </div>
 
         <Reveal delay={0.15}>

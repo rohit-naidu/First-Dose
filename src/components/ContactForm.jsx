@@ -24,7 +24,7 @@ export default function ContactForm() {
 
     const subject = `First Dose enquiry: ${role}`;
     const body = `Name: ${name}\nEmail: ${email}\nI am a: ${role}\n\n${message}`;
-    window.location.href = `mailto:hello@firstdosehealth.com?subject=${encodeURIComponent(
+    window.location.href = `mailto:arunachalam_mahesh@berkeley.edu?subject=${encodeURIComponent(
       subject
     )}&body=${encodeURIComponent(body)}`;
 

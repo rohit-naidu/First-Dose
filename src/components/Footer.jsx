@@ -20,10 +20,10 @@ export default function Footer() {
               Research blog
             </a>
             <a
-              href="mailto:hello@firstdosehealth.com"
+              href="mailto:arunachalam_mahesh@berkeley.edu"
               className="text-clinical transition-colors hover:text-ink"
             >
-              hello@firstdosehealth.com
+              arunachalam_mahesh@berkeley.edu
             </a>
           </div>
           <p className="mt-2 text-ink-35">© 2026 First Dose Health</p>

@@ -53,9 +53,46 @@ export default function Credibility() {
           </h2>
         </Reveal>
 
-        {/* Layer 1 — institutional bar */}
+        {/* Pilot band — lead proof point */}
         <Reveal delay={0.05}>
-          <div className="mt-14">
+          <div className="mt-12">
+            <p className="text-xs uppercase tracking-[0.18em] text-ink-45">
+              Currently piloting with
+            </p>
+            <div className="marquee-mask relative mt-7 overflow-hidden [mask-image:linear-gradient(to_right,transparent,#000_6%,#000_94%,transparent)]">
+              <div className="marquee-track flex w-max items-center py-2">
+                {[...PARTNERS, ...PARTNERS].map((p, i) => (
+                  <span
+                    key={`${p.name}-${i}`}
+                    className="mr-20 flex items-center whitespace-nowrap"
+                  >
+                    {p.logo ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={p.logo}
+                        alt={p.name}
+                        style={{ height: p.h ? `${p.h}px` : "40px" }}
+                        className="w-auto opacity-90 transition-opacity hover:opacity-100"
+                      />
+                    ) : (
+                      <span className="text-2xl font-medium text-ink-60">
+                        {p.name}
+                      </span>
+                    )}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <p className="mt-6 text-base font-light text-ink-60">
+              Early data is validating what the science predicted.{" "}
+              <span className="text-clinical">More to come.</span>
+            </p>
+          </div>
+        </Reveal>
+
+        {/* Institutional bar */}
+        <Reveal delay={0.05}>
+          <div className="mt-14 border-t border-hairline pt-10">
             <p className="text-[11px] uppercase tracking-[0.15em] text-ink-35">
               Advisory board from
             </p>
@@ -109,43 +146,6 @@ export default function Credibility() {
               Read the blog →
             </span>
           </a>
-        </Reveal>
-
-        {/* Layer 4 — traction + closing */}
-        <Reveal delay={0.05}>
-          <div className="mt-10 border-t border-hairline pt-8">
-            <p className="text-xs uppercase tracking-[0.18em] text-ink-45">
-              Currently piloting with
-            </p>
-            <div className="marquee-mask relative mt-7 overflow-hidden [mask-image:linear-gradient(to_right,transparent,#000_6%,#000_94%,transparent)]">
-              <div className="marquee-track flex w-max items-center py-2">
-                {[...PARTNERS, ...PARTNERS].map((p, i) => (
-                  <span
-                    key={`${p.name}-${i}`}
-                    className="mr-20 flex items-center whitespace-nowrap"
-                  >
-                    {p.logo ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={p.logo}
-                        alt={p.name}
-                        style={{ height: p.h ? `${p.h}px` : "40px" }}
-                        className="w-auto opacity-90 transition-opacity hover:opacity-100"
-                      />
-                    ) : (
-                      <span className="text-2xl font-medium text-ink-60">
-                        {p.name}
-                      </span>
-                    )}
-                  </span>
-                ))}
-              </div>
-            </div>
-            <p className="mt-6 text-base font-light text-ink-60">
-              Early data is validating what the science predicted.{" "}
-              <span className="text-clinical">More to come.</span>
-            </p>
-          </div>
         </Reveal>
       </div>
     </Section>

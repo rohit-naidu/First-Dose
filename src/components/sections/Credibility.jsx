@@ -5,9 +5,15 @@ import { PHOTOS } from "@/lib/photography";
 
 const INSTITUTIONS = ["Bristol Myers Squibb", "Johnson & Johnson", "GSK"];
 
-// Telehealth clinic pilot partners. Add { href } to link out, or swap the pill
-// for a logo image (drop into public/images/partners/) when you have them.
-const PARTNERS = ["GoRocky", "Saaya", "MiDocOnline"];
+// Telehealth clinic pilot partners shown in the scrolling marquee.
+// To use a real logo: drop the file in public/images/partners/ and set
+// `logo` to its path, e.g. logo: "/images/partners/gorocky.svg".
+// `h` optionally tunes that logo's rendered height in px (defaults to 28).
+const PARTNERS = [
+  { name: "GoRocky", logo: null },
+  { name: "Saaya", logo: null },
+  { name: "MiDocOnline", logo: null },
+];
 
 const ADVISORS = [
   {
@@ -104,15 +110,29 @@ export default function Credibility() {
             <p className="text-[11px] uppercase tracking-[0.15em] text-ink-35">
               Currently piloting with
             </p>
-            <div className="mt-4 flex flex-wrap gap-3">
-              {PARTNERS.map((name) => (
-                <span
-                  key={name}
-                  className="rounded-full border border-hairline px-4 py-2 text-[13px] text-ink-60"
-                >
-                  {name}
-                </span>
-              ))}
+            <div className="marquee-mask relative mt-5 overflow-hidden [mask-image:linear-gradient(to_right,transparent,#000_6%,#000_94%,transparent)]">
+              <div className="marquee-track flex w-max items-center">
+                {[...PARTNERS, ...PARTNERS].map((p, i) => (
+                  <span
+                    key={`${p.name}-${i}`}
+                    className="mr-16 flex items-center whitespace-nowrap"
+                  >
+                    {p.logo ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={p.logo}
+                        alt={p.name}
+                        style={{ height: p.h ? `${p.h}px` : "28px" }}
+                        className="w-auto opacity-75 transition-opacity hover:opacity-100"
+                      />
+                    ) : (
+                      <span className="text-lg font-medium text-ink-55">
+                        {p.name}
+                      </span>
+                    )}
+                  </span>
+                ))}
+              </div>
             </div>
             <p className="mt-6 text-base font-light text-ink-60">
               Early data is validating what the science predicted.{" "}

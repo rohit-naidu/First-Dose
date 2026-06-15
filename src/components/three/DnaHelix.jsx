@@ -9,35 +9,53 @@ const damp = (current, target, lambda, dt) =>
   THREE.MathUtils.damp(current, target, lambda, dt);
 
 /* Clinical palette (UX brief §2/§3) */
-const CLINICAL = new THREE.Color("#7fb5c9");
-const CORAL = new THREE.Color("#c97f7f");
-const SLATE = new THREE.Color("#a99cc4");
-const SAND = new THREE.Color("#c9b896");
+const CLINICAL = new THREE.Color("#7fb5c9"); // strand A backbone
+const CORAL = new THREE.Color("#c97f7f"); // strand B backbone
 
-/* Base-pair color scheme, alternating down the helix (§3) */
-const PAIRS = [
-  [CLINICAL, CORAL],
-  [SLATE, SAND],
-  [CLINICAL, SAND],
-  [CORAL, SLATE],
-];
+/* Distinct base colors, paired biologically (A–T, G–C) so each rung reads as
+   a real base pair (§3) */
+const BASE_COLOR = {
+  A: new THREE.Color("#6fa8c4"), // adenine  — blue
+  T: new THREE.Color("#d08a6a"), // thymine  — warm
+  G: new THREE.Color("#9d8fc4"), // guanine  — violet
+  C: new THREE.Color("#ccb878"), // cytosine — sand
+};
+const COMPLEMENT = { A: "T", T: "A", G: "C", C: "G" };
 
-/* Believable B-DNA proportions (§3) */
-const RUNGS = 45;
-const RADIUS = 4.4;
-const RISE = 0.9;
-const TWIST = 0.4;
+/* Believable B-DNA proportions: ~10.5 base pairs per turn, and a strand phase
+   offset so the two backbones are NOT diametrically opposite — that asymmetry
+   is what produces the major and minor grooves real DNA has (§3) */
+const RUNGS = 48;
+const RADIUS = 4.1;
+const RISE = 0.92;
+const TWIST = 0.598; // 2π / 10.5
+const PHASE = 2.5; // strand B angular offset (~143°) → grooves
 
-const SPHERE_R = 0.62;
-const CYL_R = 0.16;
+const BEAD_R = 0.42; // sugar-phosphate backbone bead
+const BACKBONE_R = 0.3; // backbone tube radius
+const BASE_THICK = 0.34; // base plate thickness (along helix axis)
+const BASE_WIDTH = 1.45; // base plate width (tangential)
+const PAIR_GAP = 0.55; // gap at the pairing interface (reads as H-bonds)
 
 const UP = new THREE.Vector3(0, 1, 0);
 
+/* Deterministic pseudo-random sequence so the strand looks varied but stable */
+function makeSequence(n) {
+  const order = ["A", "G", "C", "T", "A", "C", "G", "T"];
+  let seed = 7;
+  const seq = [];
+  for (let i = 0; i < n; i++) {
+    seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+    seq.push(order[seed % order.length]);
+  }
+  return seq;
+}
+
 export default function DnaHelix({ reducedMotion = false }) {
-  const outerRef = useRef(); // position (which side) + diagonal tilt
+  const outerRef = useRef();
   const spinRef = useRef(); // rotates around the helix long axis
-  const sphereRef = useRef();
-  const cylRef = useRef();
+  const beadRef = useRef();
+  const plateRef = useRef();
   const keyLightRef = useRef();
   const fillLightRef = useRef();
   const dirLightRef = useRef();
@@ -45,11 +63,16 @@ export default function DnaHelix({ reducedMotion = false }) {
   const auto = useRef(0);
   const dim = useRef(0);
 
-  const { tubeA, tubeB, spheres, cylinders } = useMemo(() => {
+  const { tubeA, tubeB, beads, plates } = useMemo(() => {
     const ptsA = [];
     const ptsB = [];
-    const spheres = []; // { p: Vector3, color }
-    const cylinders = []; // { p: Vector3, q: Quaternion, len, color }
+    const beads = []; // { p, color }
+    const plates = []; // { p, q, scale:Vector3, color }
+    const seq = makeSequence(RUNGS);
+
+    const dir = new THREE.Vector3();
+    const w = new THREE.Vector3();
+    const basis = new THREE.Matrix4();
 
     for (let i = 0; i < RUNGS; i++) {
       const angle = i * TWIST;
@@ -61,67 +84,74 @@ export default function DnaHelix({ reducedMotion = false }) {
         RADIUS * Math.sin(angle)
       );
       const pB = new THREE.Vector3(
-        -RADIUS * Math.cos(angle),
+        RADIUS * Math.cos(angle + PHASE),
         y,
-        -RADIUS * Math.sin(angle)
+        RADIUS * Math.sin(angle + PHASE)
       );
       ptsA.push(pA);
       ptsB.push(pB);
 
-      const [cA, cB] = PAIRS[i % PAIRS.length];
-      spheres.push({ p: pA, color: cA });
-      spheres.push({ p: pB, color: cB });
+      const baseA = seq[i];
+      const baseB = COMPLEMENT[baseA];
 
-      // Base-pair rung = two solid cylinders meeting at the middle (§3)
-      const mid = new THREE.Vector3().addVectors(pA, pB).multiplyScalar(0.5);
+      // Backbone beads carry the strand colour (sugar-phosphate)
+      beads.push({ p: pA, color: CLINICAL });
+      beads.push({ p: pB, color: CORAL });
 
-      for (const [start, end, color] of [
-        [pA, mid, cA],
-        [mid, pB, cB],
-      ]) {
-        const dir = new THREE.Vector3().subVectors(end, start);
-        const len = dir.length();
-        dir.normalize();
-        const q = new THREE.Quaternion().setFromUnitVectors(UP, dir);
-        const center = new THREE.Vector3()
-          .addVectors(start, end)
-          .multiplyScalar(0.5);
-        cylinders.push({ p: center, q, len, color });
-      }
+      // Flat base plates spanning the rung, meeting near the centre with a
+      // small gap (the pairing interface). Both plates are coplanar and thin
+      // along the helix axis → stacked-base look.
+      dir.subVectors(pB, pA);
+      const len = dir.length();
+      dir.normalize();
+      // Orthonormal basis: local X→rung dir, local Y→up, local Z→tangent
+      w.set(-dir.z, 0, dir.x); // = cross(dir, up), horizontal & unit
+      basis.makeBasis(dir, UP, w);
+      const q = new THREE.Quaternion().setFromRotationMatrix(basis);
+
+      const half = len / 2;
+      const plateLen = half - PAIR_GAP / 2;
+      const scale = new THREE.Vector3(plateLen, BASE_THICK, BASE_WIDTH);
+
+      const centerA = pA.clone().addScaledVector(dir, plateLen / 2);
+      const centerB = pB.clone().addScaledVector(dir, -plateLen / 2);
+
+      plates.push({ p: centerA, q, scale, color: BASE_COLOR[baseA] });
+      plates.push({ p: centerB, q, scale, color: BASE_COLOR[baseB] });
     }
 
     const curveA = new THREE.CatmullRomCurve3(ptsA);
     const curveB = new THREE.CatmullRomCurve3(ptsB);
-    const tubeA = new THREE.TubeGeometry(curveA, RUNGS * 4, 0.5, 8, false);
-    const tubeB = new THREE.TubeGeometry(curveB, RUNGS * 4, 0.5, 8, false);
+    const tubeA = new THREE.TubeGeometry(curveA, RUNGS * 5, BACKBONE_R, 8, false);
+    const tubeB = new THREE.TubeGeometry(curveB, RUNGS * 5, BACKBONE_R, 8, false);
 
-    return { tubeA, tubeB, spheres, cylinders };
+    return { tubeA, tubeB, beads, plates };
   }, []);
 
   // Write per-instance matrices + colors once.
   useLayoutEffect(() => {
     const m = new THREE.Matrix4();
-    const s = new THREE.Vector3();
+    const unit = new THREE.Vector3(1, 1, 1);
     const qI = new THREE.Quaternion();
 
-    const sm = sphereRef.current;
-    spheres.forEach(({ p, color }, i) => {
-      m.compose(p, qI, s.set(1, 1, 1));
-      sm.setMatrixAt(i, m);
-      sm.setColorAt(i, color);
+    const bm = beadRef.current;
+    beads.forEach(({ p, color }, i) => {
+      m.compose(p, qI, unit);
+      bm.setMatrixAt(i, m);
+      bm.setColorAt(i, color);
     });
-    sm.instanceMatrix.needsUpdate = true;
-    if (sm.instanceColor) sm.instanceColor.needsUpdate = true;
+    bm.instanceMatrix.needsUpdate = true;
+    if (bm.instanceColor) bm.instanceColor.needsUpdate = true;
 
-    const cm = cylRef.current;
-    cylinders.forEach(({ p, q, len, color }, i) => {
-      m.compose(p, q, s.set(1, len, 1));
-      cm.setMatrixAt(i, m);
-      cm.setColorAt(i, color);
+    const pm = plateRef.current;
+    plates.forEach(({ p, q, scale, color }, i) => {
+      m.compose(p, q, scale);
+      pm.setMatrixAt(i, m);
+      pm.setColorAt(i, color);
     });
-    cm.instanceMatrix.needsUpdate = true;
-    if (cm.instanceColor) cm.instanceColor.needsUpdate = true;
-  }, [spheres, cylinders]);
+    pm.instanceMatrix.needsUpdate = true;
+    if (pm.instanceColor) pm.instanceColor.needsUpdate = true;
+  }, [beads, plates]);
 
   useFrame((state, delta) => {
     if (typeof document !== "undefined" && document.hidden) return; // pause when tab hidden
@@ -168,53 +198,54 @@ export default function DnaHelix({ reducedMotion = false }) {
   return (
     <group ref={outerRef} rotation={[0, 0, -0.5]} position={[5.2, 0, 0]}>
       <group ref={spinRef}>
-      <directionalLight
-        ref={dirLightRef}
-        color="#b8c4d6"
-        intensity={1.1}
-        position={[-8, 4, 6]}
-      />
-      {/* backbones — Lambert: lighting per-vertex, very cheap to render */}
-      <mesh geometry={tubeA}>
-        <meshLambertMaterial color={CLINICAL} />
-      </mesh>
-      <mesh geometry={tubeB}>
-        <meshLambertMaterial color={CORAL} />
-      </mesh>
+        <directionalLight
+          ref={dirLightRef}
+          color="#b8c4d6"
+          intensity={1.1}
+          position={[-8, 4, 6]}
+        />
 
-      {/* nucleotides */}
-      <instancedMesh
-        ref={sphereRef}
-        args={[undefined, undefined, spheres.length]}
-      >
-        <sphereGeometry args={[SPHERE_R, 18, 18]} />
-        <meshLambertMaterial />
-      </instancedMesh>
+        {/* sugar-phosphate backbones — Lambert: per-vertex lighting, cheap */}
+        <mesh geometry={tubeA}>
+          <meshLambertMaterial color={CLINICAL} />
+        </mesh>
+        <mesh geometry={tubeB}>
+          <meshLambertMaterial color={CORAL} />
+        </mesh>
 
-      {/* base-pair rung halves */}
-      <instancedMesh
-        ref={cylRef}
-        args={[undefined, undefined, cylinders.length]}
-      >
-        <cylinderGeometry args={[CYL_R, CYL_R, 1, 6]} />
-        <meshLambertMaterial />
-      </instancedMesh>
+        {/* backbone beads */}
+        <instancedMesh
+          ref={beadRef}
+          args={[undefined, undefined, beads.length]}
+        >
+          <sphereGeometry args={[BEAD_R, 16, 16]} />
+          <meshLambertMaterial />
+        </instancedMesh>
 
-      {/* two soft lights for shape (§3) */}
-      <pointLight
-        ref={keyLightRef}
-        color="#cde3ec"
-        intensity={90}
-        distance={60}
-        decay={1.4}
-      />
-      <pointLight
-        ref={fillLightRef}
-        color="#d6b0b0"
-        intensity={50}
-        distance={60}
-        decay={1.4}
-      />
+        {/* flat stacked base pairs */}
+        <instancedMesh
+          ref={plateRef}
+          args={[undefined, undefined, plates.length]}
+        >
+          <boxGeometry args={[1, 1, 1]} />
+          <meshLambertMaterial />
+        </instancedMesh>
+
+        {/* two soft lights for shape (§3) */}
+        <pointLight
+          ref={keyLightRef}
+          color="#cde3ec"
+          intensity={90}
+          distance={60}
+          decay={1.4}
+        />
+        <pointLight
+          ref={fillLightRef}
+          color="#d6b0b0"
+          intensity={50}
+          distance={60}
+          decay={1.4}
+        />
       </group>
     </group>
   );

@@ -10,10 +10,10 @@ const INSTITUTIONS = ["Bristol Myers Squibb", "Johnson & Johnson", "GSK"];
 // `logo` to its path, e.g. logo: "/images/partners/gorocky.svg".
 // `h` optionally tunes that logo's rendered height in px (defaults to 28).
 const PARTNERS = [
-  { name: "GoRocky", logo: "/images/partners/gorocky-clean.png", h: 26 },
-  { name: "Saaya", logo: "/images/partners/saaya.png", h: 48 },
-  { name: "TeleMed2U", logo: "/images/partners/telemed2u.png", h: 36 },
-  { name: "MiDocOnline", logo: "/images/partners/midoconline.webp", h: 26 },
+  { name: "GoRocky", logo: "/images/partners/gorocky-clean.png", h: 40 },
+  { name: "Saaya", logo: "/images/partners/saaya.png", h: 68 },
+  { name: "TeleMed2U", logo: "/images/partners/telemed2u.png", h: 54 },
+  { name: "MiDocOnline", logo: "/images/partners/midoconline.webp", h: 40 },
 ];
 
 const ADVISORS = [
@@ -87,47 +87,53 @@ export default function Credibility() {
           ))}
         </div>
 
-        {/* Layer 3 — research blog */}
+        {/* Layer 3 — research blog (highlighted callout) */}
         <Reveal delay={0.05}>
-          <div className="mt-12 max-w-2xl">
-            <p className="text-sm leading-[1.7] text-ink-55">
-              We&apos;ve been researching how individuals respond to medication
-              for over six years. We write about what we learn.
-            </p>
-            <a
-              href="https://sideeffect.me"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-4 inline-flex items-center gap-2 text-[13px] font-medium text-clinical underline decoration-clinical/30 underline-offset-4 transition-colors hover:decoration-clinical"
-            >
-              Read our research blog at sideeffect.me →
-            </a>
-          </div>
+          <a
+            href="https://sideeffect.me"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group mt-12 flex flex-col gap-6 rounded-xl border border-clinical/25 bg-clinical/[0.05] p-7 transition-colors hover:border-clinical/50 sm:flex-row sm:items-center sm:justify-between sm:p-8"
+          >
+            <div className="max-w-2xl">
+              <p className="section-label text-clinical/70">Our research</p>
+              <p className="mt-3 text-xl font-light leading-[1.45] text-ink sm:text-2xl">
+                Six-plus years studying how individuals respond to medication,{" "}
+                <span className="text-clinical">published openly.</span>
+              </p>
+              <p className="mt-2 text-sm leading-[1.6] text-ink-50">
+                We write about what we learn at sideeffect.me.
+              </p>
+            </div>
+            <span className="inline-flex shrink-0 items-center gap-2 rounded-[2px] bg-clinical px-6 py-3.5 text-[13px] font-semibold text-bg transition-opacity group-hover:opacity-90">
+              Read the blog →
+            </span>
+          </a>
         </Reveal>
 
         {/* Layer 4 — traction + closing */}
         <Reveal delay={0.05}>
           <div className="mt-10 border-t border-hairline pt-8">
-            <p className="text-[11px] uppercase tracking-[0.15em] text-ink-35">
+            <p className="text-xs uppercase tracking-[0.18em] text-ink-45">
               Currently piloting with
             </p>
-            <div className="marquee-mask relative mt-5 overflow-hidden [mask-image:linear-gradient(to_right,transparent,#000_6%,#000_94%,transparent)]">
-              <div className="marquee-track flex w-max items-center">
+            <div className="marquee-mask relative mt-7 overflow-hidden [mask-image:linear-gradient(to_right,transparent,#000_6%,#000_94%,transparent)]">
+              <div className="marquee-track flex w-max items-center py-2">
                 {[...PARTNERS, ...PARTNERS].map((p, i) => (
                   <span
                     key={`${p.name}-${i}`}
-                    className="mr-16 flex items-center whitespace-nowrap"
+                    className="mr-20 flex items-center whitespace-nowrap"
                   >
                     {p.logo ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={p.logo}
                         alt={p.name}
-                        style={{ height: p.h ? `${p.h}px` : "28px" }}
-                        className="w-auto opacity-75 transition-opacity hover:opacity-100"
+                        style={{ height: p.h ? `${p.h}px` : "40px" }}
+                        className="w-auto opacity-90 transition-opacity hover:opacity-100"
                       />
                     ) : (
-                      <span className="text-lg font-medium text-ink-55">
+                      <span className="text-2xl font-medium text-ink-60">
                         {p.name}
                       </span>
                     )}

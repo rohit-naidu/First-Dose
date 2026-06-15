@@ -21,21 +21,22 @@ const HEIGHT = 46;
 const RADIUS = 4.0;
 const PHASE = 2.45; // strand offset → major/minor grooves
 
-const STRAND_PTS = 3200; // particles per backbone strand
+const STRAND_PTS = 4200; // particles per backbone strand
 const RUNGS = 42;
-const RUNG_PTS = 70; // particles per base-pair rung
-const HALO_PTS = 900; // faint surrounding haze
+const RUNG_PTS = 80; // particles per base-pair rung
+const HALO_PTS = 450; // faint surrounding haze
 
 /* Soft round glow sprite so each particle reads as light, not a square */
 function makeGlowTexture() {
-  const s = 64;
+  const s = 128;
   const c = document.createElement("canvas");
   c.width = c.height = s;
   const ctx = c.getContext("2d");
   const g = ctx.createRadialGradient(s / 2, s / 2, 0, s / 2, s / 2, s / 2);
+  // Tight bright core + quick falloff = crisp particles, not fuzzy blobs
   g.addColorStop(0, "rgba(255,255,255,1)");
-  g.addColorStop(0.25, "rgba(255,255,255,0.75)");
-  g.addColorStop(0.55, "rgba(255,255,255,0.25)");
+  g.addColorStop(0.16, "rgba(255,255,255,0.98)");
+  g.addColorStop(0.38, "rgba(255,255,255,0.28)");
   g.addColorStop(1, "rgba(255,255,255,0)");
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, s, s);
@@ -71,11 +72,11 @@ export default function DnaHelix({ reducedMotion = false }) {
         const t = i / (STRAND_PTS - 1);
         const a = t * TURNS * Math.PI * 2 + offset;
         const y = (t - 0.5) * HEIGHT;
-        const r = RADIUS + rand(-0.45, 0.45);
-        const x = r * Math.cos(a) + rand(-0.25, 0.25);
-        const z = r * Math.sin(a) + rand(-0.25, 0.25);
-        const sparkle = Math.random() < 0.05;
-        push(x, y + rand(-0.2, 0.2), z, sparkle ? HOT : STRAND, rand(0.55, 1.15));
+        const r = RADIUS + rand(-0.16, 0.16);
+        const x = r * Math.cos(a) + rand(-0.09, 0.09);
+        const z = r * Math.sin(a) + rand(-0.09, 0.09);
+        const sparkle = Math.random() < 0.06;
+        push(x, y + rand(-0.09, 0.09), z, sparkle ? HOT : STRAND, rand(0.65, 1.25));
       }
     }
 
@@ -91,24 +92,24 @@ export default function DnaHelix({ reducedMotion = false }) {
       const warm = k % 2 === 0;
       for (let j = 0; j < RUNG_PTS; j++) {
         const u = j / (RUNG_PTS - 1);
-        const x = ax + (bx - ax) * u + rand(-0.18, 0.18);
-        const z = az + (bz - az) * u + rand(-0.18, 0.18);
-        const yy = y + rand(-0.18, 0.18);
-        push(x, yy, z, warm ? BASE_WARM : BASE_COOL, rand(0.45, 1.0));
+        const x = ax + (bx - ax) * u + rand(-0.08, 0.08);
+        const z = az + (bz - az) * u + rand(-0.08, 0.08);
+        const yy = y + rand(-0.08, 0.08);
+        push(x, yy, z, warm ? BASE_WARM : BASE_COOL, rand(0.55, 1.1));
       }
     }
 
     // Faint surrounding haze for the "millions of elements" depth
     for (let i = 0; i < HALO_PTS; i++) {
       const a = rand(0, Math.PI * 2);
-      const r = RADIUS + rand(-2.2, 3.0);
+      const r = RADIUS + rand(-1.4, 2.0);
       const y = rand(-0.5, 0.5) * HEIGHT;
       push(
         r * Math.cos(a),
         y,
         r * Math.sin(a),
         STRAND,
-        rand(0.15, 0.4)
+        rand(0.07, 0.18)
       );
     }
 
@@ -140,7 +141,7 @@ export default function DnaHelix({ reducedMotion = false }) {
   });
 
   return (
-    <group ref={outerRef} rotation={[0, 0, -0.5]} position={[5.2, 0, 0]}>
+    <group ref={outerRef} rotation={[0, 0, -0.5]} position={[5.2, 0, 0]} scale={1.2}>
       <group ref={spinRef}>
         <points ref={pointsRef} geometry={geometry}>
           <pointsMaterial

@@ -5,17 +5,6 @@ import { PHOTOS } from "@/lib/photography";
 
 const INSTITUTIONS = ["Bristol Myers Squibb", "Johnson & Johnson", "GSK"];
 
-// Telehealth clinic pilot partners shown in the scrolling marquee.
-// To use a real logo: drop the file in public/images/partners/ and set
-// `logo` to its path, e.g. logo: "/images/partners/gorocky.svg".
-// `h` optionally tunes that logo's rendered height in px (defaults to 28).
-const PARTNERS = [
-  { name: "GoRocky", logo: "/images/partners/gorocky-clean.png", h: 40 },
-  { name: "Saaya", logo: "/images/partners/saaya.png", h: 68 },
-  { name: "TeleMed2U", logo: "/images/partners/telemed2u.png", h: 54 },
-  { name: "MiDocOnline", logo: "/images/partners/midoconline.webp", h: 40 },
-];
-
 const ADVISORS = [
   {
     name: "Dr. Chowdari",
@@ -53,39 +42,12 @@ export default function Credibility() {
           </h2>
         </Reveal>
 
-        {/* Pilot band — lead proof point */}
+        {/* Traction line — pilot logos live in the band under the hero */}
         <Reveal delay={0.05}>
-          <div className="mt-12">
-            <p className="text-xs uppercase tracking-[0.18em] text-ink-45">
-              Currently piloting with
-            </p>
-            <div className="marquee-mask relative mt-7 overflow-hidden [mask-image:linear-gradient(to_right,transparent,#000_6%,#000_94%,transparent)]">
-              <div className="marquee-track flex w-max items-center py-2">
-                {[...PARTNERS, ...PARTNERS].map((p, i) => (
-                  <span
-                    key={`${p.name}-${i}`}
-                    className="mr-20 flex items-center whitespace-nowrap"
-                  >
-                    {p.logo ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={p.logo}
-                        alt={p.name}
-                        style={{ height: p.h ? `${p.h}px` : "40px" }}
-                        className="w-auto opacity-90 transition-opacity hover:opacity-100"
-                      />
-                    ) : (
-                      <span className="text-2xl font-medium text-ink-60">
-                        {p.name}
-                      </span>
-                    )}
-                  </span>
-                ))}
-              </div>
-            </div>
-            <p className="mt-6 text-base font-light text-ink-60">
-              Early data is validating what the science predicted.{" "}
-              <span className="text-clinical">More to come.</span>
+          <div className="mt-8">
+            <p className="text-base font-light text-ink-60">
+              Early data from our clinic pilots is validating what the science
+              predicted. <span className="text-clinical">More to come.</span>
             </p>
           </div>
         </Reveal>

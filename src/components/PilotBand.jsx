@@ -6,7 +6,6 @@ import Reveal from "@/components/Reveal";
 export const PARTNERS = [
   { name: "GoRocky", logo: "/images/partners/gorocky-clean.png", h: 40 },
   { name: "Saaya", logo: "/images/partners/saaya.png", h: 68 },
-  { name: "TeleMed2U", logo: "/images/partners/telemed2u.png", h: 54 },
   { name: "MiDocOnline", logo: "/images/partners/midoconline.webp", h: 40 },
 ];
 

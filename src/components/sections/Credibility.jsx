@@ -97,8 +97,8 @@ export default function Credibility() {
             <div className="max-w-2xl">
               <p className="section-label text-clinical/70">Our research</p>
               <p className="mt-3 text-xl font-light leading-[1.45] text-ink sm:text-2xl">
-                Six-plus years studying how individuals respond to medication,{" "}
-                <span className="text-clinical">published openly.</span>
+                We've been doing work in this space for{" "}
+                <span className="text-clinical">6+ years.</span>
               </p>
               <p className="mt-2 text-sm leading-[1.6] text-ink-50">
                 We write about what we learn at sideeffect.me.

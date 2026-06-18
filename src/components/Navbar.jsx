@@ -90,8 +90,17 @@ export default function Navbar() {
         <div className="flex h-16 items-center justify-between gap-4">
           <Link
             href="/"
-            className="shrink-0 text-sm font-medium tracking-tight text-ink"
+            className="shrink-0 flex items-center gap-2 text-sm font-medium tracking-tight text-ink"
           >
+            <svg width="22" height="22" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="32" height="32" rx="7" fill="#0a0e14"/>
+              <path d="M11 7c0 5 10 8 10 13M21 7c0 5-10 8-10 13" stroke="#7fb5c9" strokeWidth="1.6" strokeLinecap="round" opacity="0.85"/>
+              <path d="M11 19c0 4 10 6 10 6M21 19c0 4-10 6-10 6" stroke="#c97f7f" strokeWidth="1.6" strokeLinecap="round" opacity="0.85"/>
+              <circle cx="11" cy="9" r="2" fill="#7fb5c9"/>
+              <circle cx="21" cy="9" r="2" fill="#c97f7f"/>
+              <circle cx="11" cy="23" r="1.8" fill="#a99cc4"/>
+              <circle cx="21" cy="23" r="1.8" fill="#c9b896"/>
+            </svg>
             First Dose <span className="text-ink-45">Health</span>
           </Link>
 

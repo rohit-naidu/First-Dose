@@ -394,13 +394,13 @@ export default function CaseyClinicianPage() {
             <div className="p-3 space-y-2">
               {[
                 {
-                  id: 'rejected',
-                  label: 'Reject',
-                  sublabel: 'In-person review',
-                  color: '#c97f7f',
-                  bg: 'rgba(201,127,127,0.06)',
-                  border: 'rgba(201,127,127,0.15)',
-                  icon: XCircle,
+                  id: 'approved',
+                  label: 'Approve',
+                  sublabel: 'Adaptive plan',
+                  color: '#7fb5c9',
+                  bg: 'rgba(127,181,201,0.08)',
+                  border: 'rgba(127,181,201,0.25)',
+                  icon: CheckCircle,
                 },
                 {
                   id: 'modified',
@@ -412,13 +412,13 @@ export default function CaseyClinicianPage() {
                   icon: PauseCircle,
                 },
                 {
-                  id: 'approved',
-                  label: 'Approve',
-                  sublabel: 'Adaptive plan',
-                  color: '#7fb5c9',
-                  bg: 'rgba(127,181,201,0.08)',
-                  border: 'rgba(127,181,201,0.25)',
-                  icon: CheckCircle,
+                  id: 'rejected',
+                  label: 'Reject',
+                  sublabel: 'In-person review',
+                  color: '#c97f7f',
+                  bg: 'rgba(201,127,127,0.06)',
+                  border: 'rgba(201,127,127,0.15)',
+                  icon: XCircle,
                 },
               ].map((action) => {
                 const Icon = action.icon

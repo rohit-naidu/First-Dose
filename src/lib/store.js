@@ -33,6 +33,27 @@ const defaultMaya = {
   week3Approved: false,
 }
 
+const defaultCasey = {
+  patientName: 'Casey Rodriguez',
+  patientAge: 75,
+  patientSex: 'Female',
+  patientHeight: "5'3\"",
+  startingWeight: 215,
+  currentWeight: 215,
+  bmi: 38.2,
+  medication: 'Tirzepatide 2.5 mg pen',
+  deliveryMode: 'single_dose_pen',
+  currentWeek: 0,
+  currentDoseMg: 0,
+  proposedDoseMg: 2.5,
+  symptoms: { nausea: 0, reflux: 0, dizziness: 0, constipation: 0 },
+  intakeCompleted: true,
+  planApproved: false,
+  injectionCompleted: false,
+  checkInCompleted: false,
+  caseyApproved: false,
+}
+
 export const useStore = create((set) => ({
   // Alex
   patientName: 'Alex Rivera',
@@ -119,6 +140,7 @@ export const useStore = create((set) => ({
   // Multi-patient
   activePatient: 'alex',
   maya: defaultMaya,
+  casey: defaultCasey,
 
   // Alex actions
   completeIntake: () => set({ intakeCompleted: true }),
@@ -175,6 +197,16 @@ export const useStore = create((set) => ({
         },
       }
     }),
+
+  // Casey actions
+  approveCasey: () =>
+    set((state) => ({
+      casey: { ...state.casey, caseyApproved: true, planApproved: true, currentDoseMg: 2.5, currentWeek: 1 },
+    })),
+  rejectCasey: () =>
+    set((state) => ({
+      casey: { ...state.casey, caseyApproved: false, planApproved: false },
+    })),
 
   // Shared
   setActivePatient: (patient) => set({ activePatient: patient }),

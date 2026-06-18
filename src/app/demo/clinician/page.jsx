@@ -10,6 +10,25 @@ import { Users, AlertCircle, CheckCircle, Clock, ArrowRight, TrendingDown, Activ
 
 const patients = [
   {
+    name: 'Casey Rodriguez',
+    initials: 'CR',
+    age: 75,
+    sex: 'F',
+    medication: 'Tirzepatide pen',
+    week: 0,
+    dose: 'Pending',
+    deliveryMode: 'single_dose_pen',
+    status: 'review',
+    statusText: 'Intake complete — approve plan',
+    symptom: 'Pre-treatment',
+    symptomLevel: 0,
+    weightChange: '—',
+    lastCheckin: 'Today, 8:15 AM',
+    href: '/demo/clinician/casey',
+    highlight: true,
+    avatarColor: 'linear-gradient(135deg, #c97f7f, #c9b896)',
+  },
+  {
     name: 'Alex Rivera',
     initials: 'AR',
     age: 38,
@@ -91,8 +110,8 @@ const patients = [
 ]
 
 const statCards = [
-  { icon: Users,         label: 'Active Patients', value: '4', color: '#7fb5c9', bg: 'rgba(127,181,201,0.08)', border: 'rgba(127,181,201,0.2)' },
-  { icon: AlertCircle,   label: 'Needs Review',   value: '2', color: '#c9b896', bg: 'rgba(201,184,150,0.08)', border: 'rgba(201,184,150,0.2)' },
+  { icon: Users,         label: 'Active Patients', value: '5', color: '#7fb5c9', bg: 'rgba(127,181,201,0.08)', border: 'rgba(127,181,201,0.2)' },
+  { icon: AlertCircle,   label: 'Needs Review',   value: '3', color: '#c9b896', bg: 'rgba(201,184,150,0.08)', border: 'rgba(201,184,150,0.2)' },
   { icon: CheckCircle,   label: 'On Track',        value: '1', color: '#7fb5c9', bg: 'rgba(127,181,201,0.08)', border: 'rgba(127,181,201,0.2)' },
   { icon: Clock,         label: 'Dose Held',       value: '2', color: '#c97f7f', bg: 'rgba(201,127,127,0.08)', border: 'rgba(201,127,127,0.2)' },
 ]

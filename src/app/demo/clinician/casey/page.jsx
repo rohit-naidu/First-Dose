@@ -174,6 +174,86 @@ export default function CaseyClinicianPage() {
           </p>
         </div>
 
+        {/* Key Action Items + Dosing Curve */}
+        <div className="px-7 py-6" style={{ borderBottom: '1px solid rgba(240,244,248,0.08)' }}>
+          <div className="grid grid-cols-[1fr_1.1fr] gap-6">
+
+            {/* Left: Key Action Items */}
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] mb-3" style={{ color: 'rgba(240,244,248,0.35)' }}>
+                Key Action Items
+              </p>
+              <div className="space-y-2">
+                {[
+                  { label: 'Delay initiation 7 days', detail: 'Hormonal hold — avoid periovulatory estrogen peak', color: '#c97f7f' },
+                  { label: 'Hold 2.5 mg for 8–12 weeks', detail: 'Ileal brake adaptation before escalation', color: '#c9b896' },
+                  { label: 'Protein floor 1.5 g/kg/day', detail: 'Musculoskeletal integrity — failed chair stand', color: '#c9b896' },
+                  { label: 'Hydration floor 2.5 L/day', detail: 'Orthostatic + low baseline fluid intake', color: '#c9b896' },
+                  { label: 'Monitor anhedonia at every check-in', detail: 'Hedonic tone lock — PHQ-2 baseline elevated', color: '#a99cc4' },
+                ].map((item, i) => (
+                  <div key={i} className="flex items-start gap-2.5">
+                    <div className="w-1.5 h-1.5 rounded-full flex-shrink-0 mt-1" style={{ background: item.color }} />
+                    <div>
+                      <p className="text-xs font-semibold" style={{ color: '#f0f4f8' }}>{item.label}</p>
+                      <p className="text-[10px] leading-snug" style={{ color: 'rgba(240,244,248,0.4)' }}>{item.detail}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Right: Dosing Curve */}
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] mb-3" style={{ color: 'rgba(240,244,248,0.35)' }}>
+                Recommended Dosing Curve — Prefilled Pen
+              </p>
+              <div className="rounded-lg overflow-hidden" style={{ border: '1px solid rgba(240,244,248,0.08)' }}>
+                {/* Column headers */}
+                <div className="grid grid-cols-[0.6fr_1fr_0.7fr_1.4fr] px-3 py-2"
+                  style={{ background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(240,244,248,0.06)' }}>
+                  {['Week', 'Dose', 'Duration', 'Gate'].map(h => (
+                    <p key={h} className="text-[9px] font-bold uppercase tracking-[0.12em]" style={{ color: 'rgba(240,244,248,0.3)' }}>{h}</p>
+                  ))}
+                </div>
+                {[
+                  { week: '1–12', dose: '2.5 mg', duration: '8–12 wk', gate: 'GI tolerance confirmed', active: true, color: '#7fb5c9' },
+                  { week: '13–20', dose: '5.0 mg', duration: '8 wk', gate: 'Strength floor verified', active: false, color: 'rgba(240,244,248,0.25)' },
+                  { week: '21–28', dose: '7.5 mg', duration: '8 wk', gate: 'Mood + weight trajectory', active: false, color: 'rgba(240,244,248,0.2)' },
+                  { week: '29+', dose: '10 mg', duration: 'Maintain', gate: 'Clinician MED assessment', active: false, color: 'rgba(240,244,248,0.15)' },
+                ].map((row, i) => (
+                  <div key={i} className="grid grid-cols-[0.6fr_1fr_0.7fr_1.4fr] px-3 py-2.5 items-center"
+                    style={{
+                      borderBottom: i < 3 ? '1px solid rgba(240,244,248,0.04)' : 'none',
+                      background: row.active ? 'rgba(127,181,201,0.06)' : 'transparent',
+                    }}>
+                    <p className="text-xs font-semibold" style={{ color: row.color }}>{row.week}</p>
+                    <p className="text-xs font-bold" style={{ color: row.active ? '#f0f4f8' : row.color }}>{row.dose}</p>
+                    <p className="text-[10px]" style={{ color: row.active ? 'rgba(240,244,248,0.55)' : row.color }}>{row.duration}</p>
+                    <p className="text-[10px]" style={{ color: row.active ? 'rgba(127,181,201,0.8)' : row.color }}>{row.gate}</p>
+                  </div>
+                ))}
+              </div>
+              {/* Visual dose curve bar */}
+              <div className="mt-3 flex items-end gap-1 h-10">
+                {[
+                  { h: '25%', w: 'flex-[3]', color: '#7fb5c9', label: '2.5' },
+                  { h: '50%', w: 'flex-[2]', color: 'rgba(127,181,201,0.5)', label: '5.0' },
+                  { h: '75%', w: 'flex-[2]', color: 'rgba(127,181,201,0.3)', label: '7.5' },
+                  { h: '100%', w: 'flex-[1.5]', color: 'rgba(127,181,201,0.15)', label: '10' },
+                ].map((bar, i) => (
+                  <div key={i} className={bar.w} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <p className="text-[8px] font-bold mb-0.5" style={{ color: bar.color }}>{bar.label} mg</p>
+                    <div className="w-full rounded-sm" style={{ height: bar.h, background: bar.color, minHeight: '4px' }} />
+                  </div>
+                ))}
+              </div>
+              <p className="text-[9px] mt-2 text-center" style={{ color: 'rgba(240,244,248,0.25)' }}>
+                Standard protocol: 4-week jumps · This patient: 8–12 week gated escalation
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Report Body */}
         <div className="px-7 py-6 space-y-8">
 

@@ -105,7 +105,7 @@ export default function CaseyClinicianPage() {
   }
 
   return (
-    <div className="max-w-4xl">
+    <div className="max-w-6xl">
       {/* Nav */}
       <div className="flex items-center gap-4 mb-6">
         <Link href="/demo/clinician" className="flex items-center gap-1.5 text-xs transition-colors" style={{ color: 'rgba(240,244,248,0.45)' }}>
@@ -135,12 +135,15 @@ export default function CaseyClinicianPage() {
         )}
       </motion.div>
 
-      {/* ═══════════ THE REPORT ═══════════ */}
+      {/* ═══════════ REPORT + ACTION SIDEBAR ═══════════ */}
+      <div className="flex gap-5 items-start mb-6">
+
+      {/* ── Report (left) ── */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.05, duration: 0.4 }}
-        className="rounded-xl overflow-hidden mb-6"
+        className="rounded-xl overflow-hidden flex-1 min-w-0"
         style={{ background: 'rgba(11,15,22,0.85)', border: '1px solid rgba(240,244,248,0.1)' }}
       >
         {/* Report Header */}
@@ -342,88 +345,6 @@ export default function CaseyClinicianPage() {
             </Callout>
           </div>
 
-          <Divider />
-
-          {/* ═══ IV. CLINICIAN ACTION PORTAL ═══ */}
-          <div>
-            <SectionHeader roman="IV" title="Clinician Action Portal" />
-
-            {decision ? (
-              <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
-                className="rounded-xl p-5 flex items-center gap-4"
-                style={{
-                  background: decision === 'approved' ? 'rgba(127,181,201,0.08)' : decision === 'modified' ? 'rgba(201,184,150,0.08)' : 'rgba(201,127,127,0.08)',
-                  border: `1px solid ${decision === 'approved' ? 'rgba(127,181,201,0.2)' : decision === 'modified' ? 'rgba(201,184,150,0.2)' : 'rgba(201,127,127,0.2)'}`,
-                }}>
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                  style={{ background: decision === 'approved' ? 'rgba(127,181,201,0.12)' : decision === 'modified' ? 'rgba(201,184,150,0.12)' : 'rgba(201,127,127,0.12)' }}>
-                  {decision === 'approved' ? <CheckCircle className="w-5 h-5" style={{ color: '#7fb5c9' }} /> :
-                   decision === 'modified' ? <Clock className="w-5 h-5" style={{ color: '#c9b896' }} /> :
-                   <XCircle className="w-5 h-5" style={{ color: '#c97f7f' }} />}
-                </div>
-                <div>
-                  <p className="text-sm font-semibold" style={{ color: decision === 'approved' ? '#7fb5c9' : decision === 'modified' ? '#c9b896' : '#c97f7f' }}>
-                    {decision === 'approved' ? 'Adaptive Plan Approved' : decision === 'modified' ? 'Plan Modified — Safety Stack Added' : 'Rejected — In-Person Review Required'}
-                  </p>
-                  <p className="text-xs mt-0.5" style={{ color: 'rgba(240,244,248,0.45)' }}>
-                    {decision === 'approved' ? 'Starter pen initiated. 8-week hold. Initiation delayed 7 days for cycle window. Safety stack active.' :
-                     decision === 'modified' ? 'Domperidone + Magnesium added. Protein floor set. Awaiting pharmacy confirmation before first injection.' :
-                     'Clinician determined in-person review is required before initiating GLP-1 therapy for this patient.'}
-                  </p>
-                </div>
-              </motion.div>
-            ) : (
-              <div className="space-y-2">
-                {[
-                  {
-                    id: 'approved',
-                    label: 'APPROVE — ADAPTIVE',
-                    desc: 'Initiate 2.5 mg starter pen. Set 8-week hold at current dose. Delay initiation 7 days for hormonal window. Activate full safety stack.',
-                    color: '#7fb5c9',
-                    bg: 'rgba(127,181,201,0.06)',
-                    border: 'rgba(127,181,201,0.2)',
-                    icon: CheckCircle,
-                  },
-                  {
-                    id: 'modified',
-                    label: 'MODIFY — ADD SAFETY STACK',
-                    desc: 'Approve adaptive plan + add prokinetic (Domperidone 10 mg TID) and Magnesium Citrate (400 mg nightly). Protein floor 1.5 g/kg/day. Require follow-up before first injection.',
-                    color: '#c9b896',
-                    bg: 'rgba(201,184,150,0.06)',
-                    border: 'rgba(201,184,150,0.2)',
-                    icon: PauseCircle,
-                  },
-                  {
-                    id: 'rejected',
-                    label: 'REJECT — IN-PERSON REVIEW',
-                    desc: 'Compound risk profile (age + orthostatic + GI extreme + failed chair stand) requires in-person clinical assessment before initiating GLP-1 therapy.',
-                    color: '#c97f7f',
-                    bg: 'rgba(201,127,127,0.06)',
-                    border: 'rgba(201,127,127,0.2)',
-                    icon: XCircle,
-                  },
-                ].map((action) => {
-                  const Icon = action.icon
-                  return (
-                    <button key={action.id}
-                      onClick={() => handleDecision(action.id)}
-                      className="w-full flex items-start gap-4 px-5 py-4 rounded-lg text-left transition-all duration-200 group"
-                      style={{ background: action.bg, border: `1px solid ${action.border}` }}
-                      onMouseEnter={e => { e.currentTarget.style.borderColor = action.color }}
-                      onMouseLeave={e => { e.currentTarget.style.borderColor = action.border }}
-                    >
-                      <Icon className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: action.color }} />
-                      <div className="flex-1">
-                        <p className="text-xs font-bold uppercase tracking-[0.1em] mb-1" style={{ color: action.color }}>{action.label}</p>
-                        <p className="text-xs leading-relaxed" style={{ color: 'rgba(240,244,248,0.5)' }}>{action.desc}</p>
-                      </div>
-                      <ChevronRight className="w-4 h-4 flex-shrink-0 mt-1 opacity-0 group-hover:opacity-60 transition-opacity" style={{ color: action.color }} />
-                    </button>
-                  )
-                })}
-              </div>
-            )}
-          </div>
         </div>
 
         {/* Footer */}
@@ -432,6 +353,97 @@ export default function CaseyClinicianPage() {
           <p className="text-[10px]" style={{ color: 'rgba(240,244,248,0.2)' }}>For clinician review only · Not autonomous prescribing</p>
         </div>
       </motion.div>
+
+      {/* ── Action Panel (right sidebar) ── */}
+      <motion.div
+        initial={{ opacity: 0, x: 10 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.15, duration: 0.4 }}
+        className="w-56 flex-shrink-0 sticky top-20"
+      >
+        <div className="rounded-xl overflow-hidden"
+          style={{ background: 'rgba(11,15,22,0.85)', border: '1px solid rgba(240,244,248,0.1)' }}>
+
+          <div className="px-4 py-4" style={{ borderBottom: '1px solid rgba(240,244,248,0.08)' }}>
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em]" style={{ color: 'rgba(240,244,248,0.35)' }}>
+              Clinician Decision
+            </p>
+          </div>
+
+          {decision ? (
+            <div className="p-4">
+              <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+                className="flex flex-col items-center text-center py-4">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-3"
+                  style={{ background: decision === 'approved' ? 'rgba(127,181,201,0.12)' : decision === 'modified' ? 'rgba(201,184,150,0.12)' : 'rgba(201,127,127,0.12)' }}>
+                  {decision === 'approved' ? <CheckCircle className="w-5 h-5" style={{ color: '#7fb5c9' }} /> :
+                   decision === 'modified' ? <Clock className="w-5 h-5" style={{ color: '#c9b896' }} /> :
+                   <XCircle className="w-5 h-5" style={{ color: '#c97f7f' }} />}
+                </div>
+                <p className="text-xs font-bold mb-1" style={{ color: decision === 'approved' ? '#7fb5c9' : decision === 'modified' ? '#c9b896' : '#c97f7f' }}>
+                  {decision === 'approved' ? 'Approved' : decision === 'modified' ? 'Modified' : 'Rejected'}
+                </p>
+                <p className="text-[10px] leading-relaxed" style={{ color: 'rgba(240,244,248,0.4)' }}>
+                  {decision === 'approved' ? '8-week hold initiated. Safety stack active.' :
+                   decision === 'modified' ? 'Safety stack added. Awaiting pharmacy.' :
+                   'In-person review required.'}
+                </p>
+              </motion.div>
+            </div>
+          ) : (
+            <div className="p-3 space-y-2">
+              {[
+                {
+                  id: 'rejected',
+                  label: 'Reject',
+                  sublabel: 'In-person review',
+                  color: '#c97f7f',
+                  bg: 'rgba(201,127,127,0.06)',
+                  border: 'rgba(201,127,127,0.15)',
+                  icon: XCircle,
+                },
+                {
+                  id: 'modified',
+                  label: 'Modify',
+                  sublabel: 'Add safety stack',
+                  color: '#c9b896',
+                  bg: 'rgba(201,184,150,0.06)',
+                  border: 'rgba(201,184,150,0.15)',
+                  icon: PauseCircle,
+                },
+                {
+                  id: 'approved',
+                  label: 'Approve',
+                  sublabel: 'Adaptive plan',
+                  color: '#7fb5c9',
+                  bg: 'rgba(127,181,201,0.08)',
+                  border: 'rgba(127,181,201,0.25)',
+                  icon: CheckCircle,
+                },
+              ].map((action) => {
+                const Icon = action.icon
+                return (
+                  <button key={action.id}
+                    onClick={() => handleDecision(action.id)}
+                    className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition-all duration-200"
+                    style={{ background: action.bg, border: `1px solid ${action.border}` }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = action.color }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = action.border }}
+                  >
+                    <Icon className="w-4 h-4 flex-shrink-0" style={{ color: action.color }} />
+                    <div>
+                      <p className="text-xs font-semibold" style={{ color: action.color }}>{action.label}</p>
+                      <p className="text-[10px]" style={{ color: 'rgba(240,244,248,0.35)' }}>{action.sublabel}</p>
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      </motion.div>
+
+      </div> {/* end flex row */}
 
       {/* ═══════════ CONFIRMATION MODAL ═══════════ */}
       <AnimatePresence>

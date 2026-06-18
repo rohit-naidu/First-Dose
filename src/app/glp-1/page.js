@@ -4,7 +4,6 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Section from "@/components/Section";
 import Reveal from "@/components/Reveal";
-import DemoCards from "@/components/DemoCards";
 import Problem from "@/components/sections/Problem";
 import HowItWorks from "@/components/sections/HowItWorks";
 import CTA from "@/components/sections/CTA";
@@ -86,7 +85,6 @@ export default function Glp1Page() {
           </div>
         </Section>
 
-        <DemoCards />
         <Divider />
         <Problem />
         <Divider />

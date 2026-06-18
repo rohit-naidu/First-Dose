@@ -1,6 +1,7 @@
 import Section from "@/components/Section";
 import Reveal from "@/components/Reveal";
 import SectionBackdrop from "@/components/SectionBackdrop";
+import DemoCards from "@/components/DemoCards";
 import { PHOTOS } from "@/lib/photography";
 
 /* ---- stage icons (simple stroke line art) ---- */
@@ -331,6 +332,8 @@ export default function HowItWorks() {
             <span className="text-clinical">Built for every drug class.</span>
           </p>
         </Reveal>
+
+        <DemoCards />
       </div>
     </Section>
   );

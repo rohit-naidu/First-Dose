@@ -8,94 +8,124 @@ const DEMO_BASE = "https://first-dose-v3.vercel.app";
 const CARDS = [
   {
     label: "Personalized Intake",
+    step: "01",
     body: "Adaptive assessment to identify your biological brakes and therapeutic accelerators — creates a personalized Dose Readiness Report.",
     cta: "Start Intake",
     href: `${DEMO_BASE}/patient/welcome`,
-    accent: "clinical",
+    borderColor: "rgba(127,181,201,0.25)",
+    hoverBorderColor: "rgba(127,181,201,0.55)",
+    accentColor: "#7fb5c9",
+    glowColor: "rgba(127,181,201,0.07)",
   },
   {
     label: "Clinician Portal",
+    step: "02",
     body: "Review patient data, risk profiles, and Dose Readiness signals to approve or adjust weekly dose escalations.",
     cta: "Open Dashboard",
     href: `${DEMO_BASE}/clinician`,
-    accent: "slate",
+    borderColor: "rgba(169,156,196,0.25)",
+    hoverBorderColor: "rgba(169,156,196,0.55)",
+    accentColor: "#a99cc4",
+    glowColor: "rgba(169,156,196,0.07)",
   },
   {
     label: "Patient Management",
+    step: "03",
     body: "Track injections, log weekly weight, report side effects, and see your dose-pacing timeline update in real time.",
     cta: "Open Patient App",
     href: `${DEMO_BASE}/patient/home`,
-    accent: "coral",
+    borderColor: "rgba(201,127,127,0.25)",
+    hoverBorderColor: "rgba(201,127,127,0.55)",
+    accentColor: "#c97f7f",
+    glowColor: "rgba(201,127,127,0.07)",
   },
 ];
 
-const accentClasses = {
-  clinical: {
-    border: "border-clinical/30 hover:border-clinical/60",
-    label: "text-clinical/60",
-    cta: "text-clinical",
-    dot: "bg-clinical",
-  },
-  slate: {
-    border: "border-slate/30 hover:border-slate/60",
-    label: "text-slate/60",
-    cta: "text-slate",
-    dot: "bg-slate",
-  },
-  coral: {
-    border: "border-coral/30 hover:border-coral/60",
-    label: "text-coral/60",
-    cta: "text-coral",
-    dot: "bg-coral",
-  },
-};
-
 export default function DemoCards() {
   return (
-    <section className="relative px-6 py-16 sm:px-10">
-      <div className="mx-auto max-w-7xl">
-        <Reveal>
-          <div className="mb-2 flex items-center gap-2">
-            <div className="h-px w-4 bg-clinical/40" />
-            <p className="section-label text-clinical/60">Interactive demo</p>
+    <Reveal delay={0.2}>
+      <div className="mt-16 rounded-md border border-hairline" style={{ background: "rgba(255,255,255,0.015)" }}>
+        {/* Header row */}
+        <div className="flex items-center justify-between border-b border-hairline px-6 py-4">
+          <div className="flex items-center gap-3">
+            <span className="flex h-2 w-2 rounded-full bg-clinical animate-pulse" />
+            <p className="text-[11px] uppercase tracking-[0.18em] text-clinical/70">
+              Interactive demo — GLP-1 platform
+            </p>
           </div>
-          <p className="mt-1 max-w-lg text-sm leading-[1.7] text-ink-55">
-            Explore how First Dose Health works — from adaptive intake to
-            clinician review and patient tracking.
+          <p className="hidden text-[11px] text-ink-35 sm:block">
+            No login required
           </p>
-        </Reveal>
+        </div>
 
-        <div className="mt-10 grid gap-4 sm:grid-cols-3">
-          {CARDS.map((card, i) => {
-            const a = accentClasses[card.accent];
-            return (
-              <Reveal key={card.label} delay={i * 0.08}>
-                <Link
-                  href={card.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block h-full"
+        {/* Cards grid */}
+        <div className="grid gap-px bg-hairline sm:grid-cols-3">
+          {CARDS.map((card, i) => (
+            <Link
+              key={card.label}
+              href={card.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group relative flex flex-col p-6 transition-all duration-300"
+              style={{ background: "rgba(10,14,20,0.9)" }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = card.glowColor;
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = "rgba(10,14,20,0.9)";
+              }}
+            >
+              {/* Step + label */}
+              <div className="mb-4 flex items-center gap-2.5">
+                <span
+                  className="text-[10px] font-semibold tracking-[0.12em]"
+                  style={{ color: card.accentColor, opacity: 0.6 }}
                 >
-                  <div
-                    className={`glass flex h-full flex-col rounded-md border p-6 transition-all duration-200 ${a.border}`}
-                  >
-                    <div className="mb-4 flex items-center gap-2">
-                      <div className={`h-1.5 w-1.5 rounded-full ${a.dot}`} />
-                      <p className={`section-label ${a.label}`}>{card.label}</p>
-                    </div>
-                    <p className="flex-1 text-sm leading-[1.7] text-ink-55">
-                      {card.body}
-                    </p>
-                    <span className={`mt-5 text-[13px] font-medium ${a.cta}`}>
-                      {card.cta} →
-                    </span>
-                  </div>
-                </Link>
-              </Reveal>
-            );
-          })}
+                  {card.step}
+                </span>
+                <div className="h-px flex-1" style={{ background: card.borderColor }} />
+              </div>
+
+              <p className="mb-3 text-sm font-medium text-ink">{card.label}</p>
+              <p className="flex-1 text-[13px] leading-[1.7] text-ink-45">
+                {card.body}
+              </p>
+
+              {/* CTA */}
+              <div className="mt-5 flex items-center gap-1.5">
+                <span
+                  className="text-[12px] font-medium transition-all duration-200 group-hover:gap-2"
+                  style={{ color: card.accentColor }}
+                >
+                  {card.cta}
+                </span>
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 12 12"
+                  fill="none"
+                  className="transition-transform duration-200 group-hover:translate-x-0.5"
+                  style={{ color: card.accentColor }}
+                >
+                  <path
+                    d="M2.5 6h7M6.5 3l3 3-3 3"
+                    stroke="currentColor"
+                    strokeWidth="1.2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </div>
+
+              {/* Bottom accent line on hover */}
+              <div
+                className="absolute bottom-0 left-0 h-px w-0 transition-all duration-300 group-hover:w-full"
+                style={{ background: `linear-gradient(90deg, ${card.accentColor}, transparent)` }}
+              />
+            </Link>
+          ))}
         </div>
       </div>
-    </section>
+    </Reveal>
   );
 }

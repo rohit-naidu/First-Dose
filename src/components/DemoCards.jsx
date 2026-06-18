@@ -3,15 +3,13 @@
 import Link from "next/link";
 import Reveal from "@/components/Reveal";
 
-const DEMO_BASE = "https://first-dose-v3.vercel.app";
-
 const CARDS = [
   {
     label: "Personalized Intake",
     step: "01",
     body: "Adaptive assessment to identify your biological brakes and therapeutic accelerators — creates a personalized Dose Readiness Report.",
     cta: "Start Intake",
-    href: `${DEMO_BASE}/patient/welcome`,
+    href: "/demo/intake",
     borderColor: "rgba(127,181,201,0.25)",
     hoverBorderColor: "rgba(127,181,201,0.55)",
     accentColor: "#7fb5c9",
@@ -22,7 +20,7 @@ const CARDS = [
     step: "02",
     body: "Review patient data, risk profiles, and Dose Readiness signals to approve or adjust weekly dose escalations.",
     cta: "Open Dashboard",
-    href: `${DEMO_BASE}/clinician`,
+    href: "/demo/clinician",
     borderColor: "rgba(169,156,196,0.25)",
     hoverBorderColor: "rgba(169,156,196,0.55)",
     accentColor: "#a99cc4",
@@ -33,7 +31,7 @@ const CARDS = [
     step: "03",
     body: "Track injections, log weekly weight, report side effects, and see your dose-pacing timeline update in real time.",
     cta: "Open Patient App",
-    href: `${DEMO_BASE}/patient/home`,
+    href: "/demo/patient/home",
     borderColor: "rgba(201,127,127,0.25)",
     hoverBorderColor: "rgba(201,127,127,0.55)",
     accentColor: "#c97f7f",
@@ -64,8 +62,6 @@ export default function DemoCards() {
             <Link
               key={card.label}
               href={card.href}
-              target="_blank"
-              rel="noopener noreferrer"
               className="group relative flex flex-col p-6 transition-all duration-300"
               style={{ background: "rgba(10,14,20,0.9)" }}
               onMouseEnter={e => {

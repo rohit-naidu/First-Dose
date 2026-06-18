@@ -4,8 +4,6 @@ import Reveal from "@/components/Reveal";
 import SectionBackdrop from "@/components/SectionBackdrop";
 import { PHOTOS } from "@/lib/photography";
 
-const DEMO_BASE = "https://first-dose-v3.vercel.app";
-
 /* ---- stage icons (simple stroke line art) ---- */
 const iconProps = {
   width: 26,
@@ -62,7 +60,7 @@ const STEPS = [
       "Mood & autonomic flags",
       "Prior GLP-1 response",
     ],
-    href: `${DEMO_BASE}/patient/welcome`,
+    href: "/demo/intake",
     cta: "Start Intake",
   },
   {
@@ -77,7 +75,7 @@ const STEPS = [
       "Weekly escalation approval",
       "Patient timeline",
     ],
-    href: `${DEMO_BASE}/clinician`,
+    href: "/demo/clinician",
     cta: "Open Dashboard",
   },
   {
@@ -92,7 +90,7 @@ const STEPS = [
       "Side-effect check-in",
       "Dose-pacing timeline",
     ],
-    href: `${DEMO_BASE}/patient/home`,
+    href: "/demo/patient/home",
     cta: "Open Patient App",
   },
 ];
@@ -108,7 +106,7 @@ function Chip({ children }) {
 function Step({ step }) {
   const { Icon } = step;
   return (
-    <Link href={step.href} target="_blank" rel="noopener noreferrer" className="block h-full">
+    <Link href={step.href} className="block h-full">
       <div className="glass group flex h-full flex-col rounded-md border border-hairline p-7 transition-colors duration-200 hover:border-clinical/40">
         <div className="flex items-center gap-3">
           <span className="flex h-10 w-10 items-center justify-center rounded-md border border-clinical/30 bg-clinical/[0.06] text-clinical">

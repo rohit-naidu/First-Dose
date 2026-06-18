@@ -6,7 +6,8 @@ export default function DemoLayout({ children }) {
     <>
       <MoleculeCanvas />
       <Navbar />
-      <main className="relative z-10">{children}</main>
+      {/* pt-16 clears the fixed navbar (h-16 = 64px) so content is never overlapped */}
+      <main className="relative z-10 pt-16">{children}</main>
     </>
   );
 }

@@ -38,7 +38,7 @@ export default function ClinicianLayout({ children }) {
   }
 
   return (
-    <div className="flex min-h-screen" style={{ background: '#0a0e14' }}>
+    <div className="flex min-h-[calc(100vh-4rem)]" style={{ background: '#0a0e14' }}>
       {/* Sidebar */}
       <aside className="w-64 flex flex-col flex-shrink-0"
         style={{
@@ -111,7 +111,7 @@ export default function ClinicianLayout({ children }) {
       {/* Main */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top bar */}
-        <header className="px-8 py-4 flex items-center gap-4 sticky top-0 z-30"
+        <header className="px-8 py-4 flex items-center gap-4 sticky top-16 z-30"
           style={{
             background: 'rgba(10,14,20,0.95)',
             borderBottom: '1px solid rgba(240,244,248,0.1)',

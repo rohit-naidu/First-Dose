@@ -6,6 +6,7 @@ import DeliveryModeBadge from '@/components/demo/DeliveryModeBadge'
 import PenDosePacingTable from '@/components/demo/PenDosePacingTable'
 import StatusPill from '@/components/demo/StatusPill'
 import AuditTrail from '@/components/demo/AuditTrail'
+import ReportPlaceholder from '@/components/demo/ReportPlaceholder'
 import { useStore } from '@/lib/store'
 import {
   ArrowLeft, CheckCircle, XCircle, PauseCircle,
@@ -15,6 +16,7 @@ import {
 export default function MayaClinicianPage() {
   const { maya, approveMayaWeek3, showToast } = useStore()
   const [showApproveModal, setShowApproveModal] = useState(false)
+  const [activeTab, setActiveTab] = useState('overview')
 
   const handleApprove = () => {
     approveMayaWeek3()
@@ -126,6 +128,27 @@ export default function MayaClinicianPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Tabs */}
+      <div className="flex gap-1 mb-6 p-1 rounded-xl w-fit" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(240,244,248,0.08)' }}>
+        {[{ id: 'overview', label: 'Overview' }, { id: 'intake-report', label: 'Intake Report' }].map(tab => (
+          <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+            className="px-4 py-2 rounded-lg text-xs font-semibold transition-all"
+            style={{
+              background: activeTab === tab.id ? 'rgba(169,156,196,0.15)' : 'transparent',
+              color: activeTab === tab.id ? '#a99cc4' : 'rgba(240,244,248,0.45)',
+              border: activeTab === tab.id ? '1px solid rgba(169,156,196,0.3)' : '1px solid transparent',
+            }}>
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {activeTab === 'intake-report' && (
+        <ReportPlaceholder patientName={maya.patientName} reason="Intake completed via prefilled pen pathway — full report available after next check-in cycle." />
+      )}
+
+      {activeTab === 'overview' && <>
 
       {/* Pen dose pacing table */}
       <motion.div
@@ -240,6 +263,8 @@ export default function MayaClinicianPage() {
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
         <AuditTrail />
       </motion.div>
+
+      </> }
 
       {/* Approve modal */}
       <AnimatePresence>

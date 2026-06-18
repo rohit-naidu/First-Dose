@@ -22,7 +22,7 @@ export default function IntakeDrawer({ open, onClose }) {
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
-        className="fixed inset-0 z-40 bg-black/40"
+        className="fixed inset-0 z-[55] bg-black/40"
       />
 
       {/* Centered card modal */}
@@ -31,7 +31,7 @@ export default function IntakeDrawer({ open, onClose }) {
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.95, opacity: 0 }}
         transition={{ duration: 0.2 }}
-        className="fixed inset-0 z-50 flex items-center justify-center p-5"
+        className="fixed inset-0 z-[60] flex items-center justify-center p-5"
       >
         <div className="relative w-full max-w-[480px] flex flex-col" style={{ maxHeight: 'calc(100vh - 40px)' }}>
           {/* Close button floats above the card, top-right */}

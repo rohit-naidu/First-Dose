@@ -5,7 +5,9 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useStore } from '@/lib/store'
 import {
   ArrowLeft, CheckCircle, XCircle, PauseCircle, Clock,
-  ChevronRight, X, AlertTriangle,
+  ChevronRight, X, AlertTriangle, Shield, Dumbbell,
+  Droplets, Brain, Pill, Timer, Flame, Heart,
+  Zap, Eye,
 } from 'lucide-react'
 
 // ── helpers ──────────────────────────────────────────────────────────────────
@@ -255,30 +257,30 @@ export default function CaseyClinicianPage() {
         </div>
 
         {/* Report Body */}
-        <div className="px-7 py-6 space-y-8">
+        <div className="px-7 py-6 space-y-7">
 
-          {/* ═══ I. BIOLOGICAL RISK INDICES ═══ */}
+          {/* ═══ I. RISK INDICES ═══ */}
           <div>
-            <SectionHeader roman="I" title="Biological Risk Indices — Quantified Decision Support" />
-            <p className="text-xs mb-4" style={{ color: 'rgba(240,244,248,0.35)' }}>
-              These indices combine multiple intake signals to predict treatment-limiting events before the first injection.
-            </p>
-
-            <div className="rounded-md overflow-hidden" style={{ border: '1px solid rgba(240,244,248,0.1)' }}>
-              <div className="grid grid-cols-[1.4fr_0.7fr_2.5fr] px-4 py-2.5"
-                style={{ background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(240,244,248,0.08)' }}>
-                <p className="text-[10px] font-bold uppercase tracking-[0.15em]" style={{ color: 'rgba(240,244,248,0.3)' }}>Risk Index</p>
-                <p className="text-[10px] font-bold uppercase tracking-[0.15em]" style={{ color: 'rgba(240,244,248,0.3)' }}>Level</p>
-                <p className="text-[10px] font-bold uppercase tracking-[0.15em]" style={{ color: 'rgba(240,244,248,0.3)' }}>Contributing Factors</p>
-              </div>
-              {riskRows.map((row, i) => (
-                <div key={i} className="grid grid-cols-[1.4fr_0.7fr_2.5fr] px-4 py-3 items-start"
-                  style={{ borderBottom: i < riskRows.length - 1 ? '1px solid rgba(240,244,248,0.06)' : 'none' }}>
-                  <p className="text-xs font-semibold pr-3" style={{ color: '#f0f4f8' }}>{row.index}</p>
-                  <p className="text-xs font-bold" style={{ color: levelColor(row.level.toLowerCase()) }}>{row.level}</p>
-                  <p className="text-xs leading-relaxed" style={{ color: 'rgba(240,244,248,0.5)' }}>{row.factors}</p>
-                </div>
-              ))}
+            <SectionHeader roman="I" title="Biological Risk Indices" />
+            <div className="grid grid-cols-2 gap-2.5">
+              {riskRows.map((row, i) => {
+                const c = levelColor(row.level.toLowerCase())
+                const icons = [Shield, Dumbbell, Droplets, Brain]
+                const Icon = icons[i] || Shield
+                return (
+                  <div key={i} className="flex items-start gap-3 p-3 rounded-lg"
+                    style={{ background: `${c}0a`, border: `1px solid ${c}25` }}>
+                    <Icon className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: c }} />
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <p className="text-[11px] font-semibold" style={{ color: '#f0f4f8' }}>{row.index}</p>
+                        <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded" style={{ background: `${c}18`, color: c }}>{row.level}</span>
+                      </div>
+                      <p className="text-[10px] leading-snug" style={{ color: 'rgba(240,244,248,0.45)' }}>{row.factors}</p>
+                    </div>
+                  </div>
+                )
+              })}
             </div>
           </div>
 
@@ -286,95 +288,100 @@ export default function CaseyClinicianPage() {
 
           {/* ═══ II. PRESCRIBING INTELLIGENCE ═══ */}
           <div>
-            <SectionHeader roman="II" title="Novel Clinical Prescribing Intelligence" />
+            <SectionHeader roman="II" title="Prescribing Intelligence" />
 
-            {/* 1. Resilient Titration */}
-            <div className="mb-7">
-              <p className="text-xs font-bold mb-3" style={{ color: 'rgba(240,244,248,0.5)' }}>
-                1. The "Resilient Titration" Roadmap — Fixed-Pen Logistics
-              </p>
-              <Bullet>
-                <strong style={{ color: '#f0f4f8' }}>8-Week "Ileal Brake" Adaptation:</strong>{' '}
-                Casey is a "Hungry Gut" type (hunger return &lt; 2 hours), making her a prime GLP-1 responder — but she faces extreme GI shock risk.
-                Hold the 2.5 mg starter pen for <strong style={{ color: '#c9b896' }}>8–12 weeks</strong> to allow the ileal brake reflex to adapt to slowed gastric emptying.
-                Standard 4-week jumps will trigger severe nausea in this phenotype.
-              </Bullet>
-              <Bullet>
-                <strong style={{ color: '#f0f4f8' }}>Hormonal Hold Window:</strong>{' '}
-                Based on Casey&apos;s cycle data (LMP 12 days ago, 28-day cycle), she will enter a high-estrogen peak during Week 1.
-                <strong style={{ color: '#c97f7f' }}> Delay initiation by 7 days</strong> to avoid the 2.5× emetic sensitivity multiplier associated with periovulatory estrogen peaks.
-              </Bullet>
-              <Callout color="sand">
-                Fixed-pen constraint: Velocity is manipulated through duration, not dose granularity. Casey must remain on 2.5 mg for the full gating window. Do not request the 5.0 mg pen until the clinician confirms GI tolerance at the 8-week mark.
-              </Callout>
+            {/* 1. Titration */}
+            <div className="mb-6">
+              <div className="flex items-center gap-2 mb-3">
+                <Timer className="w-3.5 h-3.5" style={{ color: '#c9b896' }} />
+                <p className="text-xs font-bold" style={{ color: 'rgba(240,244,248,0.55)' }}>1. Resilient Titration — Fixed-Pen Logistics</p>
+              </div>
+              <div className="space-y-1.5">
+                {[
+                  { icon: Flame, color: '#c9b896', text: '"Hungry Gut" phenotype — prime responder but extreme GI shock risk' },
+                  { icon: Timer, color: '#c9b896', text: 'Hold 2.5 mg starter pen for 8–12 weeks (not standard 4-week jump)' },
+                  { icon: AlertTriangle, color: '#c97f7f', text: 'Delay initiation 7 days — avoid periovulatory estrogen peak (2.5× nausea multiplier)' },
+                  { icon: Shield, color: 'rgba(240,244,248,0.35)', text: 'Pen constraint: velocity through duration, not dose. No 5.0 mg pen until 8-week GI clear.' },
+                ].map((item, i) => {
+                  const I = item.icon
+                  return (
+                    <div key={i} className="flex items-start gap-2.5 py-1">
+                      <I className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" style={{ color: item.color }} />
+                      <p className="text-[11px] leading-relaxed" style={{ color: 'rgba(240,244,248,0.55)' }}>{item.text}</p>
+                    </div>
+                  )
+                })}
+              </div>
             </div>
 
             {/* 2. Musculoskeletal */}
-            <div className="mb-7">
-              <p className="text-xs font-bold mb-3" style={{ color: 'rgba(240,244,248,0.5)' }}>
-                2. Musculoskeletal Integrity Guard — The "Strength Floor"
-              </p>
-              <Bullet>
-                <strong style={{ color: '#f0f4f8' }}>Depletive Metabotype:</strong>{' '}
-                Casey&apos;s failed Chair Stand Test combined with age 75 places her in the highest risk tier for lean mass depletion.
-                Without intervention, up to <strong style={{ color: '#c97f7f' }}>39% of weight lost may come from muscle</strong> rather than fat.
-              </Bullet>
-              <Bullet>
-                <strong style={{ color: '#f0f4f8' }}>Paradox — Musculoskeletal Super-Responder:</strong>{' '}
-                This demographic (older female, high BMI, joint pain history) is statistically 2× more likely to achieve &gt;15% total body weight loss.
-                The opportunity is large, but the structural guardrails must be absolute.
-              </Bullet>
-              <Bullet>
-                <strong style={{ color: '#f0f4f8' }}>Action:</strong>{' '}
-                Mandate a <strong style={{ color: '#7fb5c9' }}>Protein Floor of 1.5 g/kg/day</strong> and 2 days of supervised resistance training per week.
-                Do not approve the second pen strength until functional strength is verified.
-                Lock the dose if chair stand performance declines — even if weight loss is active.
-              </Bullet>
-              <Callout color="coral">
-                Dose lock condition: Scale weight does not override muscle floor. If functional strength declines at any dose, hold escalation and trigger clinician review.
-              </Callout>
+            <div className="mb-6">
+              <div className="flex items-center gap-2 mb-3">
+                <Dumbbell className="w-3.5 h-3.5" style={{ color: '#c97f7f' }} />
+                <p className="text-xs font-bold" style={{ color: 'rgba(240,244,248,0.55)' }}>2. Musculoskeletal Integrity — Strength Floor</p>
+              </div>
+              <div className="space-y-1.5">
+                {[
+                  { icon: AlertTriangle, color: '#c97f7f', text: 'Failed Chair Stand + age 75 → up to 39% of weight loss from muscle without intervention' },
+                  { icon: Zap, color: '#7fb5c9', text: 'Paradox: this demographic is 2× more likely to reach >15% TBWL (Super-Responder)' },
+                  { icon: CheckCircle, color: '#7fb5c9', text: 'Mandate: Protein 1.5 g/kg/day + 2 days resistance training before approving next pen tier' },
+                  { icon: XCircle, color: '#c97f7f', text: 'Dose lock: hold escalation if chair stand declines — even if weight loss is active' },
+                ].map((item, i) => {
+                  const I = item.icon
+                  return (
+                    <div key={i} className="flex items-start gap-2.5 py-1">
+                      <I className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" style={{ color: item.color }} />
+                      <p className="text-[11px] leading-relaxed" style={{ color: 'rgba(240,244,248,0.55)' }}>{item.text}</p>
+                    </div>
+                  )
+                })}
+              </div>
             </div>
 
-            {/* 3. Neurologic Reset */}
-            <div className="mb-7">
-              <p className="text-xs font-bold mb-3" style={{ color: 'rgba(240,244,248,0.5)' }}>
-                3. The "Neurologic Reset" Opportunity — Compulsive Behavior Pathway
-              </p>
-              <Bullet>
-                <strong style={{ color: '#f0f4f8' }}>Reward Circuit Signal:</strong>{' '}
-                Casey&apos;s "Often" emotional eating score combined with high food noise suggests her hypothalamic reward circuitry is chronically over-activated.
-                GLP-1 agonists stabilize central dopamine tone — this patient has a high probability of <strong style={{ color: '#7fb5c9' }}>Secondary Habit Freedom</strong> (reduced cravings for alcohol, habitual snacking, compulsive behaviors).
-              </Bullet>
-              <Bullet>
-                <strong style={{ color: '#f0f4f8' }}>Hedonic Tone Risk:</strong>{' '}
-                Baseline anhedonia is elevated ("Nearly every day" on PHQ-2). GLP-1 therapy can further suppress dopamine.
-                If life pleasure flattens while weight declines, this is a <strong style={{ color: '#c97f7f' }}>neurological emergency</strong> — not a side effect to tolerate.
-              </Bullet>
-              <Bullet>
-                <strong style={{ color: '#f0f4f8' }}>Clinician Action:</strong>{' '}
-                Frame the medication as a "Neurologic Reset" tool. Monitor anhedonia at every check-in.
-                If mood flatness emerges, enforce an absolute <strong style={{ color: '#c9b896' }}>Minimal Effective Dose lock</strong> — prioritize "life joy" over "scale weight."
-              </Bullet>
-              <Callout color="slate">
-                Hedonic Tone Protection: Central dopamine downregulation is the hidden cost of aggressive titration in anhedonia-positive patients. Do not escalate past the dose where food noise resolves unless mood is verified as stable or improving.
-              </Callout>
+            {/* 3. Neurologic */}
+            <div className="mb-6">
+              <div className="flex items-center gap-2 mb-3">
+                <Brain className="w-3.5 h-3.5" style={{ color: '#a99cc4' }} />
+                <p className="text-xs font-bold" style={{ color: 'rgba(240,244,248,0.55)' }}>3. Neurologic Reset — Reward Pathway</p>
+              </div>
+              <div className="space-y-1.5">
+                {[
+                  { icon: Zap, color: '#7fb5c9', text: 'High food noise + emotional eating → strong candidate for Secondary Habit Freedom' },
+                  { icon: Heart, color: '#a99cc4', text: 'PHQ-2 anhedonia baseline elevated ("Nearly every day") — dopaminergic brake active' },
+                  { icon: Eye, color: '#c9b896', text: 'Monitor mood at every check-in — if pleasure flattens, enforce Minimal Effective Dose lock' },
+                  { icon: AlertTriangle, color: '#c97f7f', text: 'Do not prioritize scale weight over hedonic tone — anhedonia worsening is a dose-lock trigger' },
+                ].map((item, i) => {
+                  const I = item.icon
+                  return (
+                    <div key={i} className="flex items-start gap-2.5 py-1">
+                      <I className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" style={{ color: item.color }} />
+                      <p className="text-[11px] leading-relaxed" style={{ color: 'rgba(240,244,248,0.55)' }}>{item.text}</p>
+                    </div>
+                  )
+                })}
+              </div>
             </div>
 
-            {/* 4. Pharmacological Audit */}
-            <div className="mb-0">
-              <p className="text-xs font-bold mb-3" style={{ color: 'rgba(240,244,248,0.5)' }}>
-                4. Pharmacological Audit &amp; Facial Architecture Risk
-              </p>
-              <Bullet>
-                <strong style={{ color: '#f0f4f8' }}>Weight-Promoting Medication Check:</strong>{' '}
-                Based on Casey&apos;s mood history, evaluate current SSRIs. If depression is stable, consider withdrawing weight-promoting agents
-                (e.g., sertraline, mirtazapine) to avoid dual-agent metabolic interference. Coordinate with prescribing psychiatrist.
-              </Bullet>
-              <Bullet>
-                <strong style={{ color: '#f0f4f8' }}>"Ozempic Face" Risk — Facial Architecture:</strong>{' '}
-                Age 75 + high BMI + aggressive weight-loss trajectory = extreme risk for facial volume depletion and skin laxity.
-                Proactively discuss cosmetic expectations. Consider early referral for dermal filler planning or skin-elasticity support if weight loss exceeds 10% TBWL.
-              </Bullet>
+            {/* 4. Pharmacological */}
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <Pill className="w-3.5 h-3.5" style={{ color: '#c9b896' }} />
+                <p className="text-xs font-bold" style={{ color: 'rgba(240,244,248,0.55)' }}>4. Pharmacological Audit</p>
+              </div>
+              <div className="space-y-1.5">
+                {[
+                  { icon: Pill, color: '#c9b896', text: 'Evaluate current SSRIs — if depression stable, consider withdrawing weight-promoting agents' },
+                  { icon: Eye, color: '#c9b896', text: '"Ozempic Face" risk — age 75 + high TBWL goal → proactive skin-elasticity referral if >10% loss' },
+                ].map((item, i) => {
+                  const I = item.icon
+                  return (
+                    <div key={i} className="flex items-start gap-2.5 py-1">
+                      <I className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" style={{ color: item.color }} />
+                      <p className="text-[11px] leading-relaxed" style={{ color: 'rgba(240,244,248,0.55)' }}>{item.text}</p>
+                    </div>
+                  )
+                })}
+              </div>
             </div>
           </div>
 
@@ -382,47 +389,29 @@ export default function CaseyClinicianPage() {
 
           {/* ═══ III. SAFETY STACK ═══ */}
           <div>
-            <SectionHeader roman="III" title="Proactive Safety Stack &amp; Rescue Protocols" />
-
-            <div className="space-y-1 mb-4">
+            <SectionHeader roman="III" title="Safety Stack" />
+            <div className="grid grid-cols-2 gap-2">
               {[
-                {
-                  label: 'Nausea Shield',
-                  detail: 'Proactively prescribe South Indian Ginger extract (500 mg) pre-injection. Consider Domperidone (10 mg TID) 30 minutes before the first injection to physically clear the stomach and lower emetic threshold.',
-                },
-                {
-                  label: 'Skip-Dose Safety Valve',
-                  detail: 'If a GI flare occurs post-injection, instruct Casey to delay her next pen injection by 24–48 hours to allow drug levels to decay slightly (the "Decay Delay" protocol). Do not skip a full week.',
-                },
-                {
-                  label: 'Hydration Mandate',
-                  detail: 'Dizziness on standing + baseline fluid intake < 1 L/day. Set a mandatory 2.5 L Hydration/Electrolyte Floor. Add oral electrolytes if nausea or vomiting occurs. Monitor for syncopal events.',
-                },
-                {
-                  label: 'Constipation Prophylaxis',
-                  detail: 'GLP-1 slowed motility on top of age-related slowing. Begin Magnesium Citrate (400 mg nightly) + fiber supplement pre-treatment. Titrate up before escalating the pen.',
-                },
-                {
-                  label: 'Orthostatic Protocol',
-                  detail: 'Instruct Casey to rise from sitting in two stages (sit → stand, pause 5 seconds). Relevant to fall risk given age + dizziness baseline + appetite suppression.',
-                },
-              ].map((item, i) => (
-                <div key={i} className="flex items-start gap-3 py-2">
-                  <span className="text-[10px] font-bold w-4 flex-shrink-0 mt-0.5" style={{ color: 'rgba(240,244,248,0.3)' }}>
-                    {String(i + 1).padStart(2, '0')}
-                  </span>
-                  <div>
-                    <p className="text-xs font-semibold mb-0.5" style={{ color: '#f0f4f8' }}>{item.label}</p>
-                    <p className="text-xs leading-relaxed" style={{ color: 'rgba(240,244,248,0.5)' }}>{item.detail}</p>
+                { icon: Shield, label: 'Nausea Shield', detail: 'Ginger 500 mg + Domperidone 10 mg TID pre-injection', color: '#7fb5c9' },
+                { icon: Timer, label: 'Decay Delay', detail: 'If GI flare → delay next pen 24–48h (do not skip full week)', color: '#c9b896' },
+                { icon: Droplets, label: 'Hydration Floor', detail: '2.5 L/day mandatory + oral electrolytes if vomiting', color: '#7fb5c9' },
+                { icon: Pill, label: 'Motility Guard', detail: 'Magnesium Citrate 400 mg nightly + fiber pre-treatment', color: '#a99cc4' },
+                { icon: Dumbbell, label: 'Orthostatic Protocol', detail: 'Two-stage rise (sit → pause 5s → stand). Fall risk: age + dizziness', color: '#c9b896' },
+                { icon: AlertTriangle, label: 'Compound Risk', detail: 'All 5 factors combined → cascading depletion risk in weeks 1–4', color: '#c97f7f' },
+              ].map((item, i) => {
+                const I = item.icon
+                return (
+                  <div key={i} className="flex items-start gap-2.5 p-3 rounded-lg"
+                    style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(240,244,248,0.06)' }}>
+                    <I className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" style={{ color: item.color }} />
+                    <div>
+                      <p className="text-[11px] font-semibold" style={{ color: '#f0f4f8' }}>{item.label}</p>
+                      <p className="text-[10px] leading-snug" style={{ color: 'rgba(240,244,248,0.4)' }}>{item.detail}</p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
-
-            <Callout color="coral">
-              <strong>Critical age-related compound risk:</strong> Casey is 75 with orthostatic symptoms, low hydration, failed chair stand, and extreme GI sensitivity.
-              Any single factor is manageable — combined, they create a cascading depletion risk during the first 4 weeks. Do not escalate without confirming all safety stack items are in place and functional strength is preserved.
-            </Callout>
           </div>
 
         </div>

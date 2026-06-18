@@ -240,6 +240,7 @@ export default function IntakeFormCore({ onComplete, mode = 'patient' }) {
   const [loading, setLoading] = useState(false)
   const [analyzeStep, setAnalyzeStep] = useState(0)
   const [analyzeProgress, setAnalyzeProgress] = useState(0)
+  const [completed, setCompleted] = useState(false)
   const topRef = useRef(null)
 
   useEffect(() => {
@@ -351,8 +352,7 @@ export default function IntakeFormCore({ onComplete, mode = 'patient' }) {
           setIntakeOutputs({ ...store.intakeOutputs, doseReadiness })
           setPatientInfo(infoName.trim() || 'Patient', infoDOB.trim())
           completeIntake()
-          showToast('Dose Readiness Report ready!')
-          onComplete()
+          setCompleted(true)
         }, 700)
       }
     }, 430)
@@ -361,6 +361,65 @@ export default function IntakeFormCore({ onComplete, mode = 'patient' }) {
 
   // ── Analyze screen ──────────────────────────────────────────────────────────
   if (screen === 'analyze') {
+    if (completed) {
+      return (
+        <div ref={topRef} className="flex flex-col items-center justify-center px-8 py-16 min-h-screen" style={{ background: 'rgba(10,14,20,0.92)' }}>
+          <motion.div
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ type: 'spring', stiffness: 240, damping: 20 }}
+            className="w-20 h-20 rounded-full flex items-center justify-center mb-8"
+            style={{ background: 'linear-gradient(135deg, #7fb5c9, #a99cc4)', boxShadow: '0 0 40px rgba(127,181,201,0.3)' }}
+          >
+            <CheckCircle className="w-10 h-10 text-white" />
+          </motion.div>
+
+          <motion.h2
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+            className="text-2xl font-extrabold text-white text-center mb-3"
+            style={{ textShadow: '0 0 24px rgba(127,181,201,0.25)' }}
+          >
+            Report complete
+          </motion.h2>
+
+          <motion.p
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.22 }}
+            className="text-sm text-center mb-2 max-w-xs"
+            style={{ color: 'rgba(240,244,248,0.55)' }}
+          >
+            {infoName ? `${infoName}'s` : 'The'} Dose Readiness Report has been generated and sent to their doctor.
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.28 }}
+            className="flex items-center gap-2 px-4 py-2 rounded-full mb-10 mt-1"
+            style={{ background: 'rgba(127,181,201,0.1)', border: '1px solid rgba(127,181,201,0.2)' }}
+          >
+            <div className="w-1.5 h-1.5 rounded-full bg-clinical animate-pulse" style={{ background: '#7fb5c9' }} />
+            <span className="text-xs font-medium" style={{ color: '#7fb5c9' }}>Sent to doctor</span>
+          </motion.div>
+
+          <motion.button
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.35 }}
+            onClick={onComplete}
+            className="w-full max-w-xs py-4 rounded-2xl font-bold text-white flex items-center justify-center gap-2"
+            style={{ background: 'linear-gradient(135deg, #7fb5c9, #a99cc4)', boxShadow: '0 8px 24px rgba(127,181,201,0.25)' }}
+          >
+            See Clinician View
+            <ChevronRight className="w-5 h-5" />
+          </motion.button>
+        </div>
+      )
+    }
+
     return (
       <div ref={topRef} className="flex flex-col items-center justify-center px-8 py-16 min-h-screen" style={{ background: 'rgba(10,14,20,0.92)' }}>
         <div className="relative w-28 h-28 mx-auto mb-10">
@@ -397,20 +456,9 @@ export default function IntakeFormCore({ onComplete, mode = 'patient' }) {
               transition={{ duration: 0.35 }} />
           </div>
           <div className="flex justify-between">
-            <span className="text-xs" style={{ color: 'rgba(240,244,248,0.45)' }}>Generating Dose Readiness Report</span>
+            <span className="text-xs" style={{ color: 'rgba(240,244,248,0.45)' }}>Generating report</span>
             <span className="text-xs font-bold" style={{ color: '#7fb5c9' }}>{Math.round(analyzeProgress)}%</span>
           </div>
-        </div>
-
-        <div className="flex gap-1.5 mt-8">
-          {analyzeSteps.map((_, i) => (
-            <motion.div key={i} className="h-1.5 rounded-full"
-              animate={{
-                width: i <= analyzeStep ? 18 : 6,
-                background: i <= analyzeStep ? '#7fb5c9' : 'rgba(255,255,255,0.08)',
-              }}
-              transition={{ duration: 0.3 }} />
-          ))}
         </div>
       </div>
     )
@@ -420,9 +468,8 @@ export default function IntakeFormCore({ onComplete, mode = 'patient' }) {
   if (screen === 'info') {
     const canContinue = infoName.trim().length > 0 && infoDOB.trim().length > 0
     return (
-      <div ref={topRef} className="flex flex-col min-h-screen px-6" style={{ background: 'linear-gradient(160deg, #0a0e14 0%, #0d1220 60%, #0a0e14 100%)' }}>
-        <div className="flex-1" />
-        <div className="flex flex-col">
+      <div ref={topRef} className="flex flex-col items-center justify-center min-h-screen px-8" style={{ background: 'linear-gradient(160deg, #0a0e14 0%, #0d1220 60%, #0a0e14 100%)' }}>
+        <div className="w-full max-w-sm flex flex-col">
           <motion.p initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
             className="text-xs font-semibold uppercase tracking-widest mb-2"
             style={{ color: '#7fb5c9' }}>
@@ -479,7 +526,6 @@ export default function IntakeFormCore({ onComplete, mode = 'patient' }) {
             <ChevronRight className="w-5 h-5" />
           </motion.button>
         </div>
-        <div className="flex-1" />
       </div>
     )
   }
@@ -487,65 +533,59 @@ export default function IntakeFormCore({ onComplete, mode = 'patient' }) {
   // ── Welcome screen ──────────────────────────────────────────────────────────
   if (screen === 'welcome') {
     return (
-      <div ref={topRef} className="flex flex-col min-h-screen px-6" style={{ background: 'linear-gradient(160deg, #0a0e14 0%, #0d1220 60%, #0a0e14 100%)' }}>
-        <div className="flex-1" />
+      <div ref={topRef} className="flex flex-col items-center justify-center min-h-screen px-8 text-center" style={{ background: 'linear-gradient(160deg, #0a0e14 0%, #0d1220 60%, #0a0e14 100%)' }}>
+        <motion.div
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+          className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6"
+          style={{ background: 'linear-gradient(135deg, #7fb5c9, #a99cc4)', boxShadow: '0 12px 32px rgba(127,181,201,0.25)' }}
+        >
+          <TrendingUp className="w-7 h-7 text-white" />
+        </motion.div>
 
-        <div className="flex flex-col items-start">
-          <motion.div
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ type: 'spring', stiffness: 260, damping: 20 }}
-            className="w-12 h-12 rounded-2xl flex items-center justify-center mb-6"
-            style={{ background: 'linear-gradient(135deg, #7fb5c9, #a99cc4)' }}
-          >
-            <TrendingUp className="w-6 h-6 text-white" />
-          </motion.div>
+        <motion.p
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.08 }}
+          className="text-xs font-semibold uppercase tracking-widest mb-3"
+          style={{ color: '#7fb5c9' }}
+        >
+          {mode === 'clinician' ? 'Clinician-Led' : 'Patient Intake'}
+        </motion.p>
 
-          <motion.p
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.08 }}
-            className="text-xs font-semibold uppercase tracking-widest mb-2"
-            style={{ color: '#7fb5c9' }}
-          >
-            {mode === 'clinician' ? 'Clinician-Led' : 'Patient Intake'}
-          </motion.p>
+        <motion.h1
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.12 }}
+          className="text-3xl font-extrabold text-white leading-tight mb-3"
+        >
+          {mode === 'clinician' ? 'Patient Intake' : 'Dose Readiness'}
+        </motion.h1>
 
-          <motion.h1
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.12 }}
-            className="text-3xl font-extrabold text-white leading-tight mb-4"
-          >
-            {mode === 'clinician' ? 'Patient\nIntake' : 'Dose Readiness\nAssessment'}
-          </motion.h1>
+        <motion.p
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.16 }}
+          className="text-sm leading-relaxed mb-10 max-w-xs"
+          style={{ color: 'rgba(240,244,248,0.45)' }}
+        >
+          {mode === 'clinician'
+            ? "Read each question aloud and tap the patient's answer."
+            : 'A short adaptive assessment to personalize your dose pacing.'}
+        </motion.p>
 
-          <motion.p
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.16 }}
-            className="text-sm leading-relaxed mb-8"
-            style={{ color: 'rgba(240,244,248,0.45)' }}
-          >
-            {mode === 'clinician'
-              ? "Read each question aloud and tap the patient's answer. Takes about 5–10 minutes."
-              : 'A short adaptive assessment to personalize your dose pacing. Takes about 2–3 minutes.'}
-          </motion.p>
-
-          <motion.button
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.22 }}
-            onClick={() => setScreen('info')}
-            className="w-full py-4 rounded-2xl font-bold text-white flex items-center justify-center gap-2"
-            style={{ background: 'linear-gradient(135deg, #7fb5c9, #a99cc4)', boxShadow: '0 8px 24px rgba(127,181,201,0.25)' }}
-          >
-            Start intake
-            <ChevronRight className="w-5 h-5" />
-          </motion.button>
-        </div>
-
-        <div className="flex-1" />
+        <motion.button
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.22 }}
+          onClick={() => setScreen('info')}
+          className="w-full max-w-xs py-3.5 rounded-2xl font-semibold text-white flex items-center justify-center gap-2"
+          style={{ background: 'linear-gradient(135deg, #7fb5c9, #a99cc4)', boxShadow: '0 8px 24px rgba(127,181,201,0.25)' }}
+        >
+          Begin
+          <ChevronRight className="w-4 h-4" />
+        </motion.button>
       </div>
     )
   }
@@ -558,24 +598,20 @@ export default function IntakeFormCore({ onComplete, mode = 'patient' }) {
       <div className="px-5 pt-5 pb-4">
         <div className="flex items-center gap-3">
           <button onClick={goBack} disabled={selected !== null || multiSelected.length > 0}
-            className="w-9 h-9 rounded-2xl flex items-center justify-center transition-all"
+            className="w-8 h-8 rounded-xl flex items-center justify-center transition-all flex-shrink-0"
             style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }}>
-            <ArrowLeft className="w-4 h-4" style={{ color: 'rgba(240,244,248,0.7)' }} />
+            <ArrowLeft className="w-3.5 h-3.5" style={{ color: 'rgba(240,244,248,0.7)' }} />
           </button>
 
-          <div className="flex-1 flex items-center gap-0.5">
-            {visibleQuestions.map((_, i) => (
-              <motion.div key={i} className="flex-1 h-1 rounded-full"
-                animate={{
-                  background: i < currentQ ? q.accentColor : i === currentQ ? q.accentColor : 'rgba(255,255,255,0.08)',
-                  opacity: i <= currentQ ? 1 : 0.3,
-                }}
-                transition={{ duration: 0.3 }} />
-            ))}
+          <div className="flex-1 h-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)' }}>
+            <motion.div className="h-full rounded-full"
+              style={{ background: q.accentColor }}
+              animate={{ width: `${((currentQ + 1) / totalQ) * 100}%` }}
+              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }} />
           </div>
 
-          <span className="text-xs font-bold w-10 text-right" style={{ color: q.accentColor }}>
-            {currentQ + 1}<span style={{ color: 'rgba(240,244,248,0.45)', fontWeight: 400 }}>/{totalQ}</span>
+          <span className="text-xs font-medium flex-shrink-0" style={{ color: 'rgba(240,244,248,0.45)' }}>
+            <span className="font-bold" style={{ color: q.accentColor }}>{currentQ + 1}</span>/{totalQ}
           </span>
         </div>
       </div>

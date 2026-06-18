@@ -1,6 +1,7 @@
 import MoleculeCanvas from "@/components/three/MoleculeCanvas";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
+import DemoCards from "@/components/DemoCards";
 import PilotBand from "@/components/PilotBand";
 import HowItWorks from "@/components/sections/HowItWorks";
 import Credibility from "@/components/sections/Credibility";
@@ -24,6 +25,8 @@ export default function Home() {
       <Navbar />
       <main className="relative z-10">
         <Hero />
+        <DemoCards />
+        <Divider />
         <PilotBand />
         <Divider />
         <HowItWorks />

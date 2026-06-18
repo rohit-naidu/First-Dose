@@ -1,8 +1,10 @@
+import Link from "next/link";
 import Section from "@/components/Section";
 import Reveal from "@/components/Reveal";
 import SectionBackdrop from "@/components/SectionBackdrop";
-import DemoCards from "@/components/DemoCards";
 import { PHOTOS } from "@/lib/photography";
+
+const DEMO_BASE = "https://first-dose-v3.vercel.app";
 
 /* ---- stage icons (simple stroke line art) ---- */
 const iconProps = {
@@ -16,37 +18,31 @@ const iconProps = {
   strokeLinejoin: "round",
 };
 
-function ProfileIcon() {
-  // data sources converging on the patient
+function IntakeIcon() {
   return (
     <svg {...iconProps}>
-      <circle cx="12" cy="12" r="3" />
-      <circle cx="4" cy="5" r="1.6" />
-      <circle cx="4" cy="19" r="1.6" />
-      <circle cx="20" cy="8" r="1.6" />
-      <path d="M5.4 6 9.4 10.4M5.4 18 9.4 13.6M18.6 9 14.6 11" />
+      <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" />
+      <rect x="9" y="3" width="6" height="4" rx="1" />
+      <path d="M9 12h6M9 16h4" />
     </svg>
   );
 }
 
-function PredictIcon() {
-  // model turning signal into a probability curve
+function ClinicianIcon() {
   return (
     <svg {...iconProps}>
-      <path d="M3 17c3 0 4-9 7-9s4 6 7 6" />
-      <path d="M3 21h18" />
-      <circle cx="17" cy="14" r="1.4" />
+      <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+      <path d="M9 22V12h6v10" />
     </svg>
   );
 }
 
-function PrescribeIcon() {
-  // a decision, ready to act on
+function PatientIcon() {
   return (
     <svg {...iconProps}>
-      <rect x="5" y="3.5" width="14" height="17" rx="2" />
-      <path d="M9 3.5V6h6V3.5" />
-      <path d="M8.5 13.5l2.2 2.2 4.3-4.6" />
+      <path d="M12 2a5 5 0 015 5 5 5 0 01-5 5 5 5 0 01-5-5 5 5 0 015-5" />
+      <path d="M3 21v-1a7 7 0 0114 0v1" />
+      <path d="M16 11l1.5 4.5L19 14l1.5 1.5" />
     </svg>
   );
 }
@@ -54,42 +50,50 @@ function PrescribeIcon() {
 const STEPS = [
   {
     n: "01",
-    title: "Profile",
-    Icon: ProfileIcon,
-    body: "Every signal that shapes how a patient responds, brought into one place.",
-    chipLabel: "Signals we read",
+    title: "Personalized Intake",
+    Icon: IntakeIcon,
+    body: "Adaptive assessment to identify your biological brakes and therapeutic accelerators — creates a personalized Dose Readiness Report.",
+    chipLabel: "What it covers",
     chips: [
-      "Pharmacogenomic markers",
-      "Drug-target pathway variants",
-      "Metabolic & inflammatory bloodwork",
-      "Clinical & family history",
+      "Safety screening",
+      "Nausea sensitivity",
+      "Appetite signals",
+      "GI baseline",
+      "Mood & autonomic flags",
+      "Prior GLP-1 response",
     ],
+    href: `${DEMO_BASE}/patient/welcome`,
+    cta: "Start Intake",
   },
   {
     n: "02",
-    title: "Predict",
-    Icon: PredictIcon,
-    body: "A calibrated probability for each outcome that matters, not a yes/no.",
-    chipLabel: "What the model outputs",
+    title: "Clinician Portal",
+    Icon: ClinicianIcon,
+    body: "Review patient data, risk profiles, and Dose Readiness signals to approve or adjust weekly dose escalations.",
+    chipLabel: "Clinician tools",
     chips: [
-      "Response probability",
-      "Adverse-event risk",
-      "Optimal starting dose",
-      "Time-to-response",
+      "Dose Readiness Report",
+      "Risk flag review",
+      "Weekly escalation approval",
+      "Patient timeline",
     ],
+    href: `${DEMO_BASE}/clinician`,
+    cta: "Open Dashboard",
   },
   {
     n: "03",
-    title: "Prescribe",
-    Icon: PrescribeIcon,
-    body: "A specific recommendation, delivered inside the tools clinicians already use.",
-    chipLabel: "How it's delivered",
+    title: "Patient Management",
+    Icon: PatientIcon,
+    body: "Track injections, log weekly weight, report side effects, and see your dose-pacing timeline update in real time.",
+    chipLabel: "Patient features",
     chips: [
-      "EHR-native suggestion",
-      "Confidence + key drivers",
-      "Monitoring plan",
-      "Auditable reasoning",
+      "Injection tracking",
+      "Weekly weight log",
+      "Side-effect check-in",
+      "Dose-pacing timeline",
     ],
+    href: `${DEMO_BASE}/patient/home`,
+    cta: "Open Patient App",
   },
 ];
 
@@ -104,31 +108,40 @@ function Chip({ children }) {
 function Step({ step }) {
   const { Icon } = step;
   return (
-    <div className="glass flex h-full flex-col rounded-md border border-hairline p-7">
-      <div className="flex items-center gap-3">
-        <span className="flex h-10 w-10 items-center justify-center rounded-md border border-clinical/30 bg-clinical/[0.06] text-clinical">
-          <Icon />
-        </span>
-        <div>
-          <span className="block text-[11px] font-medium tracking-[0.14em] text-clinical/60">
-            STEP {step.n}
+    <Link href={step.href} target="_blank" rel="noopener noreferrer" className="block h-full">
+      <div className="glass group flex h-full flex-col rounded-md border border-hairline p-7 transition-colors duration-200 hover:border-clinical/40">
+        <div className="flex items-center gap-3">
+          <span className="flex h-10 w-10 items-center justify-center rounded-md border border-clinical/30 bg-clinical/[0.06] text-clinical">
+            <Icon />
           </span>
-          <h3 className="text-lg font-light text-ink">{step.title}</h3>
+          <div>
+            <span className="block text-[11px] font-medium tracking-[0.14em] text-clinical/60">
+              STEP {step.n}
+            </span>
+            <h3 className="text-lg font-light text-ink">{step.title}</h3>
+          </div>
+        </div>
+        <p className="mt-4 text-sm leading-[1.6] text-ink-55">{step.body}</p>
+
+        <div className="mt-6 border-t border-hairline pt-4">
+          <p className="text-[10px] uppercase tracking-[0.14em] text-ink-35">
+            {step.chipLabel}
+          </p>
+          <ul className="mt-3 flex flex-wrap gap-1.5">
+            {step.chips.map((c) => (
+              <Chip key={c}>{c}</Chip>
+            ))}
+          </ul>
+        </div>
+
+        <div className="mt-5 flex items-center gap-1 text-[13px] font-medium text-clinical">
+          {step.cta}
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="transition-transform duration-200 group-hover:translate-x-0.5">
+            <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
         </div>
       </div>
-      <p className="mt-4 text-sm leading-[1.6] text-ink-55">{step.body}</p>
-
-      <div className="mt-6 border-t border-hairline pt-4">
-        <p className="text-[10px] uppercase tracking-[0.14em] text-ink-35">
-          {step.chipLabel}
-        </p>
-        <ul className="mt-3 flex flex-wrap gap-1.5">
-          {step.chips.map((c) => (
-            <Chip key={c}>{c}</Chip>
-          ))}
-        </ul>
-      </div>
-    </div>
+    </Link>
   );
 }
 
@@ -332,8 +345,6 @@ export default function HowItWorks() {
             <span className="text-clinical">Built for every drug class.</span>
           </p>
         </Reveal>
-
-        <DemoCards />
       </div>
     </Section>
   );

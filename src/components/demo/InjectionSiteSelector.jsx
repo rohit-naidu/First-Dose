@@ -18,8 +18,34 @@ const ZONES = [
 const PREV_ZONE_ID = 'R2'
 const ZR = 24 // zone circle radius
 
-export default function InjectionSiteSelector({ selectedSite, onSelect }) {
+export default function InjectionSiteSelector({ selectedSite, onSelect, theme = 'light' }) {
+  const dark = theme === 'dark'
   const [ripple, setRipple] = useState(null)
+
+  // Theme accents
+  const c = dark ? {
+    helper: 'rgba(240,244,248,0.45)',
+    sidePill: 'rgba(240,244,248,0.06)',
+    sideText: 'rgba(240,244,248,0.55)',
+    exStroke: '#c97f7f', exFill: 'rgba(201,127,127,0.06)', exText: 'rgba(201,127,127,0.85)',
+    available: 'rgba(127,181,201,0.12)', availStroke: 'rgba(127,181,201,0.5)', availText: '#7fb5c9',
+    selected: '#7fb5c9', selectedStroke: '#5f93a6', accent: '#7fb5c9',
+    last: 'rgba(201,184,150,0.16)', lastStroke: '#c9b896', lastText: '#c9b896',
+    legendText: 'rgba(240,244,248,0.5)',
+    goBg: 'rgba(127,181,201,0.08)', goBorder: 'rgba(127,181,201,0.2)', goTitle: '#7fb5c9', goSub: 'rgba(240,244,248,0.55)',
+    warnBg: 'rgba(201,184,150,0.08)', warnBorder: 'rgba(201,184,150,0.25)', warnTitle: '#c9b896', warnSub: 'rgba(240,244,248,0.55)',
+  } : {
+    helper: '#64748b',
+    sidePill: 'rgba(15,23,42,0.07)',
+    sideText: '#475569',
+    exStroke: '#f97316', exFill: 'rgba(249,115,22,0.05)', exText: '#ea580c',
+    available: '#f0fdfa', availStroke: '#5eead4', availText: '#0d9488',
+    selected: '#0d9488', selectedStroke: '#0a7a70', accent: '#0d9488',
+    last: '#fef3c7', lastStroke: '#f59e0b', lastText: '#92400e',
+    legendText: '#94a3b8',
+    goBg: 'linear-gradient(135deg,#f0fdfa,#ecfeff)', goBorder: '#99f6e4', goTitle: '#115e59', goSub: '#0d9488',
+    warnBg: '#fffbeb', warnBorder: '#fde68a', warnTitle: '#92400e', warnSub: '#b45309',
+  }
 
   const tap = (id) => {
     if (id === PREV_ZONE_ID) return
@@ -35,8 +61,8 @@ export default function InjectionSiteSelector({ selectedSite, onSelect }) {
   return (
     <div className="flex flex-col items-center">
 
-      <p className="text-xs text-slate-500 text-center leading-relaxed mb-3 px-1">
-        Tap any teal zone. Rotate sites each week to protect your skin.
+      <p className="text-xs text-center leading-relaxed mb-3 px-1" style={{ color: c.helper }}>
+        Tap any highlighted zone. Rotate sites each week to protect your skin.
       </p>
 
       {/* ── SVG Diagram ── */}
@@ -95,12 +121,12 @@ export default function InjectionSiteSelector({ selectedSite, onSelect }) {
           stroke="#c0a496" strokeWidth="1" strokeDasharray="5,5" opacity="0.45" />
 
         {/* ── YOUR LEFT / YOUR RIGHT pill labels ── */}
-        <rect x="36" y="46" width="68" height="22" rx="11" fill="rgba(15,23,42,0.07)" />
-        <text x="70" y="61" fontSize="9.5" fontWeight="800" fill="#475569"
+        <rect x="36" y="46" width="68" height="22" rx="11" fill={c.sidePill} />
+        <text x="70" y="61" fontSize="9.5" fontWeight="800" fill={c.sideText}
           fontFamily="system-ui, sans-serif" textAnchor="middle" letterSpacing="0.5">YOUR LEFT</text>
 
-        <rect x="196" y="46" width="68" height="22" rx="11" fill="rgba(15,23,42,0.07)" />
-        <text x="230" y="61" fontSize="9.5" fontWeight="800" fill="#475569"
+        <rect x="196" y="46" width="68" height="22" rx="11" fill={c.sidePill} />
+        <text x="230" y="61" fontSize="9.5" fontWeight="800" fill={c.sideText}
           fontFamily="system-ui, sans-serif" textAnchor="middle" letterSpacing="0.5">YOUR RIGHT</text>
 
         {/* ── Navel ── */}
@@ -109,10 +135,10 @@ export default function InjectionSiteSelector({ selectedSite, onSelect }) {
 
         {/* 2-inch exclusion zone */}
         <circle cx="150" cy="200" r="52"
-          fill="rgba(249,115,22,0.05)"
-          stroke="#f97316" strokeWidth="1.5" strokeDasharray="5,4" />
-        <text x="150" y="152" fontSize="8" fill="#ea580c" fontWeight="600"
-          textAnchor="middle" fontFamily="system-ui, sans-serif" opacity="0.75">
+          fill={c.exFill}
+          stroke={c.exStroke} strokeWidth="1.5" strokeDasharray="5,4" />
+        <text x="150" y="152" fontSize="8" fill={c.exText} fontWeight="600"
+          textAnchor="middle" fontFamily="system-ui, sans-serif" opacity="0.85">
           2 in. from navel
         </text>
 
@@ -125,12 +151,12 @@ export default function InjectionSiteSelector({ selectedSite, onSelect }) {
           if (isPrev) {
             return (
               <g key={z.id}>
-                {/* Amber "last week" zone */}
+                {/* "last week" zone */}
                 <circle cx={z.cx} cy={z.cy} r={ZR}
-                  fill="#fef3c7" stroke="#f59e0b" strokeWidth="2.5" />
-                <text x={z.cx} y={z.cy - 3} fontSize="8.5" fill="#92400e"
+                  fill={c.last} stroke={c.lastStroke} strokeWidth="2.5" />
+                <text x={z.cx} y={z.cy - 3} fontSize="8.5" fill={c.lastText}
                   textAnchor="middle" fontWeight="800" fontFamily="system-ui, sans-serif">LAST</text>
-                <text x={z.cx} y={z.cy + 9} fontSize="8" fill="#92400e"
+                <text x={z.cx} y={z.cy + 9} fontSize="8" fill={c.lastText}
                   textAnchor="middle" fontFamily="system-ui, sans-serif" fontWeight="600">WEEK</text>
               </g>
             )
@@ -145,7 +171,7 @@ export default function InjectionSiteSelector({ selectedSite, onSelect }) {
               {isSel && (
                 <motion.circle
                   cx={z.cx} cy={z.cy} r={ZR + 5}
-                  fill="none" stroke="#0d9488" strokeWidth="2.5"
+                  fill="none" stroke={c.accent} strokeWidth="2.5"
                   initial={{ r: ZR + 4, opacity: 0.75 }}
                   animate={{ r: ZR + 20, opacity: 0 }}
                   transition={{ duration: 1.3, repeat: Infinity, ease: 'easeOut' }}
@@ -156,7 +182,7 @@ export default function InjectionSiteSelector({ selectedSite, onSelect }) {
               {isRip && (
                 <motion.circle
                   cx={z.cx} cy={z.cy} r={ZR}
-                  fill="none" stroke="#0d9488" strokeWidth="3"
+                  fill="none" stroke={c.accent} strokeWidth="3"
                   initial={{ r: ZR, opacity: 0.9 }}
                   animate={{ r: ZR + 22, opacity: 0 }}
                   transition={{ duration: 0.55, ease: 'easeOut' }}
@@ -166,8 +192,8 @@ export default function InjectionSiteSelector({ selectedSite, onSelect }) {
               {/* Zone circle */}
               <circle
                 cx={z.cx} cy={z.cy} r={ZR}
-                fill={isSel ? '#0d9488' : '#f0fdfa'}
-                stroke={isSel ? '#0a7a70' : '#5eead4'}
+                fill={isSel ? c.selected : c.available}
+                stroke={isSel ? c.selectedStroke : c.availStroke}
                 strokeWidth={isSel ? 2.5 : 1.5}
                 filter={isSel ? 'url(#zGlow)' : undefined}
               />
@@ -181,11 +207,11 @@ export default function InjectionSiteSelector({ selectedSite, onSelect }) {
                 />
               ) : (
                 <>
-                  <text x={z.cx} y={z.cy - 2} fontSize="10" fill="#0d9488"
+                  <text x={z.cx} y={z.cy - 2} fontSize="10" fill={c.availText}
                     textAnchor="middle" fontWeight="800" fontFamily="system-ui, sans-serif">
                     {z.side}
                   </text>
-                  <text x={z.cx} y={z.cy + 10} fontSize="7.5" fill="#0d9488"
+                  <text x={z.cx} y={z.cy + 10} fontSize="7.5" fill={c.availText}
                     textAnchor="middle" fontFamily="system-ui, sans-serif">
                     {z.row.slice(0,3)}
                   </text>
@@ -199,14 +225,14 @@ export default function InjectionSiteSelector({ selectedSite, onSelect }) {
       {/* ── Legend ── */}
       <div className="flex items-center gap-5 mt-1 mb-3">
         {[
-          { bg: '#f0fdfa', border: '#5eead4', label: 'Available' },
-          { bg: '#fef3c7', border: '#f59e0b', label: 'Last week' },
-          { bg: '#0d9488', border: '#0d9488', label: 'Selected' },
+          { bg: c.available, border: c.availStroke, label: 'Available' },
+          { bg: c.last, border: c.lastStroke, label: 'Last week' },
+          { bg: c.selected, border: c.selected, label: 'Selected' },
         ].map((item) => (
           <div key={item.label} className="flex items-center gap-1.5">
             <div className="w-3.5 h-3.5 rounded-full border-[1.5px]"
               style={{ background: item.bg, borderColor: item.border }} />
-            <span className="text-xs text-slate-400">{item.label}</span>
+            <span className="text-xs" style={{ color: c.legendText }}>{item.label}</span>
           </div>
         ))}
       </div>
@@ -223,15 +249,15 @@ export default function InjectionSiteSelector({ selectedSite, onSelect }) {
               transition={{ type: 'spring', stiffness: 300, damping: 24 }}
               className="flex items-center gap-3 px-4 py-3 rounded-2xl"
               style={sameSide
-                ? { background: '#fffbeb', border: '1px solid #fde68a' }
-                : { background: 'linear-gradient(135deg,#f0fdfa,#ecfeff)', border: '1px solid #99f6e4' }}
+                ? { background: c.warnBg, border: `1px solid ${c.warnBorder}` }
+                : { background: c.goBg, border: `1px solid ${c.goBorder}` }}
             >
               <span className="text-xl">{sameSide ? '⚠️' : '✅'}</span>
               <div>
-                <p className={`text-sm font-bold ${sameSide ? 'text-amber-800' : 'text-teal-800'}`}>
+                <p className="text-sm font-bold" style={{ color: sameSide ? c.warnTitle : c.goTitle }}>
                   {sel.side === 'L' ? 'Left' : 'Right'} · {sel.row} zone selected
                 </p>
-                <p className={`text-xs mt-0.5 ${sameSide ? 'text-amber-600' : 'text-teal-600'}`}>
+                <p className="text-xs mt-0.5" style={{ color: sameSide ? c.warnSub : c.goSub }}>
                   {sameSide
                     ? 'Same side as last week — consider rotating to the other side'
                     : 'Great rotation — opposite side from last week ✓'}
@@ -245,10 +271,10 @@ export default function InjectionSiteSelector({ selectedSite, onSelect }) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="flex items-center gap-2.5 px-4 py-3 rounded-2xl"
-              style={{ background: '#fffbeb', border: '1px solid #fde68a' }}
+              style={{ background: c.warnBg, border: `1px solid ${c.warnBorder}` }}
             >
-              <RotateCcw className="w-4 h-4 text-amber-500 flex-shrink-0" />
-              <p className="text-xs text-amber-700 leading-relaxed">
+              <RotateCcw className="w-4 h-4 flex-shrink-0" style={{ color: c.warnTitle }} />
+              <p className="text-xs leading-relaxed" style={{ color: c.warnSub }}>
                 Rotating sites prevents lipodystrophy — skin thickening from repeated injections in the same spot.
               </p>
             </motion.div>

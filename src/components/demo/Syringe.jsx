@@ -1,7 +1,27 @@
 'use client'
 import { motion } from 'framer-motion'
 
-export default function Syringe({ units, maxUnits = 100, label, animate = true }) {
+export default function Syringe({ units, maxUnits = 100, label, animate = true, theme = 'light' }) {
+  const dark = theme === 'dark'
+
+  // Theme-dependent accents (light = teal/cyan, dark = clinical palette)
+  const fillStops = dark
+    ? ['#7fb5c9', '#a99cc4', '#7fb5c9']
+    : ['#0d9488', '#06b6d4', '#0d9488']
+  const badgeGrad = dark
+    ? 'linear-gradient(135deg, #7fb5c9, #a99cc4)'
+    : 'linear-gradient(135deg, #0d9488, #0891b2)'
+  const badgeShadow = dark ? '0 8px 20px rgba(127,181,201,0.25)' : '0 8px 20px rgba(13,148,136,0.3)'
+  const badgeText = dark ? '#0a0e14' : '#ffffff'
+  const badgeSub = dark ? 'rgba(10,14,20,0.6)' : '#ccfbf1'
+  const labelColor = dark ? 'rgba(240,244,248,0.45)' : '#64748b'
+  const tickColor = dark ? 'rgba(240,244,248,0.4)' : '#64748b'
+  const tickText = dark ? 'rgba(240,244,248,0.5)' : '#64748b'
+  const captionColor = dark ? 'rgba(240,244,248,0.35)' : '#94a3b8'
+  const target = dark
+    ? { box: 'rgba(201,184,150,0.12)', boxStroke: 'rgba(201,184,150,0.4)', t1: '#c9b896', t2: '#c9b896', arrow: '#c9b896' }
+    : { box: '#fff7ed', boxStroke: '#fed7aa', t1: '#c2410c', t2: '#ea580c', arrow: '#f97316' }
+
   // Barrel geometry — all centered at x=100 in a 200-wide viewBox
   const cx = 100          // horizontal center
   const bw = 40           // barrel width
@@ -25,15 +45,12 @@ export default function Syringe({ units, maxUnits = 100, label, animate = true }
       <div className="text-center">
         <div
           className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl"
-          style={{
-            background: 'linear-gradient(135deg, #0d9488, #0891b2)',
-            boxShadow: '0 8px 20px rgba(13,148,136,0.3)',
-          }}
+          style={{ background: badgeGrad, boxShadow: badgeShadow }}
         >
-          <span className="text-2xl font-extrabold text-white">{units}</span>
-          <span className="text-teal-100 text-sm font-medium">units</span>
+          <span className="text-2xl font-extrabold" style={{ color: badgeText }}>{units}</span>
+          <span className="text-sm font-medium" style={{ color: badgeSub }}>units</span>
         </div>
-        {label && <p className="text-sm text-slate-500 mt-2">{label}</p>}
+        {label && <p className="text-sm mt-2" style={{ color: labelColor }}>{label}</p>}
       </div>
 
       <svg width="200" height="480" viewBox="0 0 200 480">
@@ -45,9 +62,9 @@ export default function Syringe({ units, maxUnits = 100, label, animate = true }
             <stop offset="100%" stopColor="#dde3ea" />
           </linearGradient>
           <linearGradient id="fillGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#0d9488" stopOpacity="0.8" />
-            <stop offset="50%" stopColor="#06b6d4" stopOpacity="0.9" />
-            <stop offset="100%" stopColor="#0d9488" stopOpacity="0.75" />
+            <stop offset="0%" stopColor={fillStops[0]} stopOpacity="0.8" />
+            <stop offset="50%" stopColor={fillStops[1]} stopOpacity="0.9" />
+            <stop offset="100%" stopColor={fillStops[2]} stopOpacity="0.75" />
           </linearGradient>
           <linearGradient id="plungerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%" stopColor="#94a3b8" />
@@ -88,14 +105,15 @@ export default function Syringe({ units, maxUnits = 100, label, animate = true }
         {/* ── Liquid fill (animated) ── */}
         <motion.rect
           x={bx + 1}
-          y={animate ? barrelBottom : fillY}
+          y={fillY}
           width={bw - 2}
-          height={animate ? 0 : fillH}
+          height={fillH}
           rx="3"
           fill="url(#fillGrad)"
           clipPath="url(#barrelClip)"
-          initial={animate ? { height: 0, y: barrelBottom } : undefined}
-          animate={animate ? { height: fillH, y: fillY } : undefined}
+          style={{ transformBox: 'fill-box', transformOrigin: 'bottom' }}
+          initial={animate ? { scaleY: 0 } : false}
+          animate={animate ? { scaleY: 1 } : false}
           transition={{ duration: 1.8, ease: [0.25, 0.1, 0.25, 1], delay: 0.4 }}
           filter="url(#glow)"
         />
@@ -119,7 +137,7 @@ export default function Syringe({ units, maxUnits = 100, label, animate = true }
                 y1={y}
                 x2={bx + bw + tickLen}
                 y2={y}
-                stroke="#64748b"
+                stroke={tickColor}
                 strokeWidth={isMajor ? 2 : 1}
                 opacity={isMid ? 1 : 0.5}
               />
@@ -128,7 +146,7 @@ export default function Syringe({ units, maxUnits = 100, label, animate = true }
                   x={bx + bw + tickLen + 4}
                   y={y + 4}
                   fontSize="10"
-                  fill="#64748b"
+                  fill={tickText}
                   fontFamily="system-ui, sans-serif"
                   fontWeight={isMajor ? '700' : '400'}
                 >
@@ -146,16 +164,16 @@ export default function Syringe({ units, maxUnits = 100, label, animate = true }
           transition={{ delay: 2.3, duration: 0.4 }}
         >
           {/* Label box */}
-          <rect x="10" y={targetY - 15} width="58" height="30" rx="8" fill="#fff7ed" stroke="#fed7aa" strokeWidth="1.5" />
-          <text x="39" y={targetY - 3} fontSize="8.5" fill="#c2410c" fontWeight="700" textAnchor="middle" fontFamily="system-ui, sans-serif">
+          <rect x="10" y={targetY - 15} width="58" height="30" rx="8" fill={target.box} stroke={target.boxStroke} strokeWidth="1.5" />
+          <text x="39" y={targetY - 3} fontSize="8.5" fill={target.t1} fontWeight="700" textAnchor="middle" fontFamily="system-ui, sans-serif">
             FILL TO
           </text>
-          <text x="39" y={targetY + 11} fontSize="11" fill="#ea580c" fontWeight="800" textAnchor="middle" fontFamily="system-ui, sans-serif">
+          <text x="39" y={targetY + 11} fontSize="11" fill={target.t2} fontWeight="800" textAnchor="middle" fontFamily="system-ui, sans-serif">
             {units} u
           </text>
           {/* Arrow + dashed line */}
-          <line x1="68" y1={targetY} x2={bx - 2} y2={targetY} stroke="#f97316" strokeWidth="2" strokeDasharray="4,3" />
-          <polygon points={`${bx - 2},${targetY - 4} ${bx + 6},${targetY} ${bx - 2},${targetY + 4}`} fill="#f97316" />
+          <line x1="68" y1={targetY} x2={bx - 2} y2={targetY} stroke={target.arrow} strokeWidth="2" strokeDasharray="4,3" />
+          <polygon points={`${bx - 2},${targetY - 4} ${bx + 6},${targetY} ${bx - 2},${targetY + 4}`} fill={target.arrow} />
         </motion.g>
 
         {/* ── Needle hub (trapezoid, centered) ── */}
@@ -176,7 +194,7 @@ export default function Syringe({ units, maxUnits = 100, label, animate = true }
         <ellipse cx={cx} cy={barrelBottom + 65} rx="1.5" ry="2" fill="#78909c" />
       </svg>
 
-      <p className="text-xs text-slate-400 text-center max-w-[190px] leading-relaxed">
+      <p className="text-xs text-center max-w-[190px] leading-relaxed" style={{ color: captionColor }}>
         Demo only. Actual units depend on your vial concentration.
       </p>
     </div>

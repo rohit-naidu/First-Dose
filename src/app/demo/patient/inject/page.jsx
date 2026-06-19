@@ -4,8 +4,6 @@ import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import Syringe from '@/components/demo/Syringe'
 import InjectionSiteSelector from '@/components/demo/InjectionSiteSelector'
-import PatientBottomNav from '@/components/demo/PatientBottomNav'
-import Toast from '@/components/demo/Toast'
 import { useStore } from '@/lib/store'
 import { ArrowLeft, ArrowRight, CheckCircle, AlertTriangle, Phone, X, MapPin } from 'lucide-react'
 
@@ -19,9 +17,18 @@ const safetyItems = [
   'I feel well enough to inject today',
 ]
 
+// Shared dark-glass palette (matches the clinician dashboard)
+const INK = '#f0f4f8'
+const INK55 = 'rgba(240,244,248,0.55)'
+const INK45 = 'rgba(240,244,248,0.45)'
+const INK35 = 'rgba(240,244,248,0.35)'
+const HAIR = 'rgba(240,244,248,0.1)'
+const HAIR08 = 'rgba(240,244,248,0.08)'
+const CLINICAL = '#7fb5c9'
+
 export default function InjectPage() {
   const router = useRouter()
-  const { currentUnits, currentDoseMg, completeInjection, showToast } = useStore()
+  const { currentUnits, currentDoseMg, currentWeek, completeInjection, showToast } = useStore()
 
   const [step, setStep] = useState(0)
   const [selectedSite, setSelectedSite] = useState(null)
@@ -46,15 +53,34 @@ export default function InjectPage() {
   const canContinue = step !== 1 || selectedSite !== null
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col" style={{ background: '#0a0e14', minHeight: '750px' }}>
       {/* ── Header ── */}
-      <div className="px-5 py-4 border-b border-slate-100">
+      <div className="px-5 pt-4 pb-4" style={{ borderBottom: `1px solid ${HAIR08}` }}>
+        {/* Brand + plan context (mirrors the clinician chrome) */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-lg flex items-center justify-center"
+              style={{ background: 'rgba(127,181,201,0.15)', border: '1px solid rgba(127,181,201,0.2)' }}>
+              <div className="w-2.5 h-2.5 rounded-sm" style={{ background: CLINICAL }} />
+            </div>
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em]" style={{ color: INK35 }}>Injection Guide</p>
+              <p className="text-xs font-semibold" style={{ color: INK }}>First Dose Health</p>
+            </div>
+          </div>
+          <div className="px-2.5 py-1 rounded-full text-[11px] font-semibold"
+            style={{ background: 'rgba(127,181,201,0.1)', color: CLINICAL, border: '1px solid rgba(127,181,201,0.2)' }}>
+            Wk {currentWeek} · {currentDoseMg} mg · {currentUnits} u
+          </div>
+        </div>
+
         {/* Progress bar */}
         <div className="flex items-center gap-2 mb-4">
           {step < 4 && (
             <button
               onClick={() => step > 0 ? setStep(step - 1) : router.back()}
-              className="w-8 h-8 rounded-xl flex items-center justify-center bg-slate-100 text-slate-500 hover:bg-slate-200 transition-colors"
+              className="w-8 h-8 rounded-xl flex items-center justify-center transition-colors"
+              style={{ background: 'rgba(255,255,255,0.04)', border: `1px solid ${HAIR}`, color: INK45 }}
             >
               <ArrowLeft className="w-4 h-4" />
             </button>
@@ -65,13 +91,13 @@ export default function InjectPage() {
                 key={s}
                 className="flex-1 h-1.5 rounded-full transition-all duration-500"
                 style={{
-                  background: s < step ? '#0d9488' : s === step ? 'linear-gradient(90deg, #0d9488, #0891b2)' : '#e2e8f0',
+                  background: s < step ? CLINICAL : s === step ? 'linear-gradient(90deg, #7fb5c9, #a99cc4)' : 'rgba(240,244,248,0.1)',
                 }}
               />
             ))}
           </div>
           {step < 4 && (
-            <span className="text-xs font-semibold text-slate-400 w-10 text-right">
+            <span className="text-xs font-semibold w-10 text-right" style={{ color: INK35 }}>
               {step + 1} / 4
             </span>
           )}
@@ -79,8 +105,8 @@ export default function InjectPage() {
 
         {step < 4 && (
           <div>
-            <p className="text-xs text-slate-400 font-medium">Step {step + 1}</p>
-            <h2 className="text-lg font-bold text-slate-900">{stepTitles[step]}</h2>
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em]" style={{ color: INK35 }}>Step {step + 1}</p>
+            <h2 className="text-lg font-bold" style={{ color: INK }}>{stepTitles[step]}</h2>
           </div>
         )}
       </div>
@@ -99,15 +125,15 @@ export default function InjectPage() {
             {/* ── Step 0: Prepare ── */}
             {step === 0 && (
               <div className="space-y-4">
-                <div className="rounded-2xl p-4 border"
-                  style={{ background: 'linear-gradient(135deg, #f0fdfa, #ecfeff)', borderColor: '#99f6e4' }}>
-                  <p className="text-xs font-semibold text-teal-500 uppercase tracking-wide mb-1">Your medication</p>
-                  <p className="text-xl font-bold text-slate-900">Tirzepatide</p>
-                  <p className="text-sm text-teal-700">Demo concentration: 10 mg/mL</p>
-                  <p className="text-xs text-teal-600/70 mt-1.5">Always check your vial label before injecting.</p>
+                <div className="rounded-2xl p-4"
+                  style={{ background: 'rgba(127,181,201,0.07)', border: '1px solid rgba(127,181,201,0.2)' }}>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] mb-1" style={{ color: CLINICAL }}>Your medication</p>
+                  <p className="text-xl font-bold" style={{ color: INK }}>Tirzepatide</p>
+                  <p className="text-sm" style={{ color: 'rgba(127,181,201,0.85)' }}>Demo concentration: 10 mg/mL</p>
+                  <p className="text-xs mt-1.5" style={{ color: INK35 }}>Always check your vial label before injecting.</p>
                 </div>
 
-                <p className="text-sm text-slate-600">Gather these supplies before beginning:</p>
+                <p className="text-sm" style={{ color: INK55 }}>Gather these supplies before beginning:</p>
 
                 <div className="space-y-2">
                   {[
@@ -116,14 +142,15 @@ export default function InjectPage() {
                     { num: '3', item: 'Alcohol swabs', note: '2 swabs' },
                     { num: '4', item: 'Sharps container', note: 'For safe disposal' },
                   ].map(({ num, item, note }) => (
-                    <div key={num} className="flex items-center gap-3 bg-white rounded-2xl px-4 py-3 border border-slate-100 shadow-sm">
-                      <div className="w-7 h-7 rounded-xl flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-                        style={{ background: 'linear-gradient(135deg, #0d9488, #0891b2)' }}>
+                    <div key={num} className="flex items-center gap-3 rounded-2xl px-4 py-3"
+                      style={{ background: 'rgba(255,255,255,0.03)', border: `1px solid ${HAIR08}` }}>
+                      <div className="w-7 h-7 rounded-xl flex items-center justify-center text-xs font-bold flex-shrink-0"
+                        style={{ background: 'linear-gradient(135deg, #7fb5c9, #a99cc4)', color: '#0a0e14' }}>
                         {num}
                       </div>
                       <div>
-                        <p className="text-sm font-semibold text-slate-800">{item}</p>
-                        <p className="text-xs text-slate-400">{note}</p>
+                        <p className="text-sm font-semibold" style={{ color: INK }}>{item}</p>
+                        <p className="text-xs" style={{ color: INK35 }}>{note}</p>
                       </div>
                     </div>
                   ))}
@@ -136,13 +163,14 @@ export default function InjectPage() {
               <InjectionSiteSelector
                 selectedSite={selectedSite}
                 onSelect={setSelectedSite}
+                theme="dark"
               />
             )}
 
             {/* ── Step 2: Draw ── */}
             {step === 2 && (
               <div className="flex flex-col items-center py-1">
-                <Syringe units={currentUnits} label={`${currentDoseMg} mg dose`} animate />
+                <Syringe units={currentUnits} label={`${currentDoseMg} mg dose`} animate theme="dark" />
               </div>
             )}
 
@@ -152,16 +180,16 @@ export default function InjectPage() {
                 {/* Site reminder */}
                 {selectedSite && (
                   <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl mb-4"
-                    style={{ background: '#f0fdfa', border: '1px solid #99f6e4' }}>
-                    <MapPin className="w-4 h-4 text-teal-500 flex-shrink-0" />
-                    <p className="text-xs text-teal-700 font-medium">
+                    style={{ background: 'rgba(127,181,201,0.08)', border: '1px solid rgba(127,181,201,0.2)' }}>
+                    <MapPin className="w-4 h-4 flex-shrink-0" style={{ color: CLINICAL }} />
+                    <p className="text-xs font-medium" style={{ color: 'rgba(127,181,201,0.9)' }}>
                       Site: {selectedSite.startsWith('L') ? 'Left' : 'Right'} ·{' '}
                       {selectedSite.endsWith('1') ? 'Upper' : selectedSite.endsWith('2') ? 'Middle' : 'Lower'} zone
                     </p>
                   </div>
                 )}
 
-                <p className="text-sm text-slate-600 mb-4 leading-relaxed">
+                <p className="text-sm mb-4 leading-relaxed" style={{ color: INK55 }}>
                   Confirm each item before injecting. All must be checked to proceed.
                 </p>
 
@@ -173,18 +201,20 @@ export default function InjectPage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.07 }}
                       onClick={() => toggleCheck(i)}
-                      className="w-full text-left flex items-center gap-3 px-4 py-3.5 rounded-2xl border-2 transition-all"
+                      className="w-full text-left flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all"
                       style={{
-                        borderColor: checks[i] ? '#22c55e' : '#e2e8f0',
-                        background: checks[i] ? '#f0fdf4' : 'white',
+                        border: `2px solid ${checks[i] ? CLINICAL : 'rgba(240,244,248,0.15)'}`,
+                        background: checks[i] ? 'rgba(127,181,201,0.08)' : 'rgba(255,255,255,0.02)',
                       }}
                     >
-                      <div className={`w-5 h-5 rounded-lg flex items-center justify-center flex-shrink-0 transition-all border-2 ${
-                        checks[i] ? 'border-green-500 bg-green-500' : 'border-slate-300'
-                      }`}>
-                        {checks[i] && <CheckCircle className="w-3.5 h-3.5 text-white" />}
+                      <div className="w-5 h-5 rounded-lg flex items-center justify-center flex-shrink-0 transition-all"
+                        style={{
+                          border: `2px solid ${checks[i] ? CLINICAL : 'rgba(240,244,248,0.25)'}`,
+                          background: checks[i] ? CLINICAL : 'transparent',
+                        }}>
+                        {checks[i] && <CheckCircle className="w-3.5 h-3.5" style={{ color: '#0a0e14' }} />}
                       </div>
-                      <span className={`text-sm font-medium ${checks[i] ? 'text-green-800' : 'text-slate-700'}`}>
+                      <span className="text-sm font-medium" style={{ color: checks[i] ? INK : INK55 }}>
                         {item}
                       </span>
                     </motion.button>
@@ -192,7 +222,7 @@ export default function InjectPage() {
                 </div>
 
                 {!allChecked && (
-                  <p className="text-xs text-center text-slate-400 mt-4">
+                  <p className="text-xs text-center mt-4" style={{ color: INK35 }}>
                     {checks.filter(Boolean).length} of {safetyItems.length} confirmed
                   </p>
                 )}
@@ -207,23 +237,23 @@ export default function InjectPage() {
                   animate={{ scale: 1, rotate: 0 }}
                   transition={{ type: 'spring', stiffness: 200, damping: 15 }}
                   className="w-24 h-24 rounded-full mx-auto mb-5 flex items-center justify-center"
-                  style={{ background: 'linear-gradient(135deg, #f0fdf4, #dcfce7)', border: '3px solid #86efac' }}
+                  style={{ background: 'rgba(127,181,201,0.12)', border: '3px solid rgba(127,181,201,0.4)' }}
                 >
-                  <CheckCircle className="w-12 h-12 text-green-500" />
+                  <CheckCircle className="w-12 h-12" style={{ color: CLINICAL }} />
                 </motion.div>
 
-                <h3 className="text-2xl font-extrabold text-slate-900 mb-1">Injection logged</h3>
-                <p className="text-sm text-slate-500 mb-1">
+                <h3 className="text-2xl font-extrabold mb-1" style={{ color: INK }}>Injection logged</h3>
+                <p className="text-sm mb-1" style={{ color: INK45 }}>
                   Week {useStore.getState().currentWeek} · {currentDoseMg} mg · {currentUnits} units
                 </p>
                 {selectedSite && (
-                  <p className="text-xs text-teal-600 mb-5">
+                  <p className="text-xs mb-5" style={{ color: CLINICAL }}>
                     Site: {selectedSite.startsWith('L') ? 'Left' : 'Right'} ·{' '}
                     {selectedSite.endsWith('1') ? 'Upper' : selectedSite.endsWith('2') ? 'Middle' : 'Lower'} zone
                   </p>
                 )}
 
-                <p className="text-sm text-slate-600 mb-6 leading-relaxed max-w-xs mx-auto">
+                <p className="text-sm mb-6 leading-relaxed max-w-xs mx-auto" style={{ color: INK55 }}>
                   Your 72-hour check-in will be due in 3 days. Your clinician has been notified.
                 </p>
 
@@ -234,17 +264,21 @@ export default function InjectPage() {
                     { text: 'Stay hydrated this week', done: false },
                   ].map((item, i) => (
                     <div key={i} className="flex items-center gap-3 px-4 py-3 rounded-xl"
-                      style={{ background: item.done ? '#f0fdf4' : '#f8fafc', border: `1px solid ${item.done ? '#bbf7d0' : '#e2e8f0'}` }}>
-                      <div className={`w-2 h-2 rounded-full flex-shrink-0 ${item.done ? 'bg-green-500' : 'bg-slate-300'}`} />
-                      <p className={`text-xs ${item.done ? 'text-green-700' : 'text-slate-600'}`}>{item.text}</p>
+                      style={{
+                        background: item.done ? 'rgba(127,181,201,0.08)' : 'rgba(255,255,255,0.03)',
+                        border: `1px solid ${item.done ? 'rgba(127,181,201,0.2)' : HAIR08}`,
+                      }}>
+                      <div className="w-2 h-2 rounded-full flex-shrink-0"
+                        style={{ background: item.done ? CLINICAL : 'rgba(240,244,248,0.25)' }} />
+                      <p className="text-xs" style={{ color: item.done ? 'rgba(127,181,201,0.9)' : INK55 }}>{item.text}</p>
                     </div>
                   ))}
                 </div>
 
                 <button
                   onClick={() => router.push('/demo/patient/home')}
-                  className="w-full py-4 rounded-2xl font-semibold text-white"
-                  style={{ background: 'linear-gradient(135deg, #0d9488, #0891b2)', boxShadow: '0 8px 24px rgba(13,148,136,0.3)' }}
+                  className="w-full py-4 rounded-2xl font-bold"
+                  style={{ background: CLINICAL, color: '#0a0e14', boxShadow: '0 8px 24px rgba(127,181,201,0.25)' }}
                 >
                   Return to Home
                 </button>
@@ -263,12 +297,12 @@ export default function InjectPage() {
                 disabled={!allChecked}
                 className="w-full py-4 rounded-2xl font-semibold text-sm transition-all flex items-center justify-center gap-2"
                 style={allChecked ? {
-                  background: 'linear-gradient(135deg, #16a34a, #15803d)',
-                  color: 'white',
-                  boxShadow: '0 8px 24px rgba(22,163,74,0.3)',
+                  background: CLINICAL,
+                  color: '#0a0e14',
+                  boxShadow: '0 8px 24px rgba(127,181,201,0.25)',
                 } : {
-                  background: '#f1f5f9',
-                  color: '#94a3b8',
+                  background: 'rgba(255,255,255,0.04)',
+                  color: INK35,
                   cursor: 'not-allowed',
                 }}
               >
@@ -281,12 +315,12 @@ export default function InjectPage() {
                 disabled={!canContinue}
                 className="w-full py-4 rounded-2xl font-semibold text-sm transition-all flex items-center justify-center gap-2"
                 style={canContinue ? {
-                  background: 'linear-gradient(135deg, #0d9488, #0891b2)',
-                  color: 'white',
-                  boxShadow: '0 8px 24px rgba(13,148,136,0.3)',
+                  background: CLINICAL,
+                  color: '#0a0e14',
+                  boxShadow: '0 8px 24px rgba(127,181,201,0.25)',
                 } : {
-                  background: '#f1f5f9',
-                  color: '#94a3b8',
+                  background: 'rgba(255,255,255,0.04)',
+                  color: INK35,
                   cursor: 'not-allowed',
                 }}
               >
@@ -297,7 +331,8 @@ export default function InjectPage() {
 
             <button
               onClick={() => setShowModal(true)}
-              className="w-full py-3 rounded-2xl font-medium text-sm border border-slate-200 text-slate-500 hover:bg-slate-50 transition-colors"
+              className="w-full py-3 rounded-2xl font-medium text-sm transition-colors"
+              style={{ border: `1px solid ${HAIR}`, color: INK45 }}
             >
               Not feeling well today?
             </button>
@@ -313,7 +348,7 @@ export default function InjectPage() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="absolute inset-0 flex items-end z-50"
-            style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}
+            style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}
             onClick={() => setShowModal(false)}
           >
             <motion.div
@@ -321,47 +356,49 @@ export default function InjectPage() {
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-              className="bg-white rounded-t-3xl p-6 w-full"
+              className="rounded-t-3xl p-6 w-full"
+              style={{ background: 'rgba(11,15,22,0.98)', borderTop: `1px solid rgba(240,244,248,0.12)` }}
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-bold text-slate-900">Need Help?</h3>
+                <h3 className="text-lg font-bold" style={{ color: INK }}>Need Help?</h3>
                 <button onClick={() => setShowModal(false)}
-                  className="w-8 h-8 rounded-full flex items-center justify-center bg-slate-100">
-                  <X className="w-4 h-4 text-slate-500" />
+                  className="w-8 h-8 rounded-full flex items-center justify-center"
+                  style={{ background: 'rgba(255,255,255,0.06)' }}>
+                  <X className="w-4 h-4" style={{ color: INK45 }} />
                 </button>
               </div>
 
               <div className="space-y-3 mb-5">
                 <div className="flex items-start gap-3 p-4 rounded-2xl"
-                  style={{ background: '#fffbeb', border: '1px solid #fde68a' }}>
-                  <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+                  style={{ background: 'rgba(201,184,150,0.08)', border: '1px solid rgba(201,184,150,0.25)' }}>
+                  <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#c9b896' }} />
                   <div>
-                    <p className="text-sm font-semibold text-amber-800">Mild symptoms?</p>
-                    <p className="text-xs text-amber-600 mt-1 leading-relaxed">
+                    <p className="text-sm font-semibold" style={{ color: '#c9b896' }}>Mild symptoms?</p>
+                    <p className="text-xs mt-1 leading-relaxed" style={{ color: INK55 }}>
                       Skip the injection and complete your check-in. Your clinician will review and may hold your dose.
                     </p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3 p-4 rounded-2xl"
-                  style={{ background: '#fef2f2', border: '1px solid #fca5a5' }}>
-                  <Phone className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                  style={{ background: 'rgba(201,127,127,0.08)', border: '1px solid rgba(201,127,127,0.25)' }}>
+                  <Phone className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#c97f7f' }} />
                   <div>
-                    <p className="text-sm font-semibold text-red-800">Severe symptoms — seek care immediately</p>
-                    <p className="text-xs text-red-600 mt-1 leading-relaxed">
+                    <p className="text-sm font-semibold" style={{ color: '#c97f7f' }}>Severe symptoms — seek care immediately</p>
+                    <p className="text-xs mt-1 leading-relaxed" style={{ color: INK55 }}>
                       Severe vomiting, severe abdominal pain, difficulty breathing, fainting, or chest pain require urgent medical attention. Call 911 or go to the ER.
                     </p>
                   </div>
                 </div>
               </div>
 
-              <p className="text-xs text-center text-slate-400 mb-4">
+              <p className="text-xs text-center mb-4" style={{ color: INK35 }}>
                 Do not change your dose yourself. Contact your clinician.
               </p>
 
               <button onClick={() => setShowModal(false)}
-                className="w-full py-3.5 rounded-2xl font-semibold text-white"
-                style={{ background: 'linear-gradient(135deg, #0d9488, #0891b2)' }}>
+                className="w-full py-3.5 rounded-2xl font-semibold"
+                style={{ background: CLINICAL, color: '#0a0e14' }}>
                 Understood, Close
               </button>
             </motion.div>

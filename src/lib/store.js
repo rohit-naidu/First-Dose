@@ -135,6 +135,17 @@ export const useStore = create((set) => ({
       'Nausea — proactive counseling, meal-size guidance on injection day',
     ],
     doseReadiness: 'PAUSE',
+    autonomicWearableReady: false,
+    behavioralVulnerabilityWindow: 'uniform',
+    hedonicToneBaseline: 'intact',
+    mitochondrialFatigueRisk: 'low',
+    criticalTmaxShiftRisk: 'low',
+    uricAcidFlareRisk: 'low',
+    nocturnalStasisRisk: 'low',
+    sensoryAversionRisk: 'low',
+    computedVelocity: 0.70,
+    flags: [],
+    doctorNotes: [],
   },
 
   // Multi-patient

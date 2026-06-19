@@ -8,7 +8,9 @@ import {
   Droplets, Wind, Activity, PersonStanding, Dumbbell, HelpCircle,
   Star, CheckCircle2, ThumbsDown, Ban,
   TrendingUp, CheckCircle, ChevronRight,
+  Shield, Heart, Syringe, Pill, Eye, Timer,
 } from 'lucide-react'
+import rawQuestions from '@/lib/glp-intake-questions.json'
 
 // ── theme palette (dark glass variants) ───────────────────────────────────────
 const T = {
@@ -23,207 +25,553 @@ const T = {
   pink:   { bg: 'rgba(201,127,127,0.06)', icon: '#c97f7f', border: 'rgba(201,127,127,0.25)', selected: 'rgba(201,127,127,0.14)' },
 }
 
-const questions = [
-  // Q1: Sex at birth
-  {
-    id: 'q1', category: 'Baseline', categoryColor: '#7fb5c9',
-    shortQ: 'Sex assigned at birth?', sub: 'Helps identify hormonal context for dose timing',
-    type: 'single_select', accentColor: '#7fb5c9', bgFrom: '#0a0e14', bgTo: '#0d1220',
-    options: [
-      { icon: ShieldCheck, label: 'Female', sub: 'Female', theme: T.green },
-      { icon: ShieldCheck, label: 'Male', sub: 'Male', theme: T.teal },
-      { icon: HelpCircle, label: 'Prefer to discuss', sub: 'With clinician', theme: T.indigo },
-    ],
-  },
-  // Q2: Safety gate (multi-select)
-  {
-    id: 'q2', category: 'Safety Check', categoryColor: '#c97f7f',
-    shortQ: 'Medical history check', sub: 'Any of these contraindications?',
-    type: 'multi_select', accentColor: '#c97f7f', bgFrom: '#0a0e14', bgTo: '#0d1220',
-    multiExclusive: ['None of these', 'Not sure'],
-    options: [
-      { icon: XCircle, label: 'Medullary thyroid cancer', sub: 'Or MEN2 syndrome', theme: T.red },
-      { icon: AlertTriangle, label: 'MEN2 syndrome', sub: 'Family history', theme: T.red },
-      { icon: XCircle, label: 'Pancreatitis history', sub: 'Ever diagnosed', theme: T.red },
-      { icon: Wind, label: 'Severe gastroparesis', sub: 'Stomach emptying problem', theme: T.orange },
-      { icon: AlertCircle, label: 'Severe GLP-1 allergy', sub: 'Anaphylaxis history', theme: T.red },
-      { icon: CheckCircle, label: 'None of these', sub: 'Clear history', theme: T.green },
-      { icon: HelpCircle, label: 'Not sure', sub: 'Uncertain', theme: T.indigo },
-    ],
-  },
-  // Q3: Cycle nausea (female only)
-  {
-    id: 'q3', category: 'Cycle Context', categoryColor: '#c97f7f',
-    shortQ: 'Cycle-linked symptoms?', sub: 'Nausea, GI changes, or mood shifts before period',
-    type: 'single_select', accentColor: '#c97f7f', bgFrom: '#0a0e14', bgTo: '#0d1220',
-    showIf: (answers) => answers['q1'] === 'Female',
-    options: [
-      { icon: ShieldCheck, label: 'No', sub: 'No clear pattern', theme: T.green },
-      { icon: AlertCircle, label: 'Sometimes', sub: 'Mild pattern', theme: T.yellow },
-      { icon: AlertTriangle, label: 'Often', sub: 'Each cycle', theme: T.orange },
-      { icon: Ban, label: 'N/A', sub: 'Skip this', theme: T.teal },
-    ],
-  },
-  // Q4: Oral contraceptive (female only)
-  {
-    id: 'q4', category: 'Cycle Context', categoryColor: '#c97f7f',
-    shortQ: 'Oral contraceptive?', sub: 'May affect medication absorption',
-    type: 'single_select', accentColor: '#c97f7f', bgFrom: '#0a0e14', bgTo: '#0d1220',
-    showIf: (answers) => answers['q1'] === 'Female',
-    options: [
-      { icon: ShieldCheck, label: 'No', sub: 'Not using', theme: T.green },
-      { icon: AlertCircle, label: 'Yes', sub: 'Active pill/patch/ring', theme: T.orange },
-      { icon: HelpCircle, label: 'Not sure', sub: 'Uncertain', theme: T.indigo },
-    ],
-  },
-  // Q5: Diabetes medications
-  {
-    id: 'q5', category: 'Medication Safety', categoryColor: '#c97f7f',
-    shortQ: 'Insulin or sulfonylurea?', sub: 'Current medications that affect blood sugar',
-    type: 'single_select', accentColor: '#c97f7f', bgFrom: '#0a0e14', bgTo: '#0d1220',
-    options: [
-      { icon: ShieldCheck, label: 'No', sub: 'Not taking', theme: T.green },
-      { icon: AlertTriangle, label: 'Yes', sub: 'Active use', theme: T.orange },
-      { icon: HelpCircle, label: 'Not sure', sub: 'Uncertain', theme: T.indigo },
-    ],
-  },
-  // Q6: Emetic sensitivity
-  {
-    id: 'q6', category: 'Nausea Sensitivity', categoryColor: '#c9b896',
-    shortQ: 'Prone to nausea?', sub: 'Motion sickness, anesthesia, or medication nausea',
-    type: 'single_select', accentColor: '#c9b896', bgFrom: '#0a0e14', bgTo: '#0d1220',
-    options: [
-      { icon: ShieldCheck, label: 'No', sub: 'No issues', theme: T.green },
-      { icon: AlertCircle, label: 'Mildly', sub: 'Occasional', theme: T.yellow },
-      { icon: Wind, label: 'Very prone', sub: 'Strong reaction', theme: T.red },
-    ],
-  },
-  // Q7: Hunger return
-  {
-    id: 'q7', category: 'Appetite Signal', categoryColor: '#7fb5c9',
-    shortQ: 'Hunger after meals?', sub: 'How quickly does it return after eating',
-    type: 'single_select', accentColor: '#7fb5c9', bgFrom: '#0a0e14', bgTo: '#0d1220',
-    options: [
-      { icon: Clock, label: 'Often (1–2h)', sub: 'Hungry quickly', theme: T.orange },
-      { icon: Coffee, label: 'Sometimes (2–3h)', sub: 'Medium', theme: T.yellow },
-      { icon: Zap, label: 'Rarely (4+h)', sub: 'Stays full', theme: T.green },
-    ],
-  },
-  // Q8: GI symptoms (multi-select)
-  {
-    id: 'q8', category: 'GI Baseline', categoryColor: '#c9b896',
-    shortQ: 'Baseline GI symptoms?', sub: 'Before any medication',
-    type: 'multi_select', accentColor: '#c9b896', bgFrom: '#0a0e14', bgTo: '#0d1220',
-    multiExclusive: ['None of these'],
-    options: [
-      { icon: AlertTriangle, label: 'Reflux or heartburn', sub: 'Acid issues', theme: T.orange },
-      { icon: Wind, label: 'Sulfur burps', sub: 'Gas-related', theme: T.yellow },
-      { icon: AlertTriangle, label: 'Constipation', sub: 'Fewer than 3×/week', theme: T.orange },
-      { icon: Droplets, label: 'Bloating', sub: 'Food sits too long', theme: T.red },
-      { icon: CheckCircle, label: 'None of these', sub: 'Clear GI baseline', theme: T.green },
-    ],
-  },
-  // Q9: Dizziness
-  {
-    id: 'q9', category: 'Autonomic Stability', categoryColor: '#7fb5c9',
-    shortQ: 'Dizzy when standing?', sub: 'Lightheadedness or racing heart on quick stand',
-    type: 'single_select', accentColor: '#7fb5c9', bgFrom: '#0a0e14', bgTo: '#0d1220',
-    options: [
-      { icon: ShieldCheck, label: 'No', sub: 'No issues', theme: T.green },
-      { icon: AlertCircle, label: 'Sometimes', sub: 'Occasionally', theme: T.yellow },
-      { icon: Wind, label: 'Often', sub: 'Frequent dizziness', theme: T.red },
-    ],
-  },
-  // Q10: Food noise
-  {
-    id: 'q10', category: 'Reward Baseline', categoryColor: '#a99cc4',
-    shortQ: 'Food noise?', sub: 'Cravings make it hard to stop thinking about food',
-    type: 'single_select', accentColor: '#a99cc4', bgFrom: '#0a0e14', bgTo: '#0d1220',
-    options: [
-      { icon: Smile, label: 'Often', sub: 'High food noise', theme: T.orange },
-      { icon: Meh, label: 'Sometimes', sub: 'Moderate', theme: T.yellow },
-      { icon: Smile, label: 'Rarely', sub: 'Low food noise', theme: T.green },
-    ],
-  },
-  // Q11: Emotional eating
-  {
-    id: 'q11', category: 'Reward Baseline', categoryColor: '#a99cc4',
-    shortQ: 'Emotional eating?', sub: 'Stress, boredom, or emotions trigger eating when not hungry',
-    type: 'single_select', accentColor: '#a99cc4', bgFrom: '#0a0e14', bgTo: '#0d1220',
-    options: [
-      { icon: Frown, label: 'Often', sub: 'Common pattern', theme: T.orange },
-      { icon: Meh, label: 'Sometimes', sub: 'Occasional', theme: T.yellow },
-      { icon: Smile, label: 'Rarely', sub: 'Not a trigger', theme: T.green },
-    ],
-  },
-  // Q12: Anhedonia
-  {
-    id: 'q12', category: 'Reward Baseline', categoryColor: '#a99cc4',
-    shortQ: 'Loss of pleasure?', sub: 'Past 2 weeks — interest in hobbies, socializing, activities',
-    type: 'single_select', accentColor: '#a99cc4', bgFrom: '#0a0e14', bgTo: '#0d1220',
-    options: [
-      { icon: Star, label: 'Not at all', sub: 'Still enjoy things', theme: T.green },
-      { icon: Meh, label: 'Several days', sub: 'Some reduction', theme: T.yellow },
-      { icon: Frown, label: 'Half+ the days', sub: 'Much less enjoyment', theme: T.orange },
-      { icon: CloudRain, label: 'Nearly every day', sub: 'Very little pleasure', theme: T.red },
-    ],
-  },
-  // Q13: Chair stand
-  {
-    id: 'q13', category: 'Strength Floor', categoryColor: '#a99cc4',
-    shortQ: 'Stand from chair?', sub: 'Without using your arms for support',
-    type: 'single_select', accentColor: '#a99cc4', bgFrom: '#0a0e14', bgTo: '#0d1220',
-    options: [
-      { icon: PersonStanding, label: 'Yes, easily', sub: 'No problem', theme: T.green },
-      { icon: Activity, label: 'Yes, difficult', sub: 'Takes effort', theme: T.orange },
-      { icon: Dumbbell, label: 'No', sub: 'Need help', theme: T.red },
-    ],
-  },
-  // Q14: Prior GLP experience
-  {
-    id: 'q14', category: 'Prior Response', categoryColor: '#7fb5c9',
-    shortQ: 'Tried GLP-1 before?', sub: 'Semaglutide, tirzepatide, or similar',
-    type: 'single_select', accentColor: '#7fb5c9', bgFrom: '#0a0e14', bgTo: '#0d1220',
-    options: [
-      { icon: Star, label: 'No', sub: 'First time', theme: T.teal },
-      { icon: CheckCircle2, label: 'Yes, tolerated', sub: 'No issues', theme: T.green },
-      { icon: ThumbsDown, label: 'Yes, side effects', sub: 'Had to adjust', theme: T.yellow },
-      { icon: Ban, label: "Yes, didn't work", sub: 'Low response', theme: T.orange },
-      { icon: AlertCircle, label: 'Stopped — cost', sub: 'Access issue', theme: T.red },
-    ],
-  },
-  // Q15: Prior side effects (conditional on Q14)
-  {
-    id: 'q15', category: 'Prior Response', categoryColor: '#7fb5c9',
-    shortQ: 'Which side effect?', sub: 'What bothered you most',
-    type: 'multi_select', accentColor: '#7fb5c9', bgFrom: '#0a0e14', bgTo: '#0d1220',
-    showIf: (answers) => answers['q14'] === 'Yes, side effects',
-    multiExclusive: [],
-    options: [
-      { icon: Frown, label: 'Nausea', sub: 'Mild or severe', theme: T.orange },
-      { icon: Wind, label: 'Vomiting', sub: 'Actual vomiting', theme: T.red },
-      { icon: AlertTriangle, label: 'Reflux', sub: 'Heartburn/acid', theme: T.orange },
-      { icon: AlertCircle, label: 'Constipation', sub: 'Bowel issues', theme: T.yellow },
-      { icon: Droplets, label: 'Dizziness', sub: 'Orthostatic', theme: T.orange },
-      { icon: Smile, label: 'Fatigue', sub: 'Low energy', theme: T.yellow },
-      { icon: CloudRain, label: 'Mood changes', sub: 'Emotional', theme: T.red },
-      { icon: HelpCircle, label: 'Other', sub: 'Something else', theme: T.indigo },
-    ],
-  },
-]
+// ── Phase color map ───────────────────────────────────────────────────────────
+const phaseColorMap = {
+  mandatory_safety_biological: '#c97f7f',
+  female_specific_safety: '#c97f7f',
+  female_specific_hormonal_context: '#c97f7f',
+  female_specific_medication_absorption: '#c97f7f',
+  mandatory_medication_safety: '#c97f7f',
+  mandatory_delivery_mode: '#7fb5c9',
+  delivery_support: '#7fb5c9',
+  motility_and_efficacy: '#7fb5c9',
+  efficacy_profile: '#7fb5c9',
+  reward_and_medication_fit: '#a99cc4',
+  gi_brake_discovery: '#c9b896',
+  emetic_risk: '#c9b896',
+  hydration_autonomic: '#7fb5c9',
+  structural_risk_trigger: '#c9b896',
+  structural_risk_assessment: '#c9b896',
+  mood_reward_baseline: '#a99cc4',
+  prior_experience: '#7fb5c9',
+  prior_experience_detail: '#7fb5c9',
+  medication_fit: '#a99cc4',
+}
 
+// ── Icon picker ───────────────────────────────────────────────────────────────
+function pickIcon(optionText, phase) {
+  const t = optionText.toLowerCase()
+  // Safety phase icons
+  const safetyPhases = ['mandatory_safety_biological', 'female_specific_safety', 'mandatory_medication_safety']
+  if (safetyPhases.includes(phase)) {
+    if (t.includes('no') && t.length < 10) return ShieldCheck
+    if (t.includes('none')) return ShieldCheck
+    if (t.includes('yes')) return AlertTriangle
+    if (t.includes('not sure')) return HelpCircle
+    if (t.includes('pancreatitis')) return XCircle
+    if (t.includes('gastroparesis')) return Wind
+    if (t.includes('gallstone') || t.includes('gallbladder')) return AlertCircle
+    if (t.includes('pregnant') || t.includes('breastfeed') || t.includes('trying')) return AlertTriangle
+    return Shield
+  }
+  // GI / nausea
+  if (phase === 'emetic_risk' || phase === 'gi_brake_discovery') {
+    if (t.includes('no') && t.length < 10) return ShieldCheck
+    if (t.includes('rarely')) return ShieldCheck
+    if (t.includes('mildly') || t.includes('sometimes') || t.includes('weekly')) return AlertCircle
+    if (t.includes('very prone') || t.includes('often') || t.includes('severe') || t.includes('most days')) return Wind
+    if (t.includes('extremely')) return Flame
+    if (t.includes('normal')) return CheckCircle
+    if (t.includes('not very')) return CheckCircle
+    return Wind
+  }
+  // Mood / reward
+  if (phase === 'mood_reward_baseline' || phase === 'reward_and_medication_fit') {
+    if (t.includes('not at all') || t.includes('rarely')) return Smile
+    if (t.includes('several days') || t.includes('sometimes')) return Meh
+    if (t.includes('half') || t.includes('often')) return Frown
+    if (t.includes('nearly every') || t.includes('weekend') || t.includes('mid-week')) return CloudRain
+    if (t.includes('evening')) return Meh
+    return Heart
+  }
+  // Hydration / autonomic
+  if (phase === 'hydration_autonomic') {
+    if (t.includes('no') && t.length < 10) return ShieldCheck
+    if (t.includes('sometimes')) return AlertCircle
+    if (t.includes('often')) return Wind
+    if (t.includes('yes')) return CheckCircle2
+    if (t.includes('more than')) return Droplets
+    if (t.includes('1–2')) return Droplets
+    if (t.includes('less than')) return AlertTriangle
+    return Activity
+  }
+  // Structural / activity
+  if (phase === 'structural_risk_trigger' || phase === 'structural_risk_assessment') {
+    if (t.includes('regular exercise') || t.includes('3+')) return Dumbbell
+    if (t.includes('moderate') || t.includes('2')) return Activity
+    if (t.includes('light walking') || t.includes('1')) return PersonStanding
+    if (t.includes('sedentary') || t.includes('0')) return Meh
+    if (t.includes('easily')) return PersonStanding
+    if (t.includes('difficult')) return Activity
+    if (t === 'no') return Dumbbell
+    if (t.includes('yes')) return CheckCircle
+    if (t.includes('prone to heavy')) return CloudRain
+    if (t.includes('normal')) return Smile
+    if (t.includes('highly energetic')) return Zap
+    if (t.includes('gout') || t.includes('joint') || t.includes('kidney')) return AlertTriangle
+    return CheckCircle
+  }
+  // Delivery
+  if (phase === 'mandatory_delivery_mode' || phase === 'delivery_support') {
+    if (t.includes('pen') || t.includes('prefilled')) return Syringe
+    if (t.includes('vial') || t.includes('syringe')) return Syringe
+    if (t.includes('oral') || t.includes('tablet')) return Pill
+    if (t.includes('confident') || t.includes('very confident')) return CheckCircle
+    if (t.includes('somewhat')) return AlertCircle
+    if (t.includes('nervous')) return AlertTriangle
+    if (t.includes('need help') || t.includes('i need')) return HelpCircle
+    if (t.includes('not sure') || t.includes('i am not')) return HelpCircle
+    return ShieldCheck
+  }
+  // Female-specific
+  if (phase && phase.startsWith('female_specific')) {
+    if (t.includes('no') && t.length < 10) return ShieldCheck
+    if (t.includes('yes')) return AlertCircle
+    if (t.includes('not sure') || t.includes('not applicable')) return HelpCircle
+    if (t.includes('regularly')) return CheckCircle
+    if (t.includes('post-menopausal')) return Shield
+    if (t.includes('irregular')) return AlertCircle
+    return Shield
+  }
+  // Efficacy / motility
+  if (phase === 'motility_and_efficacy' || phase === 'efficacy_profile') {
+    if (t.includes('often')) return Clock
+    if (t.includes('sometimes')) return Coffee
+    if (t.includes('rarely')) return Zap
+    return CheckCircle
+  }
+  // Prior experience
+  if (phase === 'prior_experience' || phase === 'prior_experience_detail') {
+    if (t === 'no') return Star
+    if (t.includes('tolerated')) return CheckCircle2
+    if (t.includes('side effects')) return ThumbsDown
+    if (t.includes('did not work') || t.includes('didn\'t work')) return Ban
+    if (t.includes('cost') || t.includes('access')) return AlertCircle
+    if (t.includes('nausea')) return Frown
+    if (t.includes('vomit')) return Wind
+    if (t.includes('reflux')) return AlertTriangle
+    if (t.includes('constipation')) return AlertCircle
+    if (t.includes('dizziness')) return Droplets
+    if (t.includes('fatigue')) return Smile
+    if (t.includes('mood')) return CloudRain
+    if (t.includes('other')) return HelpCircle
+    return CheckCircle
+  }
+  // Medication fit
+  if (phase === 'medication_fit') {
+    if (t.includes('very important')) return Star
+    if (t.includes('somewhat')) return Meh
+    if (t.includes('not')) return CheckCircle
+    if (t.includes('yes')) return CheckCircle2
+    return CheckCircle
+  }
+  // Fallback by text
+  if (t.includes('not sure') || t.includes('uncertain')) return HelpCircle
+  if (t === 'no' || t.includes('none')) return CheckCircle
+  if (t === 'yes') return AlertTriangle
+  if (t.includes('n/a') || t.includes('not applicable')) return Ban
+  return CheckCircle
+}
+
+// ── Theme picker ──────────────────────────────────────────────────────────────
+function pickTheme(optionText, phase) {
+  const t = optionText.toLowerCase()
+  // Clear / safe
+  if ((t === 'no' || t === 'none' || t.includes('none of these') || t === 'rarely' || t === 'not at all') && !t.includes('not sure'))
+    return T.green
+  if (t.includes('clear') || t.includes('easily') || t.includes('very confident') || t.includes('regular exercise') || t === '3+')
+    return T.green
+  if (t.includes('normal') || t.includes('not very sensitive') || t.includes('highly energetic') || t.includes('intact'))
+    return T.green
+  // Uncertain
+  if (t.includes('not sure') || t.includes('uncertain') || t.includes('i am not sure') || t.includes('not applicable') || t.includes('n/a'))
+    return T.indigo
+  // Mild / moderate
+  if (t.includes('mildly') || t.includes('sometimes') || t.includes('several days') || t.includes('weekly') || t.includes('somewhat'))
+    return T.yellow
+  if (t.includes('light walking') || t === '1' || t === '2')
+    return T.yellow
+  // Warning
+  if (t.includes('often') || t.includes('very prone') || t.includes('severe') || t.includes('most days'))
+    return T.red
+  if (t.includes('half') || t.includes('nearly every'))
+    return T.red
+  if (t.includes('nervous') || t.includes('need help') || t.includes('i need'))
+    return T.orange
+  // Safety / danger
+  const safetyPhases = ['mandatory_safety_biological', 'female_specific_safety', 'mandatory_medication_safety']
+  if (safetyPhases.includes(phase)) {
+    if (t === 'yes' || t.includes('pancreatitis') || t.includes('gastroparesis') || t.includes('allergy'))
+      return T.red
+    if (t.includes('pregnant') || t.includes('breastfeed') || t.includes('trying'))
+      return T.red
+    if (t.includes('gallstone') || t.includes('gallbladder'))
+      return T.orange
+  }
+  if (t === 'yes') return T.orange
+  // Delivery
+  if (t.includes('prefilled pen') || t.includes('vial') || t.includes('oral tablet'))
+    return T.teal
+  // Prior experience
+  if (t.includes('tolerated')) return T.green
+  if (t.includes('side effects') || t.includes('did not work') || t.includes('didn\'t work')) return T.orange
+  if (t.includes('cost') || t.includes('access')) return T.red
+  // Specific answers
+  if (t.includes('sedentary') || t === '0') return T.orange
+  if (t.includes('prone to heavy fatigue')) return T.orange
+  if (t.includes('gout') || t.includes('joint swelling')) return T.red
+  if (t.includes('kidney stones')) return T.orange
+  if (t.includes('less than 2 hours') || t.includes('less than 1 liter')) return T.orange
+  if (t.includes('2 to 4') || t.includes('1–2 liters')) return T.yellow
+  if (t.includes('more than 4') || t.includes('more than 2')) return T.green
+  // Female-specific
+  if (t.includes('regularly menstruating') || t.includes('post-menopausal') && !t.includes('hrt'))
+    return T.teal
+  if (t.includes('hrt')) return T.orange
+  if (t.includes('irregular')) return T.yellow
+  // Weekend/weekday
+  if (t.includes('weekend') || t.includes('mid-week') || t.includes('evening'))
+    return T.teal
+  // Medication fit
+  if (t.includes('very important')) return T.orange
+  if (t.includes('not important') || t.includes('not a major')) return T.green
+  // Intersex
+  if (t.includes('intersex') || t.includes('prefer to discuss'))
+    return T.indigo
+  // Fallback
+  return T.teal
+}
+
+// ── Exclusive option detection ────────────────────────────────────────────────
+function findExclusiveOptions(options) {
+  return options.filter(opt => {
+    const t = opt.toLowerCase()
+    return t === 'no' || t.includes('none') || t.includes('not sure') || t.includes('not applicable')
+  })
+}
+
+// ── Show-if evaluator ─────────────────────────────────────────────────────────
+function buildShowIf(shownIfStr) {
+  // Skip questions that reference q_lmp (which we skip)
+  if (shownIfStr.includes('q_lmp.valid_date_provided')) return () => false
+
+  // "sex == 'Female'"
+  if (shownIfStr === "sex == 'Female'") {
+    return (answers) => answers['q_sex'] === 'Female'
+  }
+
+  // "sex == 'Female' && q_lmp.valid_date_provided"
+  if (shownIfStr.includes("sex == 'Female'") && shownIfStr.includes('q_lmp')) {
+    return () => false // skip — q_lmp is skipped
+  }
+
+  // "delivery_mode in ['pen', 'vial']"
+  if (shownIfStr === "delivery_mode in ['pen', 'vial']") {
+    return (answers) => ['Prefilled pen', 'Vial with syringe'].includes(answers['q_delivery_mode'])
+  }
+
+  // "delivery_mode == 'pen'"
+  if (shownIfStr === "delivery_mode == 'pen'") {
+    return (answers) => answers['q_delivery_mode'] === 'Prefilled pen'
+  }
+
+  // "delivery_mode == 'vial'"
+  if (shownIfStr === "delivery_mode == 'vial'") {
+    return (answers) => answers['q_delivery_mode'] === 'Vial with syringe'
+  }
+
+  // "delivery_mode == 'oral' || injection_support_need == 'high' || cost_access_barrier == true"
+  if (shownIfStr.includes("delivery_mode == 'oral'") && shownIfStr.includes('cost_access_barrier')) {
+    return (answers, _scores) => {
+      if (answers['q_delivery_mode'] === 'Oral tablet') return true
+      if (answers['q_injection_confidence'] === 'I need help') return true
+      if (answers['q_prior_glp'] === 'Yes, stopped due to cost/access') return true
+      return false
+    }
+  }
+
+  // "hydration_autonomic_risk in ['moderate', 'high']"
+  if (shownIfStr.includes('hydration_autonomic_risk')) {
+    return (answers) => {
+      const a = answers['q_dizzy_standing']
+      return a === 'Sometimes' || a === 'Often'
+    }
+  }
+
+  // "age >= 65 || q_activity_level == 'Mostly sedentary'"
+  if (shownIfStr.includes('age >= 65') && shownIfStr.includes('q_activity_level')) {
+    return (answers, _scores, patientAge) => {
+      return (patientAge && patientAge >= 65) || answers['q_activity_level'] === 'Mostly sedentary'
+    }
+  }
+
+  // "age >= 65 || q_activity_level == 'Mostly sedentary' || sarcopenia_risk in ['moderate', 'high']"
+  if (shownIfStr.includes('sarcopenia_risk')) {
+    return (answers, _scores, patientAge) => {
+      if (patientAge && patientAge >= 65) return true
+      if (answers['q_activity_level'] === 'Mostly sedentary') return true
+      const chair = answers['q_chair_stand']
+      if (chair === 'Yes, but difficult' || chair === 'No') return true
+      return false
+    }
+  }
+
+  // "prior_glp_intolerance == true"
+  if (shownIfStr === 'prior_glp_intolerance == true') {
+    return (answers) => answers['q_prior_glp'] === 'Yes, stopped due to side effects'
+  }
+
+  // "prior_glp_cost_access_barrier == true || medication_fit_unknown == true"
+  if (shownIfStr.includes('prior_glp_cost_access_barrier') || shownIfStr.includes('medication_fit_unknown')) {
+    return (answers) => answers['q_prior_glp'] === 'Yes, stopped due to cost/access'
+  }
+
+  // "q_prior_glp starts_with 'Yes'" — skipped (free_text type)
+  if (shownIfStr.includes('q_prior_glp starts_with')) {
+    return () => false // q_highest_tolerated_dose is free_text, already skipped
+  }
+
+  // Default: show the question (better to show too many than miss one)
+  return () => true
+}
+
+// ── Map JSON question to rendering format ─────────────────────────────────────
+function mapJsonQuestion(q) {
+  return {
+    id: q.id,
+    category: q.phase.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+    categoryColor: phaseColorMap[q.phase] || '#7fb5c9',
+    shortQ: q.patient_text,
+    sub: q.phase === 'mandatory_safety_biological'
+      ? 'Safety screening'
+      : q.phase.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+    type: q.type,
+    options: q.options.map(opt => ({
+      icon: pickIcon(opt, q.phase),
+      label: opt,
+      sub: '',
+      theme: pickTheme(opt, q.phase),
+    })),
+    accentColor: phaseColorMap[q.phase] || '#7fb5c9',
+    bgFrom: '#0a0e14',
+    bgTo: '#0d1220',
+    showIf: q.shown_if ? buildShowIf(q.shown_if) : undefined,
+    multiExclusive: q.type === 'multi_select' ? findExclusiveOptions(q.options) : undefined,
+    ifThenRules: q.if_then || [],
+  }
+}
+
+// ── Filter and map questions ──────────────────────────────────────────────────
+const SKIP_TYPES = new Set(['number', 'height_weight', 'date_or_not_applicable', 'free_text_or_not_sure'])
+const questions = rawQuestions.questions
+  .filter(q => !SKIP_TYPES.has(q.type))
+  .map(mapJsonQuestion)
+
+// ── Scoring engine ────────────────────────────────────────────────────────────
+function evaluateCondition(condStr, answer, allAnswers, scores, patientAge) {
+  if (!condStr) return false
+  const c = condStr.trim()
+
+  // Simple "answer == 'X'" or "answer == 'X' || answer == 'Y'"
+  const simpleEqMatch = c.match(/^answer\s*==\s*'([^']+)'$/)
+  if (simpleEqMatch) {
+    if (Array.isArray(answer)) return answer.includes(simpleEqMatch[1])
+    return answer === simpleEqMatch[1]
+  }
+
+  // "answer != 'X'"
+  const neqMatch = c.match(/^answer\s*!=\s*'([^']+)'$/)
+  if (neqMatch) {
+    if (Array.isArray(answer)) return !answer.includes(neqMatch[1])
+    return answer !== neqMatch[1]
+  }
+
+  // "answer contains 'X'"
+  const containsMatch = c.match(/^answer\s+contains\s+'([^']+)'$/)
+  if (containsMatch) {
+    if (Array.isArray(answer)) return answer.some(a => a.includes(containsMatch[1]))
+    return typeof answer === 'string' && answer.includes(containsMatch[1])
+  }
+
+  // "answer contains any GI symptom"
+  if (c.includes('answer contains any GI symptom')) {
+    const giSymptoms = ['Nausea', 'Vomiting', 'Reflux', 'Constipation', 'Diarrhea', 'Dizziness']
+    if (Array.isArray(answer)) return answer.some(a => giSymptoms.some(s => a.includes(s)))
+    return false
+  }
+
+  // "answer == 'X' || answer == 'Y'" (simple OR)
+  const orParts = c.split(/\s*\|\|\s*/)
+  if (orParts.length > 1 && orParts.every(p => p.startsWith('answer'))) {
+    return orParts.some(part => evaluateCondition(part, answer, allAnswers, scores, patientAge))
+  }
+
+  // "answer in ['X', 'Y', 'Z']"
+  const inMatch = c.match(/^answer\s+in\s+\[([^\]]+)\]$/)
+  if (inMatch) {
+    const vals = inMatch[1].split(',').map(v => v.trim().replace(/^'|'$/g, ''))
+    if (Array.isArray(answer)) return answer.some(a => vals.includes(a))
+    return vals.includes(answer)
+  }
+
+  // "answer == 'X' && age >= N"
+  const ageCompound = c.match(/answer\s*==\s*'([^']+)'\s*&&\s*age\s*>=\s*(\d+)/)
+  if (ageCompound) {
+    const val = ageCompound[1]
+    const ageThreshold = parseInt(ageCompound[2])
+    const answerMatch = Array.isArray(answer) ? answer.includes(val) : answer === val
+    return answerMatch && (patientAge || 0) >= ageThreshold
+  }
+
+  // "answer == 'X' && q_xxx.answer == 'Y'"
+  const crossRefMatch = c.match(/answer\s*==\s*'([^']+)'\s*&&\s*(\w+)\.answer\s*==\s*'([^']+)'/)
+  if (crossRefMatch) {
+    const val = crossRefMatch[1]
+    const refQId = crossRefMatch[2]
+    const refVal = crossRefMatch[3]
+    const answerMatch = Array.isArray(answer) ? answer.includes(val) : answer === val
+    const refAnswer = allAnswers[refQId]
+    const refMatch = Array.isArray(refAnswer) ? refAnswer.includes(refVal) : refAnswer === refVal
+    return answerMatch && refMatch
+  }
+
+  // "age >= N"
+  const ageMatch = c.match(/^age\s*>=\s*(\d+)$/)
+  if (ageMatch) {
+    return (patientAge || 0) >= parseInt(ageMatch[1])
+  }
+
+  // "answer == 'X' && Y == true"  (flag-based compound — check answer part only for demo)
+  const flagCompound = c.match(/answer\s*==\s*'([^']+)'\s*&&\s*\w+\s*==\s*true/)
+  if (flagCompound) {
+    const val = flagCompound[1]
+    return Array.isArray(answer) ? answer.includes(val) : answer === val
+  }
+
+  // "bmi < clinic_threshold" — skip for demo
+  if (c.includes('bmi') || c.includes('clinic_threshold')) return false
+
+  // "known_dose_provided" / "valid_date_provided" — skip
+  if (c.includes('known_dose_provided') || c.includes('valid_date_provided')) return false
+
+  // OR conditions with mixed types
+  if (orParts.length > 1) {
+    return orParts.some(part => evaluateCondition(part.trim(), answer, allAnswers, scores, patientAge))
+  }
+
+  // AND conditions
+  const andParts = c.split(/\s*&&\s*/)
+  if (andParts.length > 1) {
+    return andParts.every(part => evaluateCondition(part.trim(), answer, allAnswers, scores, patientAge))
+  }
+
+  return false
+}
+
+function computeScores(answers, allQuestions, patientAge) {
+  let velocity = 0.70
+  const scores = {
+    safety_gate: 'none',
+    gi_risk: 0,
+    nausea_sensitivity: 0,
+    reflux_risk: 0,
+    constipation_risk: 0,
+    hydration_autonomic_risk: 'low',
+    mood_reward_risk: 'low',
+    sarcopenia_risk: 'low',
+    autonomic_wearable_ready: 'false',
+    behavioral_vulnerability_window: 'uniform',
+    hedonic_tone_baseline: 'intact',
+    mitochondrial_fatigue_risk: 'low',
+    critical_tmax_shift_risk: 'low',
+    uric_acid_flare_risk: 'low',
+    nocturnal_stasis_risk: 'low',
+    sensory_aversion_risk: 'low',
+    injection_support_need: 'low',
+    medication_fit: 'GLP_candidate',
+    delivery_mode: 'pen',
+    cycle_context_risk: 'none',
+  }
+  const flags = []
+  const doctorNotes = []
+
+  for (const q of allQuestions) {
+    const answer = answers[q.id]
+    if (!answer) continue
+
+    for (const rule of (q.ifThenRules || [])) {
+      if (evaluateCondition(rule.if, answer, answers, scores, patientAge)) {
+        const t = rule.then
+        if (t.set) {
+          for (const [key, val] of Object.entries(t.set)) {
+            scores[key] = val
+          }
+        }
+        if (t.add_flags) flags.push(...t.add_flags)
+        if (t.doctor_note) doctorNotes.push({ qId: q.id, note: t.doctor_note })
+        if (t.modify_scores) {
+          for (const [key, val] of Object.entries(t.modify_scores)) {
+            if (key === 'titration_velocity_v') {
+              velocity += val
+            } else if (typeof val === 'string' && val.startsWith('+')) {
+              scores[key] = (scores[key] || 0) + parseInt(val)
+            } else if (typeof val === 'number') {
+              velocity += val
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Clamp velocity
+  velocity = Math.max(0, Math.min(1, velocity))
+
+  // Convert numeric scores to levels
+  const giLevel = scores.gi_risk >= 4 ? 'high' : scores.gi_risk >= 2 ? 'moderate' : 'low'
+  const nauseaLevel = typeof scores.nausea_sensitivity === 'string' ? scores.nausea_sensitivity :
+    scores.nausea_sensitivity >= 2 ? 'high' : scores.nausea_sensitivity >= 1 ? 'moderate' : 'low'
+  const refluxLevel = typeof scores.reflux_risk === 'string' ? scores.reflux_risk :
+    scores.reflux_risk >= 2 ? 'high' : scores.reflux_risk >= 1 ? 'moderate' : 'low'
+  const constipLevel = typeof scores.constipation_risk === 'string' ? scores.constipation_risk :
+    scores.constipation_risk >= 2 ? 'high' : scores.constipation_risk >= 1 ? 'moderate' : 'low'
+
+  // Determine dose readiness
+  let doseReadiness = 'PAUSE'
+  if (scores.safety_gate === 'stop_intake' || scores.safety_gate === 'review_required') {
+    doseReadiness = 'SAFETY_REVIEW'
+  } else if (velocity >= 0.55 && scores.gi_risk < 2) {
+    doseReadiness = 'PUSH'
+  } else if (velocity < 0.35) {
+    doseReadiness = 'PAUSE'
+  }
+
+  return {
+    velocity,
+    scores,
+    flags,
+    doctorNotes,
+    doseReadiness,
+    giLevel,
+    nauseaLevel,
+    refluxLevel,
+    constipationLevel: constipLevel,
+  }
+}
+
+// ── Analyze steps ─────────────────────────────────────────────────────────────
 const analyzeSteps = [
-  'Running safety screening…',
-  'Processing biological baseline…',
-  'Evaluating emetic sensitivity…',
-  'Mapping GI motility brakes…',
-  'Assessing autonomic stability…',
-  'Reading appetite response signal…',
-  'Analyzing reward and food noise…',
-  'Evaluating mood baseline…',
-  'Checking strength floor…',
-  'Reviewing prior GLP response…',
-  'Generating Dose Readiness Report…',
+  'Running safety screening\u2026',
+  'Processing biological baseline\u2026',
+  'Evaluating emetic sensitivity\u2026',
+  'Mapping GI motility brakes\u2026',
+  'Assessing autonomic stability\u2026',
+  'Reading appetite response signal\u2026',
+  'Analyzing reward and food noise\u2026',
+  'Evaluating mood baseline\u2026',
+  'Checking strength floor\u2026',
+  'Reviewing prior GLP response\u2026',
+  'Generating Dose Readiness Report\u2026',
 ]
 
 export default function IntakeFormCore({ onComplete, mode = 'patient' }) {
@@ -248,8 +596,8 @@ export default function IntakeFormCore({ onComplete, mode = 'patient' }) {
   }, [screen])
 
   const visibleQuestions = useMemo(() =>
-    questions.filter(q => !q.showIf || q.showIf(answers)),
-    [answers]
+    questions.filter(q => !q.showIf || q.showIf(answers, {}, store.patientAge)),
+    [answers, store.patientAge]
   )
   const totalQ = visibleQuestions.length
   const currentQ = typeof screen === 'number' ? screen : 0
@@ -283,9 +631,11 @@ export default function IntakeFormCore({ onComplete, mode = 'patient' }) {
       } else {
         const updated = [...prev, label]
         if (isExclusive) {
-          return updated.filter(l => !otherExclusive.includes(l))
+          // Selecting an exclusive option: keep only this one and remove all non-exclusive
+          return [label]
         } else {
-          return updated.filter(l => !exclusive.includes(l)).concat([label])
+          // Selecting a non-exclusive option: remove any exclusive options
+          return updated.filter(l => !exclusive.includes(l))
         }
       }
     })
@@ -331,25 +681,24 @@ export default function IntakeFormCore({ onComplete, mode = 'patient' }) {
         clearInterval(timer)
         setAnalyzeProgress(100)
         setTimeout(() => {
-          // Compute dose readiness
-          const safetyTriggered =
-            (Array.isArray(answers['q2']) && answers['q2'].some(a => !['None of these', 'Not sure'].includes(a))) ||
-            answers['q5'] !== 'No'
+          // Compute scores from all questions and answers
+          const result = computeScores(answers, questions, store.patientAge)
 
-          const pauseCount = [
-            answers['q6'] === 'Very prone',
-            answers['q9'] === 'Often',
-            Array.isArray(answers['q8']) && answers['q8'].some(a => a.includes('Bloating')),
-            answers['q13'] === 'No',
-            typeof answers['q14'] === 'string' && answers['q14'].includes('side effects'),
-          ].filter(Boolean).length
-
-          let doseReadiness = 'PAUSE'
-          if (safetyTriggered) doseReadiness = 'SAFETY_REVIEW'
-          else if (answers['q7'] === 'Rarely' && pauseCount === 0) doseReadiness = 'PUSH'
-          else if (pauseCount >= 2) doseReadiness = 'PAUSE'
-
-          setIntakeOutputs({ ...store.intakeOutputs, doseReadiness })
+          setIntakeOutputs({
+            ...store.intakeOutputs,
+            doseReadiness: result.doseReadiness,
+            computedVelocity: result.velocity,
+            flags: result.flags,
+            doctorNotes: result.doctorNotes,
+            autonomicWearableReady: result.scores.autonomic_wearable_ready === 'true',
+            behavioralVulnerabilityWindow: result.scores.behavioral_vulnerability_window,
+            hedonicToneBaseline: result.scores.hedonic_tone_baseline,
+            mitochondrialFatigueRisk: result.scores.mitochondrial_fatigue_risk,
+            criticalTmaxShiftRisk: result.scores.critical_tmax_shift_risk,
+            uricAcidFlareRisk: result.scores.uric_acid_flare_risk,
+            nocturnalStasisRisk: result.scores.nocturnal_stasis_risk,
+            sensoryAversionRisk: result.scores.sensory_aversion_risk,
+          })
           setPatientInfo(infoName.trim() || 'Patient', infoDOB.trim())
           completeIntake()
           setCompleted(true)
@@ -649,7 +998,7 @@ export default function IntakeFormCore({ onComplete, mode = 'patient' }) {
           </div>
 
           {q.type === 'single_select' ? (
-            <div className={`grid ${q.options.length === 3 ? 'grid-cols-1' : 'grid-cols-2'} gap-3 pb-8`}>
+            <div className={`grid ${q.options.length <= 3 ? 'grid-cols-1' : 'grid-cols-2'} gap-3 pb-8`}>
               {q.options.map((opt, i) => {
                 const Icon = opt.icon
                 const isSelected = selected === i
@@ -681,7 +1030,7 @@ export default function IntakeFormCore({ onComplete, mode = 'patient' }) {
                     </motion.div>
 
                     <p className="text-sm font-bold leading-tight" style={{ color: '#f0f4f8' }}>{opt.label}</p>
-                    <p className="text-xs mt-0.5" style={{ color: 'rgba(240,244,248,0.45)' }}>{opt.sub}</p>
+                    {opt.sub && <p className="text-xs mt-0.5" style={{ color: 'rgba(240,244,248,0.45)' }}>{opt.sub}</p>}
 
                     {isSelected && (
                       <motion.div
@@ -731,7 +1080,7 @@ export default function IntakeFormCore({ onComplete, mode = 'patient' }) {
 
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-bold" style={{ color: '#f0f4f8' }}>{opt.label}</p>
-                        <p className="text-xs" style={{ color: 'rgba(240,244,248,0.45)' }}>{opt.sub}</p>
+                        {opt.sub && <p className="text-xs" style={{ color: 'rgba(240,244,248,0.45)' }}>{opt.sub}</p>}
                       </div>
 
                       {isSelected && (

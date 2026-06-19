@@ -1,0 +1,1439 @@
+{
+  "product": "DoseGuide GLP Adaptive Intake",
+  "goal": "Maximize clinician usefulness while minimizing patient effort",
+  "principle": "Ask only the questions needed to determine safety gates, medication fit, side-effect risk, and titration velocity.",
+  "clinician_output": {
+    "primary_output": "Dose Pacing Report",
+    "key_decision": "Start, hold, slow titration, micro-increase, switch medication pathway, or request clinician review",
+    "never_autonomous": true,
+    "language": "The software flags and suggests; the clinician decides."
+  },
+  "scoring_model": {
+    "titration_velocity_v": {
+      "description": "Higher score means faster standard titration may be reasonable. Lower score means slower titration, hold, or more monitoring.",
+      "range": "0.00 to 1.00",
+      "starting_value": 0.70,
+      "interpretation": {
+        "0.80_to_1.00": "Standard titration likely acceptable if clinician agrees",
+        "0.55_to_0.79": "Standard start with closer check-ins",
+        "0.35_to_0.54": "Slow titration or weekly micro-adjustment",
+        "0.15_to_0.34": "Hold longer at each step; clinician review before escalation",
+        "0.00_to_0.14": "Do not escalate; clinician review required"
+      }
+    },
+    "risk_scores": {
+      "safety_gate": "none | review_required | stop_intake",
+      "gi_risk": "low | moderate | high",
+      "nausea_sensitivity": "low | moderate | high",
+      "reflux_risk": "low | moderate | high",
+      "constipation_risk": "low | moderate | high",
+      "hydration_autonomic_risk": "low | moderate | high",
+      "cycle_context_risk": "none | optional_context | possible_sensitive_window",
+      "mood_reward_risk": "low | moderate | high",
+      "sarcopenia_risk": "low | moderate | high",
+      "injection_support_need": "low | moderate | high",
+      "medication_fit": "GLP_candidate | GLP_with_slow_titration | naltrexone_bupropion_review | phentermine_review | lifestyle_first | clinician_review_required",
+      "autonomic_wearable_ready": "true | false",
+      "behavioral_vulnerability_window": "weekend | weekday | uniform",
+      "hedonic_tone_baseline": "intact | vulnerable | suppressed",
+      "mitochondrial_fatigue_risk": "low | moderate | high",
+      "critical_tmax_shift_risk": "low | high",
+      "uric_acid_flare_risk": "low | high",
+      "nocturnal_stasis_risk": "low | high",
+      "sensory_aversion_risk": "low | high"
+    }
+  },
+  "questions": [
+    {
+      "id": "q_age",
+      "phase": "mandatory_safety_biological",
+      "patient_text": "What is your age?",
+      "type": "number",
+      "required": true,
+      "if_then": [
+        {
+          "if": "age >= 75",
+          "then": {
+            "add_flags": ["older_adult_caution", "early_gi_distress_risk", "sarcopenia_vulnerability"],
+            "modify_scores": {
+              "titration_velocity_v": -0.15,
+              "gi_risk": "+1",
+              "sarcopenia_risk": "+1"
+            },
+            "trigger_questions": ["q_chair_stand", "q_strength_training", "q_protein_at_meals"],
+            "doctor_note": "Older adult: consider slower dose pacing, closer hydration/GI monitoring, and muscle-protection counseling."
+          }
+        }
+      ]
+    },
+    {
+      "id": "q_sex",
+      "phase": "mandatory_safety_biological",
+      "patient_text": "What sex were you assigned at birth?",
+      "type": "single_select",
+      "options": ["Female", "Male", "Intersex / prefer to discuss with clinician"],
+      "required": true,
+      "if_then": [
+        {
+          "if": "answer == 'Female'",
+          "then": {
+            "add_flags": ["reproductive_context_needed"],
+            "modify_scores": {
+              "titration_velocity_v": -0.05
+            },
+            "trigger_questions": ["q_pregnancy", "q_reproductive_status", "q_oral_contraceptive"],
+            "doctor_note": "Female patient: ask reproductive safety and optional cycle-context questions."
+          }
+        },
+        {
+          "if": "answer != 'Female'",
+          "then": {
+            "skip_questions": ["q_lmp", "q_cycle_length", "q_oral_contraceptive"]
+          }
+        }
+      ]
+    },
+    {
+      "id": "q_height_weight",
+      "phase": "mandatory_safety_biological",
+      "patient_text": "What is your height and current weight?",
+      "type": "height_weight",
+      "required": true,
+      "outputs": ["bmi", "baseline_weight"],
+      "if_then": [
+        {
+          "if": "bmi < clinic_threshold",
+          "then": {
+            "add_flags": ["eligibility_review_required"],
+            "set": {
+              "safety_gate": "review_required"
+            },
+            "doctor_note": "BMI or eligibility criteria require clinician review before treatment."
+          }
+        }
+      ]
+    },
+    {
+      "id": "q_mtc_men2",
+      "phase": "mandatory_safety_biological",
+      "patient_text": "Have you or anyone in your family had medullary thyroid cancer or MEN2?",
+      "type": "single_select",
+      "options": ["No", "Yes", "Not sure"],
+      "required": true,
+      "if_then": [
+        {
+          "if": "answer == 'Yes' || answer == 'Not sure'",
+          "then": {
+            "set": {
+              "safety_gate": "stop_intake"
+            },
+            "add_flags": ["possible_label_contraindication"],
+            "stop_patient_flow": true,
+            "patient_message": "Thanks. Your clinician needs to review this before a GLP-1 plan can be created.",
+            "doctor_note": "MTC/MEN2 history or uncertainty: clinician review required before prescribing."
+          }
+        }
+      ]
+    },
+    {
+      "id": "q_pregnancy",
+      "phase": "female_specific_safety",
+      "patient_text": "Are you pregnant, breastfeeding, or trying to become pregnant in the next 2 months?",
+      "type": "single_select",
+      "options": ["No", "Pregnant", "Breastfeeding", "Trying soon", "Not sure"],
+      "shown_if": "sex == 'Female'",
+      "if_then": [
+        {
+          "if": "answer != 'No'",
+          "then": {
+            "set": {
+              "safety_gate": "review_required"
+            },
+            "add_flags": ["pregnancy_or_lactation_review"],
+            "modify_scores": {
+              "titration_velocity_v": -0.50
+            },
+            "doctor_note": "Pregnancy, lactation, or conception planning requires clinician review before GLP therapy."
+          }
+        }
+      ]
+    },
+    {
+      "id": "q_reproductive_status",
+      "phase": "female_specific_hormonal_context",
+      "patient_text": "What is your current reproductive status?",
+      "type": "single_select",
+      "options": [
+        "Regularly menstruating",
+        "Post-menopausal / No periods",
+        "Post-menopausal using cyclical HRT (Estrogen/Progesterone)",
+        "Not sure"
+      ],
+      "shown_if": "sex == 'Female'",
+      "required": true,
+      "if_then": [
+        {
+          "if": "answer == 'Regularly menstruating' && age >= 55",
+          "then": {
+            "set": { "safety_gate": "review_required" },
+            "add_flags": ["age_menses_anomaly_flag"],
+            "doctor_note": "CRITICAL: Patient claims active menses at age >= 55. Rule out data entry error vs. postmenopausal bleeding. If on oral cyclical HRT, note that oral estrogens compound hepatic SHBG, increasing nausea risk."
+          }
+        },
+        {
+          "if": "answer == 'Post-menopausal using cyclical HRT (Estrogen/Progesterone)'",
+          "then": {
+            "add_flags": ["cyclical_hrt_user", "estrogen_emetic_sensitivity"],
+            "modify_scores": { "titration_velocity_v": -0.05, "nausea_sensitivity": "+1" },
+            "doctor_note": "Patient on cyclical HRT. Exogenous oral estrogens amplify GLP-1 nausea. Consider suggesting transition to transdermal estrogen delivery to bypass hepatic first-pass and reduce GI sensitivity."
+          }
+        },
+        {
+          "if": "answer == 'Regularly menstruating'",
+          "then": { "trigger_questions": ["q_lmp", "q_cycle_length"] }
+        }
+      ]
+    },
+    {
+      "id": "q_lmp",
+      "phase": "female_specific_hormonal_context",
+      "patient_text": "If you have periods, when did your last period start?",
+      "type": "date_or_not_applicable",
+      "shown_if": "sex == 'Female'",
+      "if_then": [
+        {
+          "if": "valid_date_provided",
+          "then": {
+            "calculate": ["estimated_cycle_day", "possible_sensitive_window"],
+            "add_flags": ["cycle_context_available"],
+            "doctor_note": "Cycle timing available as optional context for nausea patterns and dose-escalation timing."
+          }
+        },
+        {
+          "if": "answer == 'Not applicable' || answer == 'Not sure'",
+          "then": {
+            "add_flags": ["cycle_context_unavailable"],
+            "doctor_note": "No cycle-based timing recommendation generated."
+          }
+        }
+      ]
+    },
+    {
+      "id": "q_cycle_length",
+      "phase": "female_specific_hormonal_context",
+      "patient_text": "About how long is your usual cycle?",
+      "type": "single_select",
+      "options": ["24–26 days", "27–30 days", "31–35 days", "Irregular", "Not sure", "Not applicable"],
+      "shown_if": "sex == 'Female' && q_lmp.valid_date_provided",
+      "if_then": [
+        {
+          "if": "answer == 'Irregular' || answer == 'Not sure'",
+          "then": {
+            "set": {
+              "cycle_context_risk": "optional_context"
+            },
+            "doctor_note": "Cycle timing is too uncertain for escalation timing; use symptom check-ins instead."
+          }
+        },
+        {
+          "if": "answer in ['24–26 days', '27–30 days', '31–35 days']",
+          "then": {
+            "set": {
+              "cycle_context_risk": "possible_sensitive_window"
+            },
+            "doctor_note": "If patient has recurring cycle-linked nausea, clinician may avoid escalation during predicted sensitive windows."
+          }
+        }
+      ]
+    },
+    {
+      "id": "q_oral_contraceptive",
+      "phase": "female_specific_medication_absorption",
+      "patient_text": "Do you currently use an oral birth control pill?",
+      "type": "single_select",
+      "options": ["No", "Yes", "Not sure"],
+      "shown_if": "sex == 'Female'",
+      "if_then": [
+        {
+          "if": "answer == 'Yes' || answer == 'Not sure'",
+          "then": {
+            "add_flags": ["oral_contraceptive_counseling_needed"],
+            "doctor_note": "If tirzepatide is used, counsel on non-oral or backup contraception after initiation and dose escalation."
+          }
+        }
+      ]
+    },
+    {
+      "id": "q_pancreatitis_gallbladder_gastroparesis",
+      "phase": "mandatory_safety_biological",
+      "patient_text": "Have you ever had pancreatitis, gallbladder problems, or severe stomach-emptying problems?",
+      "type": "multi_select",
+      "options": ["No", "Pancreatitis", "Gallstones / gallbladder attacks", "Gallbladder removed", "Gastroparesis / severe slow stomach emptying", "Not sure"],
+      "required": true,
+      "if_then": [
+        {
+          "if": "answer contains 'Pancreatitis' || answer contains 'Gastroparesis / severe slow stomach emptying'",
+          "then": {
+            "set": {
+              "safety_gate": "review_required"
+            },
+            "add_flags": ["major_gi_safety_review"],
+            "modify_scores": {
+              "titration_velocity_v": -0.35,
+              "gi_risk": "+2"
+            },
+            "doctor_note": "Major GI history: clinician review required before GLP start or escalation."
+          }
+        },
+        {
+          "if": "answer contains 'Gallstones / gallbladder attacks' || answer contains 'Gallbladder removed'",
+          "then": {
+            "add_flags": ["gallbladder_history"],
+            "modify_scores": {
+              "titration_velocity_v": -0.15,
+              "gi_risk": "+1"
+            },
+            "doctor_note": "Gallbladder history: counsel on abdominal pain red flags and monitor during weight loss."
+          }
+        }
+      ]
+    },
+    {
+      "id": "q_insulin_sulfonylurea",
+      "phase": "mandatory_medication_safety",
+      "patient_text": "Do you take insulin or a sulfonylurea medication such as glipizide, glyburide, or glimepiride?",
+      "type": "single_select",
+      "options": ["No", "Yes", "Not sure"],
+      "required": true,
+      "if_then": [
+        {
+          "if": "answer == 'Yes' || answer == 'Not sure'",
+          "then": {
+            "set": {
+              "safety_gate": "review_required"
+            },
+            "add_flags": ["hypoglycemia_risk_review"],
+            "doctor_note": "Diabetes medication interaction risk: review hypoglycemia risk and possible dose adjustments."
+          }
+        }
+      ]
+    },
+    {
+      "id": "q_critical_oral_meds",
+      "phase": "mandatory_medication_safety",
+      "patient_text": "Do you take daily oral medications for Thyroid (e.g., Synthroid/levothyroxine), Depression/Anxiety (e.g., SSRIs, SNRIs), or Blood Pressure?",
+      "type": "multi_select",
+      "options": ["Thyroid medication", "Mental health medication (antidepressant/anti-anxiety)", "Blood pressure medication", "None of these"],
+      "required": true,
+      "if_then": [
+        {
+          "if": "answer contains 'Thyroid medication' || answer contains 'Mental health medication (antidepressant/anti-anxiety)'",
+          "then": {
+            "set": { "critical_tmax_shift_risk": "high" },
+            "add_flags": ["critical_tmax_shift_risk"],
+            "modify_scores": { "titration_velocity_v": -0.05 },
+            "doctor_note": "Pharmacokinetic Alert: GLP-1 delayed gastric emptying shifts the Tmax of co-administered oral drugs. Monitor for breakthrough symptoms (e.g., sudden fatigue, mood crashes, thyroid symptoms) during the first 6 weeks as steady-state absorption curves shift. Enforce taking thyroid meds 60 min before food and coffee."
+          }
+        },
+        {
+          "if": "answer contains 'Blood pressure medication'",
+          "then": {
+            "add_flags": ["antihypertensive_interaction_note"],
+            "doctor_note": "Blood pressure medication noted. GLP-1 weight loss and GI effects may alter antihypertensive requirements over time. Monitor blood pressure at check-ins."
+          }
+        },
+        {
+          "if": "answer contains 'None of these'",
+          "then": {
+            "set": { "critical_tmax_shift_risk": "low" }
+          }
+        }
+      ]
+    },
+    {
+      "id": "q_delivery_mode",
+      "phase": "mandatory_delivery_mode",
+      "patient_text": "What medication format will you use?",
+      "type": "single_select",
+      "options": ["Prefilled pen", "Vial with syringe", "Oral tablet", "I am not sure"],
+      "required": true,
+      "if_then": [
+        {
+          "if": "answer == 'Prefilled pen'",
+          "then": {
+            "set": {
+              "delivery_mode": "pen"
+            },
+            "trigger_questions": ["q_injection_confidence", "q_pen_first_time"],
+            "doctor_note": "Pen workflow: guide injection timing and technique; do not show syringe unit conversion."
+          }
+        },
+        {
+          "if": "answer == 'Vial with syringe'",
+          "then": {
+            "set": {
+              "delivery_mode": "vial"
+            },
+            "trigger_questions": ["q_injection_confidence", "q_vial_confidence"],
+            "doctor_note": "Vial workflow: patient may need syringe fill-line visualization and dose-volume support."
+          }
+        },
+        {
+          "if": "answer == 'Oral tablet'",
+          "then": {
+            "set": {
+              "delivery_mode": "oral"
+            },
+            "trigger_questions": ["q_oral_med_routine"],
+            "doctor_note": "Oral workflow: emphasize administration timing, absorption rules, and adherence."
+          }
+        },
+        {
+          "if": "answer == 'I am not sure'",
+          "then": {
+            "add_flags": ["delivery_mode_uncertain"],
+            "set": {
+              "injection_support_need": "high"
+            },
+            "doctor_note": "Patient is unsure of delivery mode; clinician or care team should confirm before first dose."
+          }
+        }
+      ]
+    },
+    {
+      "id": "q_injection_confidence",
+      "phase": "delivery_support",
+      "patient_text": "How confident do you feel about giving yourself an injection?",
+      "type": "single_select",
+      "options": ["Very confident", "Somewhat confident", "Nervous but willing", "I need help"],
+      "shown_if": "delivery_mode in ['pen', 'vial']",
+      "if_then": [
+        {
+          "if": "answer == 'Nervous but willing'",
+          "then": {
+            "set": {
+              "injection_support_need": "moderate"
+            },
+            "doctor_note": "Patient may benefit from walkthrough, video, or nurse-support message."
+          }
+        },
+        {
+          "if": "answer == 'I need help'",
+          "then": {
+            "set": {
+              "injection_support_need": "high"
+            },
+            "doctor_note": "Schedule injection teaching before first dose."
+          }
+        }
+      ]
+    },
+    {
+      "id": "q_pen_first_time",
+      "phase": "delivery_support",
+      "patient_text": "Is this your first time using a prefilled injection pen?",
+      "type": "single_select",
+      "options": ["No", "Yes", "Not sure"],
+      "shown_if": "delivery_mode == 'pen'",
+      "if_then": [
+        {
+          "if": "answer == 'Yes' || answer == 'Not sure'",
+          "then": {
+            "add_flags": ["pen_training_needed"],
+            "doctor_note": "Pen patient: provide medication-label confirmation and injection walkthrough. Avoid any partial-dose or click-count instructions."
+          }
+        }
+      ]
+    },
+    {
+      "id": "q_vial_confidence",
+      "phase": "delivery_support",
+      "patient_text": "How confident are you drawing medicine into a syringe?",
+      "type": "single_select",
+      "options": ["Very confident", "Somewhat confident", "Nervous", "I need help"],
+      "shown_if": "delivery_mode == 'vial'",
+      "if_then": [
+        {
+          "if": "answer == 'Nervous' || answer == 'I need help'",
+          "then": {
+            "set": {
+              "injection_support_need": "high"
+            },
+            "add_flags": ["syringe_error_risk"],
+            "doctor_note": "Vial patient: show exact syringe fill-line and consider teaching call."
+          }
+        }
+      ]
+    },
+    {
+      "id": "q_hungry_soon_after_meals",
+      "phase": "motility_and_efficacy",
+      "patient_text": "After a normal meal, do you often feel physically hungry again within 1–2 hours?",
+      "type": "single_select",
+      "options": ["Often", "Sometimes", "Rarely"],
+      "required": true,
+      "if_then": [
+        {
+          "if": "answer == 'Often'",
+          "then": {
+            "add_flags": ["early_hunger_return", "possible_hungry_gut_signal", "strong_appetite_response_signal"],
+            "modify_scores": {
+              "titration_velocity_v": -0.10,
+              "gi_risk": "+1"
+            },
+            "doctor_note": "Early hunger return may indicate strong appetite-response potential but also a need to avoid abrupt GI/satiety change."
+          }
+        },
+        {
+          "if": "answer == 'Sometimes'",
+          "then": {
+            "add_flags": ["moderate_appetite_response_signal"],
+            "doctor_note": "Track food-noise and hunger response after first doses."
+          }
+        }
+      ]
+    },
+    {
+      "id": "q_large_meal_capacity",
+      "phase": "efficacy_profile",
+      "patient_text": "Before you feel full, can you eat a much larger meal than most people?",
+      "type": "single_select",
+      "options": ["Often", "Sometimes", "Rarely"],
+      "required": true,
+      "if_then": [
+        {
+          "if": "answer == 'Often'",
+          "then": {
+            "add_flags": ["large_meal_capacity", "possible_satiation_deficit"],
+            "doctor_note": "Large meal capacity: counsel on meal-size reduction before escalation; monitor whether satiety improves."
+          }
+        }
+      ]
+    },
+    {
+      "id": "q_food_noise",
+      "phase": "efficacy_profile",
+      "patient_text": "Do cravings or food noise make it hard to stop thinking about food?",
+      "type": "single_select",
+      "options": ["Often", "Sometimes", "Rarely"],
+      "required": true,
+      "if_then": [
+        {
+          "if": "answer == 'Often'",
+          "then": {
+            "add_flags": ["high_food_noise"],
+            "doctor_note": "Food-noise baseline established. If food noise resolves at low dose, clinician may hold at minimal effective dose instead of escalating."
+          }
+        }
+      ]
+    },
+    {
+      "id": "q_emotional_eating",
+      "phase": "reward_and_medication_fit",
+      "patient_text": "Do stress, boredom, or emotions often trigger eating even when you are not physically hungry?",
+      "type": "single_select",
+      "options": ["Often", "Sometimes", "Rarely"],
+      "required": true,
+      "if_then": [
+        {
+          "if": "answer == 'Often'",
+          "then": {
+            "add_flags": ["emotional_eating_pattern"],
+            "set": {
+              "medication_fit": "naltrexone_bupropion_review"
+            },
+            "doctor_note": "Emotional eating pattern: consider behavioral support and clinician review of non-GLP or adjunctive reward-pathway options."
+          }
+        }
+      ]
+    },
+    {
+      "id": "q_behavioral_vulnerability",
+      "phase": "reward_and_medication_fit",
+      "patient_text": "When during the week do you find it hardest to manage cravings, 'food noise', or emotional eating?",
+      "type": "single_select",
+      "options": [
+        "The Weekend (Friday evening through Sunday)",
+        "The Mid-week stretch (Tuesday through Thursday)",
+        "Evenings every day / No specific day pattern"
+      ],
+      "required": true,
+      "if_then": [
+        {
+          "if": "answer == 'The Weekend (Friday evening through Sunday)'",
+          "then": {
+            "set": { "behavioral_vulnerability_window": "weekend" },
+            "add_flags": ["weekend_vulnerability_profile"],
+            "doctor_note": "Chronobiological Match: Recommend a Wednesday evening injection day. This aligns peak plasma concentration (Cmax) at 24-48 hours post-dose directly with their weekend behavioral vulnerability window."
+          }
+        },
+        {
+          "if": "answer == 'The Mid-week stretch (Tuesday through Thursday)'",
+          "then": {
+            "set": { "behavioral_vulnerability_window": "weekday" },
+            "add_flags": ["weekday_vulnerability_profile"],
+            "doctor_note": "Chronobiological Match: Recommend a Saturday or Sunday injection day to align Cmax window with mid-week vulnerability."
+          }
+        },
+        {
+          "if": "answer == 'Evenings every day / No specific day pattern'",
+          "then": {
+            "set": { "behavioral_vulnerability_window": "uniform" }
+          }
+        }
+      ]
+    },
+    {
+      "id": "q_reflux",
+      "phase": "gi_brake_discovery",
+      "patient_text": "Before medication, how often do you have heartburn, reflux, or burping after meals?",
+      "type": "single_select",
+      "options": ["Rarely", "Weekly", "Most days", "Severe / currently treated"],
+      "required": true,
+      "if_then": [
+        {
+          "if": "answer == 'Weekly'",
+          "then": {
+            "set": {
+              "reflux_risk": "moderate"
+            },
+            "modify_scores": {
+              "titration_velocity_v": -0.10,
+              "gi_risk": "+1"
+            },
+            "doctor_note": "Moderate reflux baseline: include reflux prevention guidance and avoid escalation if symptoms worsen."
+          }
+        },
+        {
+          "if": "answer == 'Most days' || answer == 'Severe / currently treated'",
+          "then": {
+            "set": {
+              "reflux_risk": "high"
+            },
+            "modify_scores": {
+              "titration_velocity_v": -0.20,
+              "gi_risk": "+2"
+            },
+            "doctor_note": "High reflux risk: clinician should consider slower titration and active reflux management before escalation."
+          }
+        }
+      ]
+    },
+    {
+      "id": "q_constipation",
+      "phase": "gi_brake_discovery",
+      "patient_text": "How often do you have constipation or fewer than 3 bowel movements per week?",
+      "type": "single_select",
+      "options": ["Rarely", "Sometimes", "Often", "Severe / need medication"],
+      "required": true,
+      "if_then": [
+        {
+          "if": "answer == 'Often' || answer == 'Severe / need medication'",
+          "then": {
+            "set": {
+              "constipation_risk": "high"
+            },
+            "modify_scores": {
+              "titration_velocity_v": -0.20,
+              "gi_risk": "+2"
+            },
+            "trigger_protocols": ["bowel_regularity_plan"],
+            "doctor_note": "Constipation baseline is high. Add prevention guidance and avoid escalation if constipation is active."
+          }
+        },
+        {
+          "if": "answer == 'Sometimes'",
+          "then": {
+            "set": {
+              "constipation_risk": "moderate"
+            },
+            "modify_scores": {
+              "titration_velocity_v": -0.10,
+              "gi_risk": "+1"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "q_circadian_eating_window",
+      "phase": "gi_brake_discovery",
+      "patient_text": "How many hours typically pass between your last bite of food and the time you lie down for bed?",
+      "type": "single_select",
+      "options": ["Less than 2 hours", "2 to 4 hours", "More than 4 hours"],
+      "required": true,
+      "if_then": [
+        {
+          "if": "answer == 'Less than 2 hours' || answer == '2 to 4 hours'",
+          "then": {
+            "set": { "nocturnal_stasis_risk": "high" },
+            "add_flags": ["nocturnal_stasis_vulnerability"],
+            "modify_scores": { "gi_risk": "+1" },
+            "doctor_note": "Circadian Motility Conflict: Natural nightly reduction in vagal tone combined with GLP-1 gastric stasis will trap late meals in the stomach, causing nighttime reflux or morning vomiting. Before increasing dose, enforce a strict 4-hour pre-sleep fasting window."
+          }
+        },
+        {
+          "if": "answer == 'More than 4 hours'",
+          "then": {
+            "set": { "nocturnal_stasis_risk": "low" }
+          }
+        }
+      ]
+    },
+    {
+      "id": "q_nausea_sensitivity",
+      "phase": "emetic_risk",
+      "patient_text": "Are you prone to nausea, motion sickness, strong-smell sensitivity, or vomiting from anesthesia or medications?",
+      "type": "single_select",
+      "options": ["No", "Mildly", "Very prone"],
+      "required": true,
+      "if_then": [
+        {
+          "if": "answer == 'Mildly'",
+          "then": {
+            "set": {
+              "nausea_sensitivity": "moderate"
+            },
+            "modify_scores": {
+              "titration_velocity_v": -0.10,
+              "gi_risk": "+1"
+            },
+            "doctor_note": "Moderate nausea sensitivity: use 72-hour check-in and avoid escalation if nausea persists."
+          }
+        },
+        {
+          "if": "answer == 'Very prone'",
+          "then": {
+            "set": {
+              "nausea_sensitivity": "high"
+            },
+            "add_flags": ["hyper_sensitive_responder_signal"],
+            "modify_scores": {
+              "titration_velocity_v": -0.25,
+              "gi_risk": "+2"
+            },
+            "doctor_note": "High nausea sensitivity: consider slower dose pacing, proactive nausea counseling, and clinician review before escalation."
+          }
+        }
+      ]
+    },
+    {
+      "id": "q_sensory_taste_sensitivity",
+      "phase": "emetic_risk",
+      "patient_text": "How would you describe your baseline sense of smell and taste compared to other people?",
+      "type": "single_select",
+      "options": ["Extremely sensitive (bothered by strong smells/tastes)", "Normal", "Not very sensitive"],
+      "required": false,
+      "if_then": [
+        {
+          "if": "answer == 'Extremely sensitive (bothered by strong smells/tastes)'",
+          "then": {
+            "set": { "sensory_aversion_risk": "high" },
+            "modify_scores": { "gi_risk": "+1", "titration_velocity_v": -0.05 },
+            "add_flags": ["sensory_hyper_aversion_risk"],
+            "doctor_note": "Sensory Cortex Flag: High gustatory/olfactory sensitivity makes patient highly prone to medication-induced dysgeusia (metallic water taste, intense food aversions). If target protein intake drops, pivot immediately to flavor-neutral whey/pea isolates and cold-filtered water."
+          }
+        }
+      ]
+    },
+    {
+      "id": "q_dizzy_standing",
+      "phase": "hydration_autonomic",
+      "patient_text": "Do you get dizzy, lightheaded, or feel your heart race when standing up quickly?",
+      "type": "single_select",
+      "options": ["No", "Sometimes", "Often"],
+      "required": true,
+      "if_then": [
+        {
+          "if": "answer == 'Sometimes'",
+          "then": {
+            "set": {
+              "hydration_autonomic_risk": "moderate"
+            },
+            "trigger_questions": ["q_fluid_intake"],
+            "trigger_protocols": ["hydration_plan"],
+            "doctor_note": "Possible hydration/autonomic risk: track dizziness, fluid intake, vomiting/diarrhea, and heart-rate symptoms."
+          }
+        },
+        {
+          "if": "answer == 'Often'",
+          "then": {
+            "set": {
+              "hydration_autonomic_risk": "high"
+            },
+            "modify_scores": {
+              "titration_velocity_v": -0.20
+            },
+            "trigger_questions": ["q_fluid_intake"],
+            "trigger_protocols": ["hydration_plan", "electrolyte_prompt"],
+            "doctor_note": "High dizziness/autonomic symptom burden: clinician review before fast escalation; avoid stimulant-pathway suggestions unless clinician determines appropriate."
+          }
+        }
+      ]
+    },
+    {
+      "id": "q_wearable_biomarkers",
+      "phase": "hydration_autonomic",
+      "patient_text": "Do you regularly wear a smart device (e.g., Apple Watch, Oura Ring, Garmin, Fitbit) that tracks resting heart rate or overnight Heart Rate Variability (HRV)?",
+      "type": "single_select",
+      "options": ["Yes", "No"],
+      "required": false,
+      "if_then": [
+        {
+          "if": "answer == 'Yes'",
+          "then": {
+            "set": { "autonomic_wearable_ready": "true" },
+            "add_flags": ["wearable_tracking_enabled"],
+            "doctor_note": "Digital Autonomic Guardrail: Patient tracks biometrics. Advise monitoring overnight HRV; a sustained baseline drop of >25% post-injection acts as a leading indicator of autonomic stress before physical GI symptoms manifest."
+          }
+        },
+        {
+          "if": "answer == 'No'",
+          "then": {
+            "set": { "autonomic_wearable_ready": "false" }
+          }
+        }
+      ]
+    },
+    {
+      "id": "q_fluid_intake",
+      "phase": "hydration_autonomic",
+      "patient_text": "On a typical day, how much fluid do you drink?",
+      "type": "single_select",
+      "options": ["Less than 1 liter", "1–2 liters", "More than 2 liters", "Not sure"],
+      "shown_if": "hydration_autonomic_risk in ['moderate', 'high']",
+      "if_then": [
+        {
+          "if": "answer == 'Less than 1 liter' || answer == 'Not sure'",
+          "then": {
+            "add_flags": ["low_hydration_readiness"],
+            "modify_scores": {
+              "titration_velocity_v": -0.10
+            },
+            "trigger_protocols": ["hydration_plan"],
+            "doctor_note": "Low hydration readiness: fatigue/dizziness may worsen during appetite suppression or GI side effects."
+          }
+        }
+      ]
+    },
+    {
+      "id": "q_activity_level",
+      "phase": "structural_risk_trigger",
+      "patient_text": "How active are you most weeks?",
+      "type": "single_select",
+      "options": ["Mostly sedentary", "Light walking", "Moderate activity", "Regular exercise"],
+      "required": true,
+      "if_then": [
+        {
+          "if": "answer == 'Mostly sedentary' || age >= 65",
+          "then": {
+            "trigger_questions": ["q_chair_stand", "q_strength_training", "q_protein_at_meals"],
+            "doctor_note": "Activity or age suggests need to screen for functional strength and muscle-protection readiness."
+          }
+        }
+      ]
+    },
+    {
+      "id": "q_chair_stand",
+      "phase": "structural_risk_assessment",
+      "patient_text": "Can you stand up from a chair without using your arms?",
+      "type": "single_select",
+      "options": ["Yes, easily", "Yes, but difficult", "No"],
+      "shown_if": "age >= 65 || q_activity_level == 'Mostly sedentary'",
+      "if_then": [
+        {
+          "if": "answer == 'Yes, but difficult'",
+          "then": {
+            "set": {
+              "sarcopenia_risk": "moderate"
+            },
+            "modify_scores": {
+              "titration_velocity_v": -0.10
+            },
+            "trigger_protocols": ["muscle_preservation_plan"],
+            "doctor_note": "Moderate functional risk: add protein and resistance-training support."
+          }
+        },
+        {
+          "if": "answer == 'No'",
+          "then": {
+            "set": {
+              "sarcopenia_risk": "high"
+            },
+            "modify_scores": {
+              "titration_velocity_v": -0.20
+            },
+            "trigger_protocols": ["muscle_preservation_plan", "fall_risk_review"],
+            "doctor_note": "High functional risk: clinician should monitor strength, falls, fatigue, and excessive appetite suppression."
+          }
+        }
+      ]
+    },
+    {
+      "id": "q_baseline_fatigue",
+      "phase": "structural_risk_assessment",
+      "patient_text": "Independent of your weight, how would you describe your typical baseline physical energy levels over the last month?",
+      "type": "single_select",
+      "options": [
+        "Prone to heavy fatigue or sluggishness",
+        "Normal / Steady energy throughout the day",
+        "Highly energetic"
+      ],
+      "required": true,
+      "if_then": [
+        {
+          "if": "answer == 'Prone to heavy fatigue or sluggishness' && q_hungry_soon_after_meals.answer == 'Often'",
+          "then": {
+            "set": { "mitochondrial_fatigue_risk": "high" },
+            "add_flags": ["mitochondrial_lock_vulnerability"],
+            "modify_scores": { "titration_velocity_v": -0.05 },
+            "doctor_note": "Mitochondrial Lock Risk: High 'Hungry Gut' signal matching baseline fatigue. Rapid GLP-1-induced lipolysis can overwhelm cellular beta-oxidation pathways. Proactively suggest Mitochondrial Co-Factors (CoQ10 200mg + L-Carnitine 1,000mg) to decouple drug-induced fatigue from therapeutic benefit."
+          }
+        },
+        {
+          "if": "answer == 'Prone to heavy fatigue or sluggishness'",
+          "then": {
+            "set": { "mitochondrial_fatigue_risk": "moderate" },
+            "add_flags": ["fatigue_baseline_elevated"],
+            "modify_scores": { "titration_velocity_v": -0.05 },
+            "doctor_note": "Elevated fatigue baseline: monitor energy levels closely during titration; distinguish drug-induced fatigue from caloric restriction."
+          }
+        },
+        {
+          "if": "answer == 'Highly energetic'",
+          "then": {
+            "set": { "mitochondrial_fatigue_risk": "low" }
+          }
+        }
+      ]
+    },
+    {
+      "id": "q_joint_gout_history",
+      "phase": "structural_risk_assessment",
+      "patient_text": "Have you ever had a gout flare, kidney stones, or sudden intense pain or swelling in a single joint (such as your big toe or knee)?",
+      "type": "single_select",
+      "options": ["Yes, diagnosed gout", "Yes, unexplained sudden joint swelling", "Kidney stones only", "No"],
+      "required": true,
+      "if_then": [
+        {
+          "if": "answer == 'Yes, diagnosed gout' || answer == 'Yes, unexplained sudden joint swelling'",
+          "then": {
+            "set": { "uric_acid_flare_risk": "high" },
+            "modify_scores": { "titration_velocity_v": -0.05 },
+            "add_flags": ["gout_flare_vulnerability"],
+            "doctor_note": "Kinetic Excretion Risk: Rapid GLP-1-driven lipolysis releases ketones and free fatty acids that directly compete with uric acid filtration at the renal tubule. High titration velocity may precipitate an acute gout flare. Mandate a strict 3L daily hydration floor and consider baseline uric acid lab before first escalation."
+          }
+        },
+        {
+          "if": "answer == 'Kidney stones only'",
+          "then": {
+            "add_flags": ["nephrolithiasis_history"],
+            "modify_scores": { "titration_velocity_v": -0.05 },
+            "doctor_note": "Kidney stone history: enforce hydration protocol and monitor for flank pain during rapid weight loss phases."
+          }
+        }
+      ]
+    },
+    {
+      "id": "q_strength_training",
+      "phase": "structural_risk_assessment",
+      "patient_text": "How many days per week do you do strength or resistance exercise?",
+      "type": "single_select",
+      "options": ["0", "1", "2", "3+"],
+      "shown_if": "age >= 65 || q_activity_level == 'Mostly sedentary' || sarcopenia_risk in ['moderate', 'high']",
+      "if_then": [
+        {
+          "if": "answer == '0'",
+          "then": {
+            "add_flags": ["no_resistance_training"],
+            "trigger_protocols": ["beginner_strength_plan"],
+            "doctor_note": "No resistance training: include beginner strength plan to support quality of weight loss."
+          }
+        }
+      ]
+    },
+    {
+      "id": "q_protein_at_meals",
+      "phase": "structural_risk_assessment",
+      "patient_text": "Do you usually get protein at most meals?",
+      "type": "single_select",
+      "options": ["Yes", "Sometimes", "Rarely", "Not sure"],
+      "shown_if": "age >= 65 || q_activity_level == 'Mostly sedentary' || sarcopenia_risk in ['moderate', 'high']",
+      "if_then": [
+        {
+          "if": "answer == 'Rarely' || answer == 'Not sure'",
+          "then": {
+            "add_flags": ["protein_readiness_low"],
+            "trigger_protocols": ["protein_guidance"],
+            "doctor_note": "Low protein readiness: clinician may set individualized protein goal or dietitian referral."
+          }
+        }
+      ]
+    },
+    {
+      "id": "q_mood_anhedonia_1",
+      "phase": "mood_reward_baseline",
+      "patient_text": "Over the last 2 weeks, how often have you had little interest or pleasure in doing things?",
+      "type": "single_select",
+      "options": ["Not at all", "Several days", "More than half the days", "Nearly every day"],
+      "required": true,
+      "if_then": [
+        {
+          "if": "answer == 'More than half the days' || answer == 'Nearly every day'",
+          "then": {
+            "set": { "mood_reward_risk": "moderate", "hedonic_tone_baseline": "vulnerable" },
+            "add_flags": ["anhedonia_baseline", "anhedonia_baseline_risk", "dopaminergic_brake_active"],
+            "modify_scores": { "titration_velocity_v": -0.10 },
+            "doctor_note": "Baseline Hedonic Tone Vulnerability: Central dopamine downregulation risk. If weight declines but generalized life pleasure plummets, enforce an absolute Dose Lock at the Minimal Effective Dose — do not prioritize scale weight over severe anhedonia."
+          }
+        }
+      ]
+    },
+    {
+      "id": "q_mood_anhedonia_2",
+      "phase": "mood_reward_baseline",
+      "patient_text": "Over the last 2 weeks, how often have you felt down, depressed, or hopeless?",
+      "type": "single_select",
+      "options": ["Not at all", "Several days", "More than half the days", "Nearly every day"],
+      "required": true,
+      "if_then": [
+        {
+          "if": "answer == 'More than half the days' || answer == 'Nearly every day'",
+          "then": {
+            "set": {
+              "mood_reward_risk": "high"
+            },
+            "add_flags": ["depression_screen_positive"],
+            "doctor_note": "Depression screen positive: clinician review and mood monitoring recommended."
+          }
+        }
+      ]
+    },
+    {
+      "id": "q_prior_glp",
+      "phase": "prior_experience",
+      "patient_text": "Have you taken a GLP-1 medication before?",
+      "type": "single_select",
+      "options": ["No", "Yes, tolerated it", "Yes, stopped due to side effects", "Yes, stopped due to cost/access", "Yes, stopped because it did not work well"],
+      "required": true,
+      "if_then": [
+        {
+          "if": "answer == 'Yes, tolerated it'",
+          "then": {
+            "add_flags": ["prior_glp_tolerant"],
+            "doctor_note": "Prior tolerance suggests lower initial uncertainty; still monitor symptoms after escalation."
+          }
+        },
+        {
+          "if": "answer == 'Yes, stopped due to side effects'",
+          "then": {
+            "add_flags": ["prior_glp_intolerance"],
+            "set": {
+              "gi_risk": "high"
+            },
+            "modify_scores": {
+              "titration_velocity_v": -0.30
+            },
+            "trigger_questions": ["q_prior_side_effect_type", "q_highest_tolerated_dose"],
+            "doctor_note": "Prior side-effect discontinuation: use slow re-initiation, close check-ins, and clinician-reviewed hold/reduce plan."
+          }
+        },
+        {
+          "if": "answer == 'Yes, stopped because it did not work well'",
+          "then": {
+            "add_flags": ["prior_low_response"],
+            "trigger_questions": ["q_highest_tolerated_dose", "q_food_noise"],
+            "doctor_note": "Prior low response: clarify dose reached, adherence, duration, food-noise response, and medication choice before assuming non-response."
+          }
+        },
+        {
+          "if": "answer == 'Yes, stopped due to cost/access'",
+          "then": {
+            "add_flags": ["cost_access_barrier"],
+            "trigger_questions": ["q_budget_sensitivity", "q_oral_preference"],
+            "doctor_note": "Access barrier: consider affordability, medication format, and continuity plan."
+          }
+        }
+      ]
+    },
+    {
+      "id": "q_prior_side_effect_type",
+      "phase": "prior_experience_detail",
+      "patient_text": "What was the hardest side effect last time?",
+      "type": "multi_select",
+      "options": ["Nausea", "Vomiting", "Reflux", "Constipation", "Diarrhea", "Dizziness/dehydration", "Fatigue", "Mood changes", "Other"],
+      "shown_if": "prior_glp_intolerance == true",
+      "if_then": [
+        {
+          "if": "answer contains any GI symptom",
+          "then": {
+            "add_flags": ["prior_gi_intolerance"],
+            "set": {
+              "gi_risk": "high"
+            },
+            "doctor_note": "Prior GI intolerance: create pre-dose prevention plan and avoid automatic escalation."
+          }
+        },
+        {
+          "if": "answer contains 'Mood changes'",
+          "then": {
+            "add_flags": ["prior_mood_change_on_glp"],
+            "set": {
+              "mood_reward_risk": "high"
+            },
+            "doctor_note": "Prior mood change: clinician should monitor mood and consider alternative pathway if risk is high."
+          }
+        }
+      ]
+    },
+    {
+      "id": "q_highest_tolerated_dose",
+      "phase": "prior_experience_detail",
+      "patient_text": "What was the highest dose you tolerated, if you remember?",
+      "type": "free_text_or_not_sure",
+      "shown_if": "q_prior_glp starts_with 'Yes'",
+      "if_then": [
+        {
+          "if": "known_dose_provided",
+          "then": {
+            "add_flags": ["prior_dose_anchor_available"],
+            "doctor_note": "Use prior tolerated dose as context; verify medication, dose, and duration."
+          }
+        }
+      ]
+    },
+    {
+      "id": "q_budget_sensitivity",
+      "phase": "medication_fit",
+      "patient_text": "How important is keeping medication cost low?",
+      "type": "single_select",
+      "options": ["Very important", "Somewhat important", "Not a major issue"],
+      "shown_if": "prior_glp_cost_access_barrier == true || medication_fit_unknown == true",
+      "if_then": [
+        {
+          "if": "answer == 'Very important'",
+          "then": {
+            "add_flags": ["budget_sensitive"],
+            "set": {
+              "medication_fit": "phentermine_review"
+            },
+            "doctor_note": "Budget-sensitive patient: clinician may review lower-cost oral options if clinically appropriate."
+          }
+        }
+      ]
+    },
+    {
+      "id": "q_oral_preference",
+      "phase": "medication_fit",
+      "patient_text": "Would you strongly prefer an oral medication over an injection?",
+      "type": "single_select",
+      "options": ["Yes", "No", "Not sure"],
+      "shown_if": "delivery_mode == 'oral' || injection_support_need == 'high' || cost_access_barrier == true",
+      "if_then": [
+        {
+          "if": "answer == 'Yes' && emotional_eating_pattern == true",
+          "then": {
+            "set": {
+              "medication_fit": "naltrexone_bupropion_review"
+            },
+            "doctor_note": "Oral preference plus emotional eating: consider naltrexone/bupropion review if clinically appropriate."
+          }
+        },
+        {
+          "if": "answer == 'Yes' && budget_sensitive == true",
+          "then": {
+            "set": {
+              "medication_fit": "phentermine_review"
+            },
+            "doctor_note": "Oral preference and budget sensitivity: clinician may review lower-cost oral options, with cardiovascular and psychiatric screening."
+          }
+        }
+      ]
+    },
+    {
+      "id": "q_rapid_results_priority",
+      "phase": "medication_fit",
+      "patient_text": "How important are fast short-term results?",
+      "type": "single_select",
+      "options": ["Very important", "Somewhat important", "Not important"],
+      "required": false,
+      "if_then": [
+        {
+          "if": "answer == 'Very important'",
+          "then": {
+            "add_flags": ["rapid_results_priority"],
+            "doctor_note": "Expectation-setting needed. Clinician may discuss short-term vs long-term medication options and safety tradeoffs."
+          }
+        }
+      ]
+    }
+  ],
+  "branching_rules": [
+    {
+      "id": "early_stop_rule",
+      "if": "safety_gate == 'stop_intake'",
+      "then": {
+        "patient_flow": "end_with_clinician_review_message",
+        "doctor_output": "Contraindication or major safety concern requires review before plan creation."
+      }
+    },
+    {
+      "id": "female_cycle_rule",
+      "if": "sex == 'Female' && lmp_available == true && cycle_length_known == true",
+      "then": {
+        "calculate": "predicted_cycle_context_windows",
+        "doctor_output": "Show cycle context as optional escalation timing context, not a hard rule.",
+        "patient_effort_saved": "Do not ask daily cycle questions unless symptoms recur."
+      }
+    },
+    {
+      "id": "pen_rule",
+      "if": "delivery_mode == 'pen'",
+      "then": {
+        "patient_app": "Show pen confirmation and injection walkthrough.",
+        "do_not_show": ["syringe_units", "partial_pen_dosing", "click_count_dosing"],
+        "doctor_output": "Dose pacing options are timing-based: repeat, hold, delay, or escalate after clinician approval."
+      }
+    },
+    {
+      "id": "vial_rule",
+      "if": "delivery_mode == 'vial'",
+      "then": {
+        "patient_app": "Show vial label confirmation and exact syringe fill-line visual.",
+        "doctor_output": "Dose pacing can include smaller unit-based changes if the clinician approves."
+      }
+    },
+    {
+      "id": "gi_high_risk_rule",
+      "if": "gi_risk == 'high' || nausea_sensitivity == 'high' || prior_glp_intolerance == true",
+      "then": {
+        "modify_scores": {
+          "titration_velocity_v": "cap_at_0.40"
+        },
+        "doctor_recommendation": "Slow titration, 72-hour check-in, no escalation with active symptoms.",
+        "patient_tasks": ["small_meal_guidance", "hydration_check", "side_effect_red_flags"]
+      }
+    },
+    {
+      "id": "active_symptom_rule",
+      "if": "check_in.nausea >= 2 || check_in.reflux >= 2 || check_in.vomiting >= 1 || check_in.constipation >= 2 || check_in.dizziness >= 2",
+      "then": {
+        "doctor_recommendation": "Hold current dose or delay escalation; clinician review required.",
+        "patient_message": "Your clinician will review your symptoms before any dose increase.",
+        "block_auto_escalation": true
+      }
+    },
+    {
+      "id": "mild_improving_symptom_rule",
+      "if": "check_in.max_symptom_score == 1 && symptom_trend == 'improving'",
+      "then": {
+        "doctor_recommendation": "Continue current plan or consider cautious micro-increase if clinician agrees.",
+        "block_auto_escalation": false
+      }
+    },
+    {
+      "id": "sarcopenia_rule",
+      "if": "sarcopenia_risk == 'moderate' || sarcopenia_risk == 'high'",
+      "then": {
+        "doctor_recommendation": "Add muscle-preservation plan before escalation.",
+        "patient_tasks": ["protein_guidance", "beginner_resistance_training", "weekly_strength_check"],
+        "monitor": ["fatigue", "weakness", "falls", "chair_stand_change"]
+      }
+    },
+    {
+      "id": "autonomic_rule",
+      "if": "hydration_autonomic_risk == 'high'",
+      "then": {
+        "doctor_recommendation": "Hydration/electrolyte plan and closer monitoring before escalation.",
+        "avoid_automatic_suggestions": ["phentermine", "stimulant_pathways"],
+        "patient_tasks": ["fluid_goal", "dizziness_check", "urgent_symptom_education"]
+      }
+    },
+    {
+      "id": "reward_pathway_rule",
+      "if": "emotional_eating_pattern == true && food_noise == 'Often'",
+      "then": {
+        "doctor_recommendation": "Consider behavioral support or naltrexone/bupropion review if clinically appropriate.",
+        "doctor_note": "Do not assume GLP alone will address emotional triggers."
+      }
+    },
+    {
+      "id": "phentermine_review_rule",
+      "if": "medication_fit == 'phentermine_review'",
+      "then": {
+        "doctor_recommendation": "Clinician-only review for short-term oral appetite-suppression option.",
+        "required_clinician_checks": ["blood_pressure", "resting_heart_rate", "cardiovascular_history", "anxiety_or_insomnia_history", "controlled_substance_policy"],
+        "patient_facing_language": "Your clinician may discuss lower-cost oral options if appropriate."
+      }
+    },
+    {
+      "id": "domperidone_safety_rule",
+      "if": "prior_gi_intolerance == true || nausea_sensitivity == 'high'",
+      "then": {
+        "doctor_recommendation": "Consider clinician-selected nausea/motility management pathway based on local regulations and patient risk.",
+        "do_not_auto_recommend": ["domperidone"],
+        "doctor_note": "Domperidone should not be presented as an automatic protocol. If considered, it requires jurisdiction-specific clinician judgment and safety review."
+      }
+    },
+    {
+      "id": "chronobiological_scheduling_rule",
+      "if": "behavioral_vulnerability_window == 'weekend' && delivery_mode in ['pen', 'vial']",
+      "then": {
+        "doctor_recommendation": "Inject Wednesday evenings to bracket peak vulnerability window with maximum drug concentration (Cmax at 24-48h aligns with Friday–Sunday).",
+        "patient_instruction": "Your clinician may recommend a Wednesday evening injection time to help you feel your best over the weekend.",
+        "doctor_note": "Chronobiological optimization: aligning Cmax with behavioral vulnerability window reduces breakthrough cravings at the peak risk period."
+      }
+    },
+    {
+      "id": "autonomic_wearable_safety_override",
+      "if": "autonomic_wearable_ready == 'true' && hydration_autonomic_risk in ['moderate', 'high']",
+      "then": {
+        "doctor_recommendation": "Initiate HRV/RHR wearable compliance loop. Request patient share overnight HRV trend data at each check-in.",
+        "monitor": ["overnight_hrv_baseline_drop_25pct", "resting_heart_rate_elevation"],
+        "doctor_note": "Digital Autonomic Guardrail active: a sustained HRV baseline drop of >25% is a leading indicator of autonomic stress — flag for clinician review before next dose escalation."
+      }
+    },
+    {
+      "id": "hedonic_tone_dose_lock_rule",
+      "if": "hedonic_tone_baseline == 'vulnerable' || prior_side_effect_type contains 'Mood changes'",
+      "then": {
+        "modify_scores": { "titration_velocity_v": "cap_at_0.40" },
+        "doctor_recommendation": "Enforce Minimal Effective Dose lock. Block automatic dose escalation if patient reports flat mood, general anhedonia, or loss of life pleasure — even if weight loss is progressing.",
+        "block_auto_escalation": true,
+        "doctor_note": "Hedonic Tone Protection Rule: do not sacrifice dopaminergic reward baseline for scale weight. If anhedonia surfaces or worsens at any dose, lock at MEDose and initiate clinician review."
+      }
+    }
+  ],
+  "dashboard_output": {
+    "summary_cards": [
+      {
+        "card": "Recommended Titration Velocity",
+        "example": {
+          "status": "Low",
+          "score": 0.36,
+          "display": "Slow dose pacing recommended",
+          "reason": ["female reproductive context", "high nausea sensitivity", "baseline reflux", "prior GLP intolerance"]
+        }
+      },
+      {
+        "card": "Medication Fit",
+        "example": {
+          "primary": "GLP with slow titration",
+          "alternatives": ["naltrexone/bupropion review for emotional eating", "phentermine review only if budget/oral/short-term priority and no stimulant risk"],
+          "display": "Clinician decides final medication pathway"
+        }
+      },
+      {
+        "card": "Side Effect Risk Map",
+        "example": {
+          "nausea": "High",
+          "reflux": "Moderate",
+          "constipation": "High",
+          "dizziness_dehydration": "Moderate",
+          "mood_reward": "Moderate",
+          "muscle_strength": "High"
+        }
+      },
+      {
+        "card": "Next Best Action",
+        "example": {
+          "action": "Approve starter plan with slow dose pacing",
+          "rules": [
+            "72-hour check-in required",
+            "hold if moderate/severe symptoms",
+            "repeat same pen dose if symptoms persist",
+            "for vial patients, allow smaller clinician-approved micro-increases"
+          ]
+        }
+      },
+      {
+        "card": "Precision Chrono & Metabolic Parameters",
+        "example": {
+          "target_injection_window": {
+            "label": "Recommended Injection Timing",
+            "value": "Wednesday evening",
+            "rationale": "Aligns Cmax (24-48h post-dose) with identified weekend behavioral vulnerability window"
+          },
+          "mitochondrial_kinetic_status": {
+            "label": "Mitochondrial Risk",
+            "value": "High",
+            "cofactor_indication": "CoQ10 200mg + L-Carnitine 1,000mg recommended before dose escalation"
+          },
+          "digital_autonomic_buffer": {
+            "label": "Wearable Tracking",
+            "value": "Enabled",
+            "protocol": "Monitor overnight HRV; flag if baseline drops >25% post-injection"
+          },
+          "pharmacokinetic_interferences": {
+            "critical_tmax_shift": "High — Thyroid/SSRI Tmax drift risk active",
+            "hrt_routing": "Cyclical HRT user — consider transdermal transition",
+            "uric_acid_flag": "Gout history — enforce 3L hydration floor",
+            "nocturnal_stasis": "High — enforce 4-hour pre-sleep fasting window"
+          }
+        }
+      }
+    ],
+    "doctor_action_buttons": [
+      "Approve plan",
+      "Start lower / slower",
+      "Hold current dose",
+      "Repeat same pen dose",
+      "Use vial micro-increase",
+      "Switch medication pathway",
+      "Message patient",
+      "Request follow-up / labs",
+      "Not appropriate for GLP review"
+    ],
+    "patient_plan_generated": [
+      "Injection format-specific walkthrough",
+      "Side-effect prevention guidance",
+      "Hydration prompt if dizziness risk",
+      "Bowel regularity plan if constipation risk",
+      "Muscle-preservation plan if chair-stand or sedentary risk",
+      "72-hour check-in",
+      "Red-flag symptom instructions"
+    ]
+  },
+  "minimum_question_set_for_most_patients": [
+    "age",
+    "sex",
+    "height_weight",
+    "MTC_MEN2",
+    "pregnancy_if_relevant",
+    "reproductive_status_if_female",
+    "pancreatitis_gallbladder_gastroparesis",
+    "insulin_sulfonylurea",
+    "critical_oral_meds",
+    "delivery_mode",
+    "injection_confidence_if_relevant",
+    "hunger_soon_after_meals",
+    "large_meal_capacity",
+    "food_noise",
+    "emotional_eating",
+    "behavioral_vulnerability_window",
+    "reflux",
+    "constipation",
+    "circadian_eating_window",
+    "nausea_sensitivity",
+    "dizzy_standing",
+    "activity_level",
+    "baseline_fatigue",
+    "prior_GLP_experience"
+  ],
+  "patient_effort_reduction": {
+    "do_not_ask_everyone": [
+      "cycle details unless female",
+      "chair stand unless older, sedentary, or strength risk",
+      "protein details unless strength risk",
+      "vial confidence unless vial selected",
+      "pen training unless pen selected",
+      "prior dose details unless prior GLP use",
+      "budget/oral preference unless access, injection anxiety, or medication-fit ambiguity",
+      "wearable biomarkers only if hydration/autonomic risk is moderate or high",
+      "sensory sensitivity only if nausea sensitivity is moderate or high",
+      "gout/joint history only if activity risk or rapid weight loss likely"
+    ],
+    "estimated_patient_time": "2.5 to 4 minutes for most patients",
+    "clinician_value": "Produces a treatment-planning report rather than raw form answers."
+  }
+}
